@@ -1,17 +1,14 @@
 #include <iostream>
 
 #include "FormatVisitor.h"
-#include "antlr4-runtime/LuaLexer.h"
-#include "antlr4-runtime/LuaParser.h"
-#include "antlr4-runtime/LuaVisitor.h"
-#include "antlr4-runtime/antlr4-runtime.h"
+#include "LuaLexer.h"
 
 using namespace std;
 using namespace antlr4;
 
-int main(int argc, const char* argv[]) {
+string format(string filePath) {
     std::ifstream stream;
-    stream.open("testdata/t1.lua");
+    stream.open(filePath);
 
     ANTLRInputStream input(stream);
     LuaLexer lexer(&input);
@@ -20,18 +17,20 @@ int main(int argc, const char* argv[]) {
 
     LuaParser::ChunkContext* chunk = parser.chunk();
 
-    // std::ifstream commentStream;
-    // commentStream.open("testdata/t1.lua");
-    // ANTLRInputStream cinput(commentStream);
-    // LuaLexer commentLexer(&cinput);
-    // CommonTokenStream commentTokenStream(&commentLexer, 1);
-    // commentTokenStream.fill();
-
     FormatVisitor visitor(tokens.getTokens());
-
     string out = chunk->accept(&visitor);
+    return out;
+}
 
-    cout << out;
-
+int main(int argc, const char* argv[]) {
+    if (argc == 1) {
+        cerr << "No input file specified." << endl;
+        return -1;
+    }
+    if (argc > 2) {
+        cerr << "More than one file specified." << endl;
+        return -1;
+    }
+    cout << format(argv[1]);
     return 0;
 }

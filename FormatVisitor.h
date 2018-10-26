@@ -1,5 +1,5 @@
-#include "antlr4-runtime/LuaBaseVisitor.h"
-#include "antlr4-runtime/LuaParser.h"
+#include "LuaBaseVisitor.h"
+#include "LuaParser.h"
 
 using namespace std;
 using namespace antlr4;

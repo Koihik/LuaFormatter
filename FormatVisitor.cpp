@@ -1,10 +1,12 @@
 #include <iostream>
 
 #include "FormatVisitor.h"
-#include "antlr4-runtime/LuaLexer.h"
+#include "LuaLexer.h"
 
 using namespace std;
 using namespace antlr4;
+
+#define LOG_FLAG
 
 #define LOGVAR(arg) cout << "" #arg " = " << (arg) << endl
 #define LOG(arg) cout << arg << endl
@@ -119,7 +121,7 @@ string FormatVisitor::commentAfterNewLine(tree::ParseTree* a, int intdentSize) {
 
 antlrcpp::Any FormatVisitor::visitChunk(LuaParser::ChunkContext* ctx) {
     LOG("visitChunk");
-    return visitChildren(ctx);
+    return visitBlock(ctx->block()).as<string>();
 }
 
 // stat* retstat?

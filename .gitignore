@@ -366,5 +366,4 @@ CTestTestfile.cmake
 *.app
 
 # Project-specific
-antlr4-runtime/Lua*
 lua-format
