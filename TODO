@@ -2,6 +2,8 @@
 * configure style
 * comments
 * compile on other platforms
+* benchmark
+* coverage
 
 * style
 `--comment` 
@@ -18,3 +20,44 @@
 ->
 `func([[qwe]])`
 
+* style
+align function call chain
+```lua
+something:qq() --
+:ww() --
+:ee() --
+:rr()
+```
+->
+```lua
+something:qq() --
+         :ww() --
+         :ee() --
+         :rr()
+```
+
+* style
+align comments (readly need it?)
+```lua 
+x = {
+    a, -- value a   
+    bbb, -- value bbb
+    ccccc, -- value ccccc
+    function(...) -- value func
+        call(...)
+    end,
+    ddd, -- value ddd
+}
+```
+->
+```lua 
+x = {
+    a,            -- value a   
+    bbb,          -- value bbb
+    ccccc,        -- value ccccc
+    function(...) -- value func
+        call(...)
+    end,
+    ddd,          -- value ddd
+}
+```

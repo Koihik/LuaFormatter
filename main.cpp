@@ -1,5 +1,5 @@
+#include <sys/stat.h>
 #include <fstream>
-
 #include "lua-format.h"
 
 int main(int argc, const char* argv[]) {
@@ -12,8 +12,25 @@ int main(int argc, const char* argv[]) {
         return -1;
     }
 
+    string fileName = argv[1];
+
+    struct stat s;
+    if (stat(fileName.c_str(), &s) == 0) {
+        if (!(s.st_mode & S_IFREG)) {
+            cerr << fileName << ": Not a file." << endl;
+            return -1;
+        }
+    } else {
+        cerr << fileName << ": No such file or no access to write." << endl;
+        return -1;
+    }
+
     std::ifstream ifs;
-    ifs.open(argv[1]);
-    cout << lua_format(ifs);
+    ifs.open(fileName);
+    string out = lua_format(ifs);
+
+    ofstream fout(fileName);
+    fout << out;
+    fout.close();
     return 0;
 }
