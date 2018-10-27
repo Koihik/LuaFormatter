@@ -13,7 +13,12 @@ string __foramt(ANTLRInputStream& input) {
 
     LuaParser::ChunkContext* chunk = parser.chunk();
 
-    FormatVisitor visitor(tokens.getTokens());
+    vector<antlr4::Token*> tokenVector;
+    for (auto t : tokens.getTokens()) {
+        tokenVector.emplace_back(t);
+    }
+
+    FormatVisitor visitor(tokenVector);
     string out = chunk->accept(&visitor);
     return out;
 }

@@ -37,7 +37,7 @@ target_link_libraries(lua-format lua-format-lib)
 if(BUILD_TESTS)
   enable_testing()
 
-  add_executable(lua-format-test test/test_format.cpp)
+  add_executable(lua-format-test test/test_format.cpp test/test_format_file.cpp)
   set_target_properties(lua-format-test PROPERTIES LINKER_LANGUAGE CXX)
   target_link_libraries(lua-format-test gtest gtest_main)
   target_link_libraries(lua-format-test lua-format-lib)

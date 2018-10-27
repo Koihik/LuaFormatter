@@ -9,7 +9,7 @@ local bb = function() print("bb");local bbb = function() end end
 
 func = function() 
 return function() print("inner");print((function() return "qqq".."www"; end)()) end
---[[fk end]]end
+--[[end]]end
 
 funca()
 funcb()
@@ -31,6 +31,10 @@ xxx:qqq():www():eee({
         "sss"; "qqq"
     }
 })
+
+do 
+print("1")
+--[[end]]end
 
 function xx()
 if c1 then

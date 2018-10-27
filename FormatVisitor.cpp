@@ -9,34 +9,35 @@ using namespace antlr4;
 // #define LOG_FLAG
 
 #ifdef LOG_FLAG
-    #define LOGVAR(arg) cout << "" #arg " = " << (arg) << endl
-    #define LOG(arg) cout << arg << endl
+#define LOGVAR(arg) cout << "" #arg " = " << (arg) << endl
+#define LOG(arg) cout << arg << endl
 #else
-    #define LOG(arg) ;
-    #define LOGVAR(arg) ; 
+#define LOG(arg) ;
+#define LOGVAR(arg) ;
 #endif
 
 int lastIdx(tree::ParseTree* t) {
+    if (t == NULL) {
+        return -1;
+    }
     ParserRuleContext* c = dynamic_cast<ParserRuleContext*>(t);
     if (c != NULL) {
-        if (c->children.empty()) {
-            return c->getStop()->getTokenIndex() - 1;
-        }
-        return lastIdx(c->children.back());
+        return c->getStop()->getTokenIndex();
     }
     tree::TerminalNode* n = dynamic_cast<tree::TerminalNode*>(t);
     if (n != NULL) {
         return n->getSymbol()->getTokenIndex();
     }
-    return -1;
+    return INT_MAX;
 }
 
-string FormatVisitor::commentAfter(tree::ParseTree* a, const string& expect) {
-    int l = lastIdx(a);
+string FormatVisitor::commentAfter(tree::ParseTree* node, const string& expect) {
+    int l = lastIdx(node);
     stringstream ss;
-    bool lastComment = true;
-    for (int i = l + 1; i < commentTokens.size(); i++) {
-        auto token = commentTokens[i];
+    // No space on left of first comment
+    bool lastComment = node != NULL;
+    for (int i = l + 1; i < tokens.size(); i++) {
+        auto token = tokens[i];
         if (token->getType() == LuaLexer::COMMENT) {
             if (lastComment) {
                 ss << " ";
@@ -63,13 +64,13 @@ string FormatVisitor::commentAfter(tree::ParseTree* a, const string& expect) {
     return ss.str();
 }
 
-string FormatVisitor::commentAfterNewLine(tree::ParseTree* a, int intdentSize) {
-    ParserRuleContext* ctx = dynamic_cast<ParserRuleContext*>(a);
+string FormatVisitor::commentAfterNewLine(tree::ParseTree* node, int intdentSize) {
+    ParserRuleContext* ctx = dynamic_cast<ParserRuleContext*>(node);
     if (ctx != NULL && ctx->children.size() == 0) {
         _indent += intdentSize;
         return "";
     }
-    int l = lastIdx(a);
+    int l = lastIdx(node);
     if (intdentSize > 0) {
         _indent += intdentSize;
     }
@@ -77,8 +78,8 @@ string FormatVisitor::commentAfterNewLine(tree::ParseTree* a, int intdentSize) {
     bool customNewLine = false;
     bool lastComment = true;
     bool lastestNewLine = false;
-    for (int i = l + 1;; i++) {
-        auto token = commentTokens[i];
+    for (int i = l + 1; i < tokens.size(); i++) {
+        auto token = tokens[i];
         if (token->getType() == LuaLexer::COMMENT) {
             if (lastestNewLine) {
                 ss << indent();
@@ -117,16 +118,42 @@ string FormatVisitor::commentAfterNewLine(tree::ParseTree* a, int intdentSize) {
     }
     if (!customNewLine) {
         ss << endl;
+        lastestNewLine = true;
     }
+    // if (lastComment && !lastestNewLine) {
+    //     ss << " ";
+    // }
     if (intdentSize < 0) {
         _indent += intdentSize;
     }
+    if (lastComment && !lastestNewLine) {
+        ss << "\n";
+    }
     return ss.str();
 }
-
 antlrcpp::Any FormatVisitor::visitChunk(LuaParser::ChunkContext* ctx) {
     LOG("visitChunk");
-    return visitBlock(ctx->block()).as<string>();
+    stringstream ss;
+    ss << commentAfter(NULL, "")  //
+       << visitBlock(ctx->block()).as<string>();
+    string comment = commentAfterNewLine(ctx->block(), 0);
+
+    // If there is no line break at the end of the file, add one
+    if (comment.size() == 0) {
+        ss << "\n";
+    } else {
+        ss << comment;
+        for (int i = comment.size() - 1; i >= 0; i--) {
+            if (comment[i] == ' ' || comment[i] == '\t' || comment[i] == '\u000C') {
+                continue;
+            }
+            if (comment[i] != '\n') {
+                ss << "\n";
+            }
+            break;
+        }
+    }
+    return ss.str();
 }
 
 // stat* retstat?
@@ -140,14 +167,17 @@ antlrcpp::Any FormatVisitor::visitBlock(LuaParser::BlockContext* ctx) {
             ss << visitStat(stats[i]).as<string>();
         }
         if (i != n - 1 || ctx->retstat() != NULL) {
+            // FIXME: fix single semi between comments
+            // if next stat is not semicolon
             if (i + 1 >= n || stats[i + 1]->SEMI() == NULL) {
                 ss << commentAfterNewLine(stats[i], 0);
+            } else {
+                ss << commentAfter(stats[i], "");
             }
         }
     }
     if (ctx->retstat() != NULL) {
         ss << visitRetstat(ctx->retstat()).as<string>();
-        // ss << commentAfterNewLine(ctx->retstat(), 0);
     }
     return ss.str();
 }
@@ -175,8 +205,16 @@ antlrcpp::Any FormatVisitor::visitVarDecl(LuaParser::VarDeclContext* ctx) {
 antlrcpp::Any FormatVisitor::visitFunctioncall(LuaParser::FunctioncallContext* ctx) {
     LOG("visitFunctioncall");
     stringstream ss;
-    string ret = visitChildren(ctx);
-    ss << ret;
+    ss << visitVarOrExp(ctx->varOrExp()).as<string>()  //
+       << commentAfter(ctx->varOrExp(), "");
+
+    int n = ctx->nameAndArgs().size();
+    for (int i = 0; i < n; i++) {
+        ss << visitNameAndArgs(ctx->nameAndArgs()[i]).as<string>();
+        if (i != n - 1) {
+            ss << commentAfter(ctx->nameAndArgs()[i], "");
+        }
+    }
     return ss.str();
 }
 
@@ -521,7 +559,6 @@ antlrcpp::Any FormatVisitor::visitVar(LuaParser::VarContext* ctx) {
         }
         startAt = 0;
     }
-    LOG("visitVar 1");
     int n = ctx->varSuffix().size();
     for (int i = startAt; i < n; i++) {
         ss << visitVarSuffix(ctx->varSuffix()[i]).as<string>();
@@ -529,7 +566,6 @@ antlrcpp::Any FormatVisitor::visitVar(LuaParser::VarContext* ctx) {
             ss << commentAfter(ctx->varSuffix()[i], "");
         }
     }
-    LOG("visitVar 2");
     return ss.str();
 }
 
@@ -649,8 +685,15 @@ antlrcpp::Any FormatVisitor::visitTableconstructor(LuaParser::TableconstructorCo
            << indent()                                       //
            << ctx->RB()->getText();
     } else {
-        ss << commentAfter(ctx->LB(), "")  //
-           << ctx->RB()->getText();
+        string comment = commentAfter(ctx->LB(), "");
+        if (comment.find("\n") != string::npos) {
+            ss << commentAfterNewLine(ctx->LB(), 1)  //
+               << decIndent()                        //
+               << ctx->RB()->getText();
+        } else {
+            ss << commentAfter(ctx->LB(), "")  //
+               << ctx->RB()->getText();
+        }
     }
     return ss.str();
 }
@@ -666,7 +709,7 @@ antlrcpp::Any FormatVisitor::visitFieldlist(LuaParser::FieldlistContext* ctx) {
         ss << commentAfter(fields.front(), "");
         int n = fields.size();
         for (int i = 1; i < n; i++) {
-            ss << seps[i - 1]->getText();
+            ss << visitFieldsep(seps[i - 1]).as<string>();
             ss << commentAfterNewLine(seps[i - 1], 0);
             ss << visitField(fields[i]).as<string>();
             if (i != n - 1 || seps.size() == n) {
@@ -674,7 +717,7 @@ antlrcpp::Any FormatVisitor::visitFieldlist(LuaParser::FieldlistContext* ctx) {
             }
         }
         if (seps.size() == n) {
-            ss << seps.back()->getText();
+            ss << visitFieldsep(seps.back()).as<string>();
         }
     }
 
@@ -708,6 +751,8 @@ antlrcpp::Any FormatVisitor::visitField(LuaParser::FieldContext* ctx) {
     }
     return ss.str();
 }
+
+antlrcpp::Any FormatVisitor::visitFieldsep(LuaParser::FieldsepContext* context) { return string(","); }
 
 antlrcpp::Any FormatVisitor::visitChildren(tree::ParseTree* node) {
     stringstream ss;

@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 #include "LuaBaseVisitor.h"
 #include "LuaParser.h"
@@ -8,21 +8,7 @@ using namespace antlr4;
 
 class FormatVisitor : public LuaBaseVisitor {
    public:
-    FormatVisitor(const vector<Token*>& t) : commentTokens(t) {}
-
-    // | varDecl
-    // | functioncall
-    // | label
-    // | gotoStat
-    // | doStat
-    // | whileStat
-    // | repeatStat
-    // | ifStat
-    // | forStat
-    // | forInStat
-    // | funcStat
-    // | localFuncStat
-    // | localVarDecl;
+    FormatVisitor(const vector<Token*>& t) : tokens(t) {}
 
     antlrcpp::Any visitChunk(LuaParser::ChunkContext* context) override;
     antlrcpp::Any visitBlock(LuaParser::BlockContext* context) override;
@@ -60,13 +46,14 @@ class FormatVisitor : public LuaBaseVisitor {
     antlrcpp::Any visitTableconstructor(LuaParser::TableconstructorContext* context) override;
     antlrcpp::Any visitFieldlist(LuaParser::FieldlistContext* context) override;
     antlrcpp::Any visitField(LuaParser::FieldContext* context) override;
+    antlrcpp::Any visitFieldsep(LuaParser::FieldsepContext* context) override;
 
     antlrcpp::Any visitChildren(tree::ParseTree* tree) override;
     antlrcpp::Any visitTerminal(tree::TerminalNode* node) override;
 
    private:
     int _indent = 0;
-    const vector<Token*>& commentTokens;
+    const vector<Token*>& tokens;
 
     string indent();
     string commentAfter(tree::ParseTree* a, const string& expect);

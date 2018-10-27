@@ -4,7 +4,7 @@ end
 local funcb2 = function(a, b, c, ...)
     print("func b2")
 end
-local funcb3 = function(...)
+local funcb3 = function( --[[what?]] ...)
     print("func b3")
 end
 local funcb = function()
@@ -23,7 +23,8 @@ func = function()
             return "qqq" .. "www"
         end)())
     end
-    --[[fk end]]end
+    --[[end]]
+end
 
 funca()
 funcb()
@@ -32,9 +33,9 @@ func()
 local x = func
 (function()
     print("func c")
-end)()
+end) --[[www]] ()
 
-print(call("23"))
+print(call("23") --[[wwwe]] )
 
 local f = f or function()
     print("f")
@@ -46,12 +47,17 @@ xxx:qqq():www():eee({
     end,
     func1 = function()
         print("www")
-    end;
+    end,
     [ab_c] = {
-        "sss";
+        "sss",
         "qqq"
     }
 })
+
+do
+    print("1")
+    --[[end]]
+end
 
 function xx()
     if c1 then
@@ -62,7 +68,10 @@ function xx()
         f3()
     else
         --comment1
-        --[[comment2]]        fx()
+        --[[comment2]]
+        fx()
         --comment3
     end
 end
+
+--last comment

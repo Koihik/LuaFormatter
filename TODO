@@ -3,4 +3,18 @@
 * comments
 * compile on other platforms
 
+* style
+`--comment` 
+-> 
+`-- comment`
+
+* style
+`func"qwe"`
+->
+`func("qwe")`
+
+* style
+`func[[qwe]]`
+->
+`func([[qwe]])`
 
