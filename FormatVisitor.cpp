@@ -6,10 +6,15 @@
 using namespace std;
 using namespace antlr4;
 
-#define LOG_FLAG
+// #define LOG_FLAG
 
-#define LOGVAR(arg) cout << "" #arg " = " << (arg) << endl
-#define LOG(arg) cout << arg << endl
+#ifdef LOG_FLAG
+    #define LOGVAR(arg) cout << "" #arg " = " << (arg) << endl
+    #define LOG(arg) cout << arg << endl
+#else
+    #define LOG(arg) ;
+    #define LOGVAR(arg) ; 
+#endif
 
 int lastIdx(tree::ParseTree* t) {
     ParserRuleContext* c = dynamic_cast<ParserRuleContext*>(t);

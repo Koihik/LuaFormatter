@@ -6,11 +6,7 @@
 using namespace std;
 using namespace antlr4;
 
-string format(string filePath) {
-    std::ifstream stream;
-    stream.open(filePath);
-
-    ANTLRInputStream input(stream);
+string __foramt(ANTLRInputStream& input) {
     LuaLexer lexer(&input);
     CommonTokenStream tokens(&lexer);
     LuaParser parser(&tokens);
@@ -22,15 +18,12 @@ string format(string filePath) {
     return out;
 }
 
-int main(int argc, const char* argv[]) {
-    if (argc == 1) {
-        cerr << "No input file specified." << endl;
-        return -1;
-    }
-    if (argc > 2) {
-        cerr << "More than one file specified." << endl;
-        return -1;
-    }
-    cout << format(argv[1]);
-    return 0;
+string lua_format(istream& is) {
+    ANTLRInputStream input(is);
+    return __foramt(input);
+}
+
+string lua_format(const string& str) {
+    ANTLRInputStream input(str);
+    return __foramt(input);
 }

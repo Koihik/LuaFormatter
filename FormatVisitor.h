@@ -1,3 +1,5 @@
+#pragma once 
+
 #include "LuaBaseVisitor.h"
 #include "LuaParser.h"
 

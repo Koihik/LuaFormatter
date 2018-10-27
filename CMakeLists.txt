@@ -2,16 +2,14 @@ cmake_minimum_required(VERSION 3.0)
 
 project("lua-formatter")
 
-if (NOT WIN32)
-  set(CMAKE_CXX_FLAGS "-Wdeprecated -Wno-attributes" )
-endif()
+option(BUILD_TESTS "set ON to build tests" ON)
 
-if (APPLE)
-  set(CMAKE_CXX_FLAGS "-Wdeprecated -std=c++11" )
-endif()
-
-if (MSVC)
-  set(CMAKE_CXX_FLAGS "/EHsc /wd4127 /wd4311 /wd4312 /wd4512 /wd4571 /wd4640 /wd4706 /wd4710 /wd4800 /wd4804 /wd4820 /wd4996")
+if(CMAKE_VERSION VERSION_LESS "3.1")
+  add_definitions(-std=c++11)
+else()
+  set(CMAKE_CXX_STANDARD 11)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 
 include_directories(
@@ -29,6 +27,20 @@ set(src_dir
   ${PROJECT_SOURCE_DIR}/generated/LuaBaseVisitor.cpp
 )
 
-add_executable(lua-format ${src_dir})
+add_library(lua-format-lib ${src_dir})
+target_link_libraries(lua-format-lib antlr4-runtime)
 
-target_link_libraries(lua-format antlr4-runtime)
+add_executable(lua-format main.cpp)
+set_target_properties(lua-format PROPERTIES LINKER_LANGUAGE CXX)
+target_link_libraries(lua-format lua-format-lib)
+
+if(BUILD_TESTS)
+  enable_testing()
+
+  add_executable(lua-format-test test/test_format.cpp)
+  set_target_properties(lua-format-test PROPERTIES LINKER_LANGUAGE CXX)
+  target_link_libraries(lua-format-test gtest gtest_main)
+  target_link_libraries(lua-format-test lua-format-lib)
+
+  add_test(all_tests lua-format-test)
+endif()

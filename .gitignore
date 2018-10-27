@@ -367,3 +367,6 @@ CTestTestfile.cmake
 
 # Project-specific
 lua-format
+lua-format-test
+.vs-code/
+liblua-format-lib.a
