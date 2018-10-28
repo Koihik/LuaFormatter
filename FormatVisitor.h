@@ -55,12 +55,11 @@ class FormatVisitor : public LuaBaseVisitor {
     int _indent = 0;
     const vector<Token*>& tokens;
 
+    bool shouldKeepSemicolon(ParserRuleContext* ctx, tree::TerminalNode* node);
+
     string indent();
     string commentAfter(tree::ParseTree* a, const string& expect);
     string commentAfterNewLine(tree::ParseTree* a, int intdentSize);
-    string newLine();
-    string newLineIncIndent();
-    string newLineDecIndent();
     string incIndent();
     string decIndent();
 };

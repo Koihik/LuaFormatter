@@ -21,9 +21,9 @@ stat:
 	| localFuncStat
 	| localVarDecl;
 
-varDecl: varlist EQL explist;
+varDecl: varlist EQL explist SEMI?;
 
-functioncall: varOrExp nameAndArgs+;
+functioncall: varOrExp nameAndArgs+ SEMI?;
 
 gotoStat: GOTO NAME;
 
@@ -31,7 +31,7 @@ doStat: DO block END;
 
 whileStat: WHILE exp DO block END;
 
-repeatStat: REPEAT block UNTIL exp;
+repeatStat: REPEAT block UNTIL exp SEMI?;
 
 ifStat:
 	IF exp THEN block (ELSEIF exp THEN block)* (ELSE block)? END;
@@ -44,7 +44,7 @@ funcStat: FUNCTION funcname funcbody;
 
 localFuncStat: LOCAL FUNCTION NAME funcbody;
 
-localVarDecl: LOCAL namelist (EQL explist)?;
+localVarDecl: LOCAL namelist (EQL explist)? SEMI?;
 
 retstat: RETURN explist? SEMI?;
 

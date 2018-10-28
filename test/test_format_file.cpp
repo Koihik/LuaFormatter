@@ -13,6 +13,7 @@ TEST(format_file, all_file) {
         "test/testdata/other.lua",
         "test/testdata/comments.lua",
         "test/testdata/table.lua",
+        "test/testdata/semi.lua",
     };
 
     for (string& file : files) {
@@ -22,13 +23,19 @@ TEST(format_file, all_file) {
         string actul = lua_format(input);
 
         string expectFileName = file.substr(0, file.size() - 4) + "_out.lua";
-        cerr << "file = " << file << endl;
-        cerr << "expectFileName = " << expectFileName << endl;
 
         ifstream expectFile(expectFileName);
         stringstream ss;
         ss << expectFile.rdbuf();
 
-        EXPECT_EQ(ss.str(), actul);
+        string expect = ss.str();
+
+        EXPECT_EQ(expect, actul);
+
+
+        // FIXME: single semi in comments bug
+
+        // string formatTwice = lua_format(actul);
+        // EXPECT_EQ(expect, formatTwice);
     }
 }

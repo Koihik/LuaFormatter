@@ -30,7 +30,7 @@ funca()
 funcb()
 print("---")
 func()
-local x = func
+local x = func;
 (function()
     print("func c")
 end) --[[www]] ()

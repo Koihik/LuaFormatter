@@ -1,5 +1,5 @@
 
-local funcb1 = function(a,b,c) print("func b1"); end
+local funcb1 = function(a,b,c) print("func b1"); end;
 local funcb2 = function(a,b,c,...) print("func b2"); end
 local funcb3 = function(--[[what?]]...) print("func b3"); end
 local funcb = function() 

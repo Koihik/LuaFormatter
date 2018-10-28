@@ -148,6 +148,7 @@ public:
     VarlistContext *varlist();
     antlr4::tree::TerminalNode *EQL();
     ExplistContext *explist();
+    antlr4::tree::TerminalNode *SEMI();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    
@@ -162,6 +163,7 @@ public:
     VarOrExpContext *varOrExp();
     std::vector<NameAndArgsContext *> nameAndArgs();
     NameAndArgsContext* nameAndArgs(size_t i);
+    antlr4::tree::TerminalNode *SEMI();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    
@@ -220,6 +222,7 @@ public:
     BlockContext *block();
     antlr4::tree::TerminalNode *UNTIL();
     ExpContext *exp();
+    antlr4::tree::TerminalNode *SEMI();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    
@@ -325,6 +328,7 @@ public:
     NamelistContext *namelist();
     antlr4::tree::TerminalNode *EQL();
     ExplistContext *explist();
+    antlr4::tree::TerminalNode *SEMI();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    

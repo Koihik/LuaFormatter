@@ -120,9 +120,6 @@ string FormatVisitor::commentAfterNewLine(tree::ParseTree* node, int intdentSize
         ss << endl;
         lastestNewLine = true;
     }
-    // if (lastComment && !lastestNewLine) {
-    //     ss << " ";
-    // }
     if (intdentSize < 0) {
         _indent += intdentSize;
     }
@@ -198,6 +195,12 @@ antlrcpp::Any FormatVisitor::visitVarDecl(LuaParser::VarDeclContext* ctx) {
        << ctx->EQL()->getText()                      //
        << commentAfter(ctx->EQL(), " ")              //
        << visitExplist(ctx->explist()).as<string>();
+    if (ctx->SEMI() != NULL) {
+        ss << commentAfter(ctx->explist(), "");
+        if (shouldKeepSemicolon(ctx->explist(), ctx->SEMI())) {
+            ss << ctx->SEMI()->getText();
+        }
+    }
     return ss.str();
 }
 
@@ -213,6 +216,12 @@ antlrcpp::Any FormatVisitor::visitFunctioncall(LuaParser::FunctioncallContext* c
         ss << visitNameAndArgs(ctx->nameAndArgs()[i]).as<string>();
         if (i != n - 1) {
             ss << commentAfter(ctx->nameAndArgs()[i], "");
+        }
+    }
+    if (ctx->SEMI() != NULL) {
+        ss << commentAfter(ctx->nameAndArgs().back(), "");
+        if (shouldKeepSemicolon(ctx->nameAndArgs().back(), ctx->SEMI())) {
+            ss << ctx->SEMI()->getText();
         }
     }
     return ss.str();
@@ -270,6 +279,12 @@ antlrcpp::Any FormatVisitor::visitRepeatStat(LuaParser::RepeatStatContext* ctx) 
        << ctx->UNTIL()->getText()                //
        << commentAfter(ctx->UNTIL(), " ")        //
        << visitExp(ctx->exp()).as<string>();     //
+    if (ctx->SEMI() != NULL) {
+        ss << commentAfter(ctx->exp(), "");
+        if (shouldKeepSemicolon(ctx->exp(), ctx->SEMI())) {
+            ss << ctx->SEMI()->getText();
+        }
+    }
     return ss.str();
 }
 
@@ -287,7 +302,6 @@ antlrcpp::Any FormatVisitor::visitIfStat(LuaParser::IfStatContext* ctx) {
        << commentAfterNewLine(ctx->block().front(), -1);
     int n = ctx->ELSEIF().size();
     for (int i = 0; i < n; i++) {
-        LOG("visitIfStat 2");
         ss << indent()                                      //
            << ctx->ELSEIF()[i]->getText()                   //
            << commentAfter(ctx->ELSEIF()[i], " ")           //
@@ -299,7 +313,6 @@ antlrcpp::Any FormatVisitor::visitIfStat(LuaParser::IfStatContext* ctx) {
            << commentAfterNewLine(ctx->block()[i + 1], -1);
     }
     if (ctx->ELSE() != NULL) {
-        LOG("visitIfStat 3");
         ss << indent()                                      //
            << ctx->ELSE()->getText()                        //
            << commentAfterNewLine(ctx->ELSE(), 1)           //
@@ -393,26 +406,29 @@ antlrcpp::Any FormatVisitor::visitLocalFuncStat(LuaParser::LocalFuncStatContext*
     return ss.str();
 }
 
-// LOCAL namelist (EQL explist)?;
+// LOCAL namelist (EQL explist)? SEMI?;
 antlrcpp::Any FormatVisitor::visitLocalVarDecl(LuaParser::LocalVarDeclContext* ctx) {
     LOG("visitLocalVarDecl");
     stringstream ss;
-    LOG("visitLocalVarDecl 1");
-    LOGVAR(ctx->LOCAL()->getText());
-    LOGVAR(ctx->namelist());
-    ss << ctx->LOCAL()->getText();  //
-    LOG("visitLocalVarDecl 1");
-    ss << commentAfter(ctx->LOCAL(), " ");  //
-    LOG("visitLocalVarDecl 1");
+    ss << ctx->LOCAL()->getText();                      //
+    ss << commentAfter(ctx->LOCAL(), " ");              //
     ss << visitNamelist(ctx->namelist()).as<string>();  //
     if (ctx->EQL() != NULL) {
-        LOG("visitLocalVarDecl 2");
         ss << commentAfter(ctx->namelist(), " ")  //
            << ctx->EQL()->getText()               //
            << commentAfter(ctx->EQL(), " ")       //
            << visitExplist(ctx->explist()).as<string>();
     }
-    LOG("visitLocalVarDecl 3");
+    if (ctx->SEMI() != NULL) {
+        if (ctx->EQL() == NULL) {
+            ss << commentAfter(ctx->namelist(), "");
+        } else {
+            ss << commentAfter(ctx->explist(), "");
+        }
+        if (shouldKeepSemicolon(ctx->explist(), ctx->SEMI())) {
+            ss << ctx->SEMI()->getText();
+        }
+    }
     return ss.str();
 }
 
@@ -488,6 +504,19 @@ antlrcpp::Any FormatVisitor::visitExplist(LuaParser::ExplistContext* ctx) {
     return ss.str();
 }
 
+// exp:
+// 	NIL
+// 	| FALSE
+// 	| TRUE
+// 	| number
+// 	| string
+// 	| ELLIPSIS
+// 	| prefixexp
+// 	| functiondef
+// 	| tableconstructor
+// 	| exp linkOperator exp
+// 	| unaryOperator exp;
+
 antlrcpp::Any FormatVisitor::visitExp(LuaParser::ExpContext* ctx) {
     LOG("visitExp");
     if (ctx->linkOperator() != NULL) {
@@ -508,8 +537,14 @@ antlrcpp::Any FormatVisitor::visitExp(LuaParser::ExpContext* ctx) {
         }
         ss << visitExp(ctx->exp().front()).as<string>();
         return ss.str();
+    } else if (ctx->prefixexp() != NULL) {
+        return visitPrefixexp(ctx->prefixexp()).as<string>();
+    } else if (ctx->functiondef() != NULL) {
+        return visitFunctiondef(ctx->functiondef()).as<string>();
+    } else if (ctx->tableconstructor() != NULL) {
+        return visitTableconstructor(ctx->tableconstructor()).as<string>();
     } else {
-        return visitChildren(ctx);
+        return ctx->getText();
     }
 }
 
@@ -517,13 +552,15 @@ antlrcpp::Any FormatVisitor::visitExp(LuaParser::ExpContext* ctx) {
 antlrcpp::Any FormatVisitor::visitPrefixexp(LuaParser::PrefixexpContext* ctx) {
     LOG("visitPrefixexp");
     stringstream ss;
-    ss << visitVarOrExp(ctx->varOrExp()).as<string>()  //
-       << commentAfter(ctx->varOrExp(), "");
+    ss << visitVarOrExp(ctx->varOrExp()).as<string>();
     int n = ctx->nameAndArgs().size();
+    if (n > 0) {
+        ss << commentAfter(ctx->varOrExp(), "");
+    }
     for (int i = 0; i < n; i++) {
         ss << visitNameAndArgs(ctx->nameAndArgs()[i]).as<string>();
         if (i != n - 1) {
-            ss << commentAfter(ctx->nameAndArgs()[i], " ");
+            ss << commentAfter(ctx->nameAndArgs()[i], "");
         }
     }
     return ss.str();
@@ -696,11 +733,13 @@ antlrcpp::Any FormatVisitor::visitTableconstructor(LuaParser::TableconstructorCo
            << ctx->RB()->getText();
     } else {
         string comment = commentAfter(ctx->LB(), "");
+        // if comment contains line break, then keep it.
         if (comment.find("\n") != string::npos) {
             ss << commentAfterNewLine(ctx->LB(), 1)  //
                << decIndent()                        //
                << ctx->RB()->getText();
         } else {
+            // comment not contains line break, format the table to one line.
             ss << commentAfter(ctx->LB(), "")  //
                << ctx->RB()->getText();
         }
@@ -776,31 +815,81 @@ antlrcpp::Any FormatVisitor::visitChildren(tree::ParseTree* node) {
 
 antlrcpp::Any FormatVisitor::visitTerminal(tree::TerminalNode* node) { return node->getText(); }
 
+LuaParser::ExpContext* _lastExp(LuaParser::ExplistContext* ctx) {
+    LuaParser::ExpContext* lastExp = ctx->exp().back();
+    while (!lastExp->exp().empty()) {
+        lastExp = lastExp->exp().back();
+    }
+    return lastExp;
+}
+
+// If both of the following conditions are met, the custom semicolon should not be deleted:
+// 1. There is a variable token or function call token at end of previous statement
+//    e.g. 'local x = y' or 'y:func()'
+// 2. next statement is start with a '(', like '(function() end)()'
+bool FormatVisitor::shouldKeepSemicolon(ParserRuleContext* ctx, tree::TerminalNode* node) {
+    if (ctx == NULL) {
+        return false;
+    }
+
+    bool returnVar = false;
+
+    // varDecl or localVarDecl
+    // 'local x, y = 1, print;'
+    LuaParser::ExplistContext* explistCtx = dynamic_cast<LuaParser::ExplistContext*>(ctx);
+    if (explistCtx != NULL) {
+        LuaParser::ExpContext* lastExp = explistCtx->exp().back();
+        while (!lastExp->exp().empty()) {
+            lastExp = lastExp->exp().back();
+        }
+        returnVar = lastExp->prefixexp() != NULL;
+    }
+
+    // repeat statement
+    // repeat
+    //     print("123")
+    // until y;
+    LuaParser::ExpContext* expCtx = dynamic_cast<LuaParser::ExpContext*>(ctx);
+    if (expCtx != NULL) {
+        LuaParser::ExpContext* lastExp = expCtx;
+        while (!lastExp->exp().empty()) {
+            lastExp = lastExp->exp().back();
+        }
+        returnVar = lastExp->prefixexp() != NULL;
+    }
+
+    // function call
+    LuaParser::NameAndArgsContext* naCtx = dynamic_cast<LuaParser::NameAndArgsContext*>(ctx);
+    if (naCtx != NULL) {
+        returnVar = true;
+    }
+
+    if (!returnVar) {
+        return false;
+    }
+
+    int idx = node->getSymbol()->getTokenIndex();
+    bool startWithLP = false;
+    for (int i = idx + 1; i < tokens.size(); i++) {
+        size_t type = tokens[i]->getType();
+        // ignore comments and white space
+        if (type == LuaLexer::COMMENT ||       //
+            type == LuaLexer::LINE_COMMENT ||  //
+            type == LuaLexer::WS) {
+            continue;
+        }
+
+        startWithLP = type == LuaLexer::LP;
+        break;
+    }
+    return startWithLP;
+}
+
 string FormatVisitor::indent() {
     stringstream ss;
     for (int i = 0; i < _indent; i++) {
         ss << "    ";
     }
-    return ss.str();
-}
-
-string FormatVisitor::newLine() {
-    stringstream ss;
-    ss << endl;
-    return ss.str();
-}
-
-string FormatVisitor::newLineIncIndent() {
-    _indent++;
-    stringstream ss;
-    ss << endl;
-    return ss.str();
-}
-
-string FormatVisitor::newLineDecIndent() {
-    _indent--;
-    stringstream ss;
-    ss << endl;
     return ss.str();
 }
 
