@@ -1,0 +1,23 @@
+osx_image: xcode8
+
+language: cpp
+
+os: 
+  - osx
+
+compiler:
+  - gcc
+  - clang
+
+addons:
+  homebrew:
+    packages:
+    - antlr4-cpp-runtime
+    update: true
+
+install:
+  - cmake .
+
+script:
+  - make
+  - make test

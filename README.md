@@ -1,11 +1,8 @@
 # LuaFormatter
 
-Format your Lua code.
-Pending...
+Reformats your Lua source code.
 
-## Requirements
-* antlr4-runtime v4.7.1
-* googletest v1.8.1
+[![Build Status](https://travis-ci.org/Koihik/LuaFormatter.svg?branch=master)](https://travis-ci.org/Koihik/LuaFormatter)
 
 ## Feature
 
@@ -27,18 +24,42 @@ end
 ### style
 before:
 ```lua
-call(a,b,c,{
-    1,2,3;4;5
-})
+tbl = {
+    key="value";
+    key2=function() print("function value") end;
+    
+    -- custom new line
+    key3=pcall(function() return "ww";end)
+}
 ```
 
 after:
 ```lua
-call(a, b, c, {
-    1,
-    2,
-    3,
-    4,
-    5,
-})
+tbl = {
+    key = "value",
+    key2 = function()
+        print("function value")
+    end,
+
+    -- custom new line
+    key3 = pcall(function()
+        return "ww"
+    end)
+}
+
+```
+
+## Compiling
+Build from source.
+
+### Requirements
+* c++ 11 compiler
+* cmake
+* antlr4-cpp-runtime 
+
+### Steps
+```bash
+    brew install antlr4-cpp-runtime
+    cmake .
+    make
 ```

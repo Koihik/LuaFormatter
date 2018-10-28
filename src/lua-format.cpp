@@ -13,6 +13,11 @@ string __foramt(ANTLRInputStream& input) {
 
     LuaParser::ChunkContext* chunk = parser.chunk();
 
+    if (parser.getNumberOfSyntaxErrors() > 0) {
+        cerr << "syntax err in lua code" << endl;
+        exit(-1);
+    }
+    
     vector<antlr4::Token*> tokenVector;
     for (auto t : tokens.getTokens()) {
         tokenVector.emplace_back(t);

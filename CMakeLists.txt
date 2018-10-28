@@ -15,12 +15,13 @@ endif()
 include_directories(
   /usr/local/include/antlr4-runtime/
   ${PROJECT_SOURCE_DIR}/generated/
-  ${PROJECT_SOURCE_DIR}/
+  ${PROJECT_SOURCE_DIR}/third_party/
+  ${PROJECT_SOURCE_DIR}/src/
   )
 
 set(src_dir
-  ${PROJECT_SOURCE_DIR}/lua-format.cpp
-  ${PROJECT_SOURCE_DIR}/FormatVisitor.cpp
+  ${PROJECT_SOURCE_DIR}/src/lua-format.cpp
+  ${PROJECT_SOURCE_DIR}/src/FormatVisitor.cpp
   ${PROJECT_SOURCE_DIR}/generated/LuaLexer.cpp
   ${PROJECT_SOURCE_DIR}/generated/LuaParser.cpp
   ${PROJECT_SOURCE_DIR}/generated/LuaVisitor.cpp
@@ -30,16 +31,15 @@ set(src_dir
 add_library(lua-format-lib ${src_dir})
 target_link_libraries(lua-format-lib antlr4-runtime)
 
-add_executable(lua-format main.cpp)
+add_executable(lua-format src/main.cpp)
 set_target_properties(lua-format PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(lua-format lua-format-lib)
 
 if(BUILD_TESTS)
   enable_testing()
 
-  add_executable(lua-format-test test/test_format.cpp test/test_format_file.cpp)
+  add_executable(lua-format-test test/test.cpp test/test_format.cpp test/test_format_file.cpp)
   set_target_properties(lua-format-test PROPERTIES LINKER_LANGUAGE CXX)
-  target_link_libraries(lua-format-test gtest gtest_main)
   target_link_libraries(lua-format-test lua-format-lib)
 
   add_test(all_tests lua-format-test)
