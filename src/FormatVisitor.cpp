@@ -31,6 +31,8 @@ int lastIdx(tree::ParseTree* t) {
     return INT_MAX;
 }
 
+// commentAfter returns comments between a ParseTreeNode and the next Node.
+// expect: return expect string if no comments found
 string FormatVisitor::commentAfter(tree::ParseTree* node, const string& expect) {
     int l = lastIdx(node);
     stringstream ss;
@@ -64,15 +66,18 @@ string FormatVisitor::commentAfter(tree::ParseTree* node, const string& expect) 
     return ss.str();
 }
 
-string FormatVisitor::commentAfterNewLine(tree::ParseTree* node, int intdentSize) {
+// commentAfterNewLine returns comments between a ParseTreeNode and the next Node.
+// This function always expect a line break.
+// intdentSize: inc or dec indent after a line break.
+string FormatVisitor::commentAfterNewLine(tree::ParseTree* node, int indentSize) {
     ParserRuleContext* ctx = dynamic_cast<ParserRuleContext*>(node);
     if (ctx != NULL && ctx->children.size() == 0) {
-        _indent += intdentSize;
+        _indent += indentSize;
         return "";
     }
     int l = lastIdx(node);
-    if (intdentSize > 0) {
-        _indent += intdentSize;
+    if (indentSize > 0) {
+        _indent += indentSize;
     }
     stringstream ss;
     bool customNewLine = false;
@@ -120,8 +125,8 @@ string FormatVisitor::commentAfterNewLine(tree::ParseTree* node, int intdentSize
         ss << endl;
         lastestNewLine = true;
     }
-    if (intdentSize < 0) {
-        _indent += intdentSize;
+    if (indentSize < 0) {
+        _indent += indentSize;
     }
     if (lastComment && !lastestNewLine) {
         ss << "\n";
@@ -328,25 +333,25 @@ antlrcpp::Any FormatVisitor::visitIfStat(LuaParser::IfStatContext* ctx) {
 antlrcpp::Any FormatVisitor::visitForStat(LuaParser::ForStatContext* ctx) {
     LOG("visitForStat");
     stringstream ss;
-    ss << ctx->FOR()->getText()                 //
-       << commentAfter(ctx->FOR(), " ")         //
-       << ctx->NAME()->getText()                //
-       << commentAfter(ctx->NAME(), " ")        //
-       << ctx->EQL()->getText()                 //
-       << commentAfter(ctx->EQL(), " ")         //
-       << visitExp(ctx->exp()[0]).as<string>()  //
-       << commentAfter(ctx->exp()[0], " ")      //
-       << ctx->COMMA()[0]->getText()            //
-       << commentAfter(ctx->COMMA()[0], " ")    //
-       << visitExp(ctx->exp()[1]).as<string>()  //
-       << commentAfter(ctx->exp()[1], " ");     //
-    auto commas = ctx->COMMA();
-    int n = commas.size();
-    for (int i = 1; i < n; i++) {
-        ss << ctx->COMMA()[i]->getText()                //
-           << commentAfter(ctx->COMMA()[i], " ")        //
-           << visitExp(ctx->exp()[i + 1]).as<string>()  //
-           << commentAfter(ctx->exp()[i + 1], " ");     //
+    ss << ctx->FOR()->getText()                  //
+       << commentAfter(ctx->FOR(), " ")          //
+       << ctx->NAME()->getText()                 //
+       << commentAfter(ctx->NAME(), " ")         //
+       << ctx->EQL()->getText()                  //
+       << commentAfter(ctx->EQL(), " ")          //
+       << visitExp(ctx->exp()[0]).as<string>()   //
+       << commentAfter(ctx->exp()[0], "")        //
+       << ctx->COMMA()[0]->getText()             //
+       << commentAfter(ctx->COMMA()[0], " ")     //
+       << visitExp(ctx->exp()[1]).as<string>();  //
+    if (ctx->COMMA().size() > 1) {
+        ss << commentAfter(ctx->exp()[1], "")       //
+           << ctx->COMMA()[1]->getText()            //
+           << commentAfter(ctx->COMMA()[1], " ")    //
+           << visitExp(ctx->exp()[2]).as<string>()  //
+           << commentAfter(ctx->exp()[2], " ");     //
+    } else {
+        ss << commentAfter(ctx->exp()[1], " ");
     }
     ss << ctx->DO()->getText()                   //
        << commentAfterNewLine(ctx->DO(), 1)      //

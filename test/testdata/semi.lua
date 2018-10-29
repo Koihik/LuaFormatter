@@ -24,3 +24,7 @@ until y; -- keep
 repeat
     -- empty
 until y; -- delete
+repeat 
+    -- empty
+until x == y; -- keep
+(function() print("123");  end)()

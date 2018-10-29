@@ -26,6 +26,6 @@ script:
 after_success:
   - cd ${TRAVIS_BUILD_DIR}
   - lcov --directory . --capture --output-file coverage.info
-  - lcov --remove coverage.info '/usr/*' 'test/*' 'generated/*' --output-file coverage.info
+  - lcov --remove coverage.info '*/usr/*' '*/test/*' '*/generated/*' '*/third_party/*' --output-file coverage.info
   - lcov --list coverage.info
   - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"

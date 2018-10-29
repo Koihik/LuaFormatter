@@ -1,9 +1,6 @@
-* TestCase
-* configure style
-* comments
+* style configure file
 * compile on other platforms
 * benchmark
-* coverage
 
 * style
 `--comment` 

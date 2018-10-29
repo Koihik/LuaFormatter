@@ -3,6 +3,10 @@
 Reformats your Lua source code.
 
 [![Build Status](https://travis-ci.org/Koihik/LuaFormatter.svg?branch=master)](https://travis-ci.org/Koihik/LuaFormatter)
+[![codecov](https://codecov.io/gh/Koihik/LuaFormatter/branch/master/graph/badge.svg)](https://codecov.io/gh/Koihik/LuaFormatter)
+
+## Usage
+`lua-format your_lua_file.lua`
 
 ## Feature
 
