@@ -370,3 +370,4 @@ lua-format
 lua-format-test
 .vs-code/
 liblua-format-lib.a
+.DS_Store
