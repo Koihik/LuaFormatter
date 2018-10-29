@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Config.h"
 #include "LuaBaseVisitor.h"
 #include "LuaParser.h"
 
@@ -8,7 +9,7 @@ using namespace antlr4;
 
 class FormatVisitor : public LuaBaseVisitor {
    public:
-    FormatVisitor(const vector<Token*>& t) : tokens(t) {}
+    FormatVisitor(const vector<Token*>& t, Config& c) : tokens(t), config(c) {}
 
     antlrcpp::Any visitChunk(LuaParser::ChunkContext* context) override;
     antlrcpp::Any visitBlock(LuaParser::BlockContext* context) override;
@@ -54,8 +55,11 @@ class FormatVisitor : public LuaBaseVisitor {
    private:
     int _indent = 0;
     const vector<Token*>& tokens;
+    Config& config;
 
     bool shouldKeepSemicolon(ParserRuleContext* ctx, tree::TerminalNode* node);
+    bool isFunctionSimple(LuaParser::FuncbodyContext* ctx);
+    bool isTableSimple(LuaParser::TableconstructorContext* ctx);
 
     string indent();
     string commentAfter(tree::ParseTree* a, const string& expect);

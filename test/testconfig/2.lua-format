@@ -1,0 +1,6 @@
+indent: "    "
+table_sep: ","
+# extra_sep_at_table_end: true
+# keep_simple_function_one_line: false
+# keep_simple_table_one_line: false
+

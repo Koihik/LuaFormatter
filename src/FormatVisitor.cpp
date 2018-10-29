@@ -16,6 +16,8 @@ using namespace antlr4;
 #define LOGVAR(arg) ;
 #endif
 
+#define SIMPLE_TABLE_THRESHOLD 50
+
 int lastIdx(tree::ParseTree* t) {
     if (t == NULL) {
         return -1;
@@ -697,6 +699,25 @@ antlrcpp::Any FormatVisitor::visitFuncbody(LuaParser::FuncbodyContext* ctx) {
         ss << visitParlist(ctx->parlist()).as<string>()  //
            << commentAfter(ctx->parlist(), "");          //
     }
+    if (config.keep_simple_function_one_line() && isFunctionSimple(ctx)) {
+        if (ctx->block()->stat().size() == 0 && ctx->block()->retstat() == NULL) {
+            ss << ctx->RP()->getText()          //
+               << commentAfter(ctx->RP(), " ")  //
+               << ctx->END()->getText();        //
+        } else {
+            ss << ctx->RP()->getText()           //
+               << commentAfter(ctx->RP(), " ");  //
+
+            // ignore indent when function is a single line
+            int temp = _indent;
+            _indent = 0;
+            ss << visitBlock(ctx->block()).as<string>();
+            _indent = temp;
+            ss << commentAfter(ctx->block(), " ")  //
+               << ctx->END()->getText();           //
+        }
+        return ss.str();
+    }
     ss << ctx->RP()->getText()                   //
        << commentAfterNewLine(ctx->RP(), 1)      //
        << visitBlock(ctx->block()).as<string>()  //
@@ -731,11 +752,21 @@ antlrcpp::Any FormatVisitor::visitTableconstructor(LuaParser::TableconstructorCo
     stringstream ss;
     ss << ctx->LB()->getText();
     if (ctx->fieldlist() != NULL) {
-        ss << commentAfterNewLine(ctx->LB(), 1)              //
-           << visitFieldlist(ctx->fieldlist()).as<string>()  //
-           << commentAfterNewLine(ctx->fieldlist(), -1)      //
-           << indent()                                       //
-           << ctx->RB()->getText();
+        if (config.keep_simple_table_one_line() && isTableSimple(ctx)) {
+            ss << commentAfter(ctx->LB(), " ")                   //
+               << visitFieldlist(ctx->fieldlist()).as<string>()  //
+               << commentAfter(ctx->fieldlist(), " ")            //
+               << ctx->RB()->getText();
+        } else {
+            ss << commentAfterNewLine(ctx->LB(), 1)               //
+               << visitFieldlist(ctx->fieldlist()).as<string>();  //
+            if (config.extra_sep_at_table_end() && ctx->fieldlist()->field().size() > 0) {
+                ss << config.table_sep();
+            }
+            ss << commentAfterNewLine(ctx->fieldlist(), -1)  //
+               << indent()                                   //
+               << ctx->RB()->getText();
+        }
     } else {
         string comment = commentAfter(ctx->LB(), "");
         // if comment contains line break, then keep it.
@@ -806,7 +837,7 @@ antlrcpp::Any FormatVisitor::visitField(LuaParser::FieldContext* ctx) {
     return ss.str();
 }
 
-antlrcpp::Any FormatVisitor::visitFieldsep(LuaParser::FieldsepContext* context) { return string(","); }
+antlrcpp::Any FormatVisitor::visitFieldsep(LuaParser::FieldsepContext* context) { return config.table_sep(); }
 
 antlrcpp::Any FormatVisitor::visitChildren(tree::ParseTree* node) {
     stringstream ss;
@@ -890,10 +921,62 @@ bool FormatVisitor::shouldKeepSemicolon(ParserRuleContext* ctx, tree::TerminalNo
     return startWithLP;
 }
 
+// Judge a function is 'simple function' or not
+bool FormatVisitor::isFunctionSimple(LuaParser::FuncbodyContext* ctx) {
+    int stats = ctx->block()->stat().size();
+    if (ctx->block()->retstat() != NULL) {
+        stats++;
+    }
+    // 1. function contains more than one statement.
+    if (stats > 1) {
+        return false;
+    }
+    // 2. function contains a line break.
+    string preComment = commentAfter(ctx->RP(), "");
+    if (preComment.find("\n") != string::npos) {
+        return false;
+    }
+    string blockContent = visitBlock(ctx->block()).as<string>();
+    if (blockContent.find("\n") != string::npos) {
+        return false;
+    }
+    string postComment = commentAfter(ctx->block(), "");
+    if (postComment.find("\n") != string::npos) {
+        return false;
+    }
+    return true;
+}
+
+// Judge a table is 'simple table' or not
+bool FormatVisitor::isTableSimple(LuaParser::TableconstructorContext* ctx) {
+    // 1. table has more than one field.
+    if (ctx->fieldlist()->field().size() > 1) {
+        return false;
+    }
+    // 2. key-value table.
+    if (ctx->fieldlist()->field().front()->EQL() != NULL) {
+        return false;
+    }
+    // 3. table contains line break.
+    string preComment = commentAfter(ctx->LB(), "");
+    if (preComment.find("\n") != string::npos) {
+        return false;
+    }
+    string fieldContent = visitFieldlist(ctx->fieldlist()).as<string>();
+    if (fieldContent.find("\n") != string::npos) {
+        return false;
+    }
+    string postComment = commentAfter(ctx->fieldlist(), "");
+    if (postComment.find("\n") != string::npos) {
+        return false;
+    }
+    return true;
+}
+
 string FormatVisitor::indent() {
     stringstream ss;
     for (int i = 0; i < _indent; i++) {
-        ss << "    ";
+        ss << config.indent();
     }
     return ss.str();
 }

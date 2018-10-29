@@ -42,14 +42,10 @@ for i, v in ipairs(a) do
 end
 
 -- funcStat
-function f1()
-    print("f1")
-end
+function f1() print("f1") end
 
 -- localFuncStat
-local function f2()
-    print("f2")
-end
+local function f2() print("f2") end
 
 -- localVarDecl
 local q, w, e = 1, 2, 3

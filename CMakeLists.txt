@@ -22,6 +22,7 @@ include_directories(
 
 set(src_dir
   ${PROJECT_SOURCE_DIR}/src/lua-format.cpp
+  ${PROJECT_SOURCE_DIR}/src/Config.cpp
   ${PROJECT_SOURCE_DIR}/src/FormatVisitor.cpp
   ${PROJECT_SOURCE_DIR}/generated/LuaLexer.cpp
   ${PROJECT_SOURCE_DIR}/generated/LuaParser.cpp
@@ -38,7 +39,7 @@ if(BUILD_TESTS)
   message("BUILD_TESTS enabled.")
   enable_testing()
 
-  add_executable(lua-format-test ${src_dir} test/test.cpp test/test_format.cpp test/test_format_file.cpp)
+  add_executable(lua-format-test ${src_dir} test/test.cpp test/test_config.cpp test/test_format_file.cpp)
   set_target_properties(lua-format-test PROPERTIES LINKER_LANGUAGE CXX)
 
   if(COVERAGE)

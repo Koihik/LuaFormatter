@@ -6,7 +6,7 @@
 using namespace std;
 using namespace antlr4;
 
-string __foramt(ANTLRInputStream& input) {
+string __foramt(ANTLRInputStream& input, Config& config) {
     LuaLexer lexer(&input);
     CommonTokenStream tokens(&lexer);
     LuaParser parser(&tokens);
@@ -17,23 +17,23 @@ string __foramt(ANTLRInputStream& input) {
         cerr << "syntax err in lua code" << endl;
         exit(-1);
     }
-    
+
     vector<antlr4::Token*> tokenVector;
     for (auto t : tokens.getTokens()) {
         tokenVector.emplace_back(t);
     }
 
-    FormatVisitor visitor(tokenVector);
+    FormatVisitor visitor(tokenVector, config);
     string out = chunk->accept(&visitor);
     return out;
 }
 
-string lua_format(istream& is) {
+string lua_format(istream& is, Config& config) {
     ANTLRInputStream input(is);
-    return __foramt(input);
+    return __foramt(input, config);
 }
 
-string lua_format(const string& str) {
+string lua_format(const string& str, Config& config) {
     ANTLRInputStream input(str);
-    return __foramt(input);
+    return __foramt(input, config);
 }

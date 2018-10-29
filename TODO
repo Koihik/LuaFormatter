@@ -1,6 +1,8 @@
 * style configure file
+* Handle shebang
 * compile on other platforms
 * benchmark
+* hard line break when line width > 120
 
 * style
 `--comment` 

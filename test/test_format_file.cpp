@@ -14,7 +14,8 @@ using namespace std;
         string filename(file);                                                        \
         ifstream input;                                                               \
         input.open(filename);                                                         \
-        string actul = lua_format(input);                                             \
+        Config config;                                                                \
+        string actul = lua_format(input, config);                                     \
         string expectFileName = filename.substr(0, filename.size() - 4) + "_out.lua"; \
         ifstream expectFile(expectFileName);                                          \
         stringstream ss;                                                              \

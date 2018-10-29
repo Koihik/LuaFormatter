@@ -50,7 +50,6 @@ funca()
 --[[c1]] function--[[c2]] func2--[[c3]](--[[c4]])--[[c5]] print--[[c6]](--[[c7]]"2"--[[c8]])--[[c9]];--[[c10]];--[[c11]];--[[c12]] end--[[c13]]
 
 q = {
-    -- keep custom new line
     w = { -- empty
     },
 

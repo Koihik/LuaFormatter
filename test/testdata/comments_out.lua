@@ -48,7 +48,6 @@ function --[[c2]] func2 --[[c3]] ( --[[c4]] ) --[[c5]]
 end --[[c13]]
 
 q = {
-    -- keep custom new line
     w = { -- empty
     },
 
