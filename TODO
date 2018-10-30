@@ -1,13 +1,6 @@
-* style configure file
-* Handle shebang
 * support compile on linux(clang) / windows
 * benchmark
 * hard line break when line width > 120
-
-* style
-`--comment` 
--> 
-`-- comment`
 
 * style
 `func"qwe"`

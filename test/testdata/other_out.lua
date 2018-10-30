@@ -1,3 +1,5 @@
+#! /usr/local/bin/lua
+
 local funcb1 = function(a, b, c) print("func b1") end
 local funcb2 = function(a, b, c, ...) print("func b2") end
 local funcb3 = function( --[[what?]] ...) print("func b3") end
@@ -46,15 +48,15 @@ function xx()
     if c1 then
         f1()
     elseif c2 then
-        --do nothing
+        -- do nothing
     elseif c3 then
         f3()
     else
-        --comment1
+        -- comment1
         --[[comment2]]
         fx()
-        --comment3
+        -- comment3
     end
 end
 
---last comment
+-- last comment

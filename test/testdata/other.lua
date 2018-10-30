@@ -1,3 +1,6 @@
+#! /usr/local/bin/lua
+
+
 
 local funcb1 = function(a,b,c) print("func b1"); end;
 local funcb2 = function(a,b,c,...) print("func b2"); end

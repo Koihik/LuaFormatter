@@ -57,6 +57,8 @@ class FormatVisitor : public LuaBaseVisitor {
     const vector<Token*>& tokens;
     Config& config;
 
+    string formatLineComment(Token* token);
+
     bool shouldKeepSemicolon(ParserRuleContext* ctx, tree::TerminalNode* node);
     bool isFunctionSimple(LuaParser::FuncbodyContext* ctx);
     bool isTableSimple(LuaParser::TableconstructorContext* ctx);

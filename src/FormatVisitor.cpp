@@ -52,9 +52,11 @@ string FormatVisitor::commentAfter(tree::ParseTree* node, const string& expect) 
             if (lastComment) {
                 ss << " ";
             }
-            ss << token->getText();
+            ss << formatLineComment(token);
             ss << indent();
             lastComment = false;
+        } else if (token->getType() == LuaLexer::SHEBANG) {
+            ss << token->getText() << "\n\n";
         } else if (token->getType() == LuaLexer::WS) {
         } else {
             break;
@@ -102,7 +104,7 @@ string FormatVisitor::commentAfterNewLine(tree::ParseTree* node, int indentSize)
             } else if (lastComment) {
                 ss << " ";
             }
-            ss << token->getText();
+            ss << formatLineComment(token);
             customNewLine = true;
             lastComment = false;
             lastestNewLine = true;
@@ -134,6 +136,17 @@ string FormatVisitor::commentAfterNewLine(tree::ParseTree* node, int indentSize)
         ss << "\n";
     }
     return ss.str();
+}
+
+string FormatVisitor::formatLineComment(Token* token) {
+    string c = token->getText();
+    char firstChar = c[2];
+    if (firstChar == '-' || firstChar == ' ' || firstChar == '\u000C' || firstChar == '\t' || firstChar == '\r' || firstChar == '\n') {
+        // do nothing
+    } else {
+        c = "-- " + c.substr(2, c.size());
+    }
+    return c;
 }
 
 antlrcpp::Any FormatVisitor::visitChunk(LuaParser::ChunkContext* ctx) {
