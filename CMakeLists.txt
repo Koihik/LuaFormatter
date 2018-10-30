@@ -14,9 +14,9 @@ else()
 endif()
 
 include_directories(
-  /usr/local/include/antlr4-runtime/
   ${PROJECT_SOURCE_DIR}/generated/
   ${PROJECT_SOURCE_DIR}/third_party/
+  ${PROJECT_SOURCE_DIR}/third_party/antlr4-cpp-runtime/
   ${PROJECT_SOURCE_DIR}/src/
   )
 
@@ -30,10 +30,23 @@ set(src_dir
   ${PROJECT_SOURCE_DIR}/generated/LuaBaseVisitor.cpp
 )
 
+file(GLOB antlr4-cpp-src 
+  ${PROJECT_SOURCE_DIR}/third_party/antlr4-cpp-runtime/*.cpp
+  ${PROJECT_SOURCE_DIR}/third_party/antlr4-cpp-runtime/atn/*.cpp
+  ${PROJECT_SOURCE_DIR}/third_party/antlr4-cpp-runtime/dfa/*.cpp
+  ${PROJECT_SOURCE_DIR}/third_party/antlr4-cpp-runtime/misc/*.cpp
+  ${PROJECT_SOURCE_DIR}/third_party/antlr4-cpp-runtime/support/*.cpp
+  ${PROJECT_SOURCE_DIR}/third_party/antlr4-cpp-runtime/tree/*.cpp
+  ${PROJECT_SOURCE_DIR}/third_party/antlr4-cpp-runtime/tree/pattern/*.cpp
+  ${PROJECT_SOURCE_DIR}/third_party/antlr4-cpp-runtime/tree/xpath/*.cpp
+)
+
+add_library (antlr4-cpp-runtime ${antlr4-cpp-src})
+
 add_executable(lua-format ${src_dir} src/main.cpp)
 set_target_properties(lua-format PROPERTIES LINKER_LANGUAGE CXX)
 
-target_link_libraries(lua-format antlr4-runtime)
+target_link_libraries(lua-format antlr4-cpp-runtime)
 
 if(BUILD_TESTS)
   message("BUILD_TESTS enabled.")
@@ -50,7 +63,7 @@ if(BUILD_TESTS)
       )
   endif()
 
-  target_link_libraries(lua-format-test antlr4-runtime)
+  target_link_libraries(lua-format-test antlr4-cpp-runtime)
 
   add_test(all_tests lua-format-test)
 endif()

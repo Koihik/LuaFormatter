@@ -368,6 +368,6 @@ CTestTestfile.cmake
 # Project-specific
 lua-format
 lua-format-test
+libantlr4-cpp-runtime.a
 .vs-code/
-liblua-format-lib.a
 .DS_Store

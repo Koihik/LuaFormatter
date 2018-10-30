@@ -1,6 +1,6 @@
 * style configure file
 * Handle shebang
-* compile on other platforms
+* support compile on linux(clang) / windows
 * benchmark
 * hard line break when line width > 120
 

@@ -19,7 +19,8 @@ int main(int argc, const char* argv[]) {
     if (argc == 2) {
         fileName = argv[1];
     } else {
-        if (strcmp(argv[1], "-c") != 0 && strcmp(argv[1], "-config") != 0 && strcmp(argv[1], "--config") != 0) {
+        string cfg = argv[1];
+        if (cfg != "-c" && cfg != "-config" && cfg != "--config") {
             cerr << "Unknown flag: " << argv[1] << endl;
             return -1;
         }

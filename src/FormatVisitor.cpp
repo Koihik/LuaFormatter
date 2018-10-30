@@ -135,6 +135,7 @@ string FormatVisitor::commentAfterNewLine(tree::ParseTree* node, int indentSize)
     }
     return ss.str();
 }
+
 antlrcpp::Any FormatVisitor::visitChunk(LuaParser::ChunkContext* ctx) {
     LOG("visitChunk");
     stringstream ss;
@@ -189,7 +190,8 @@ antlrcpp::Any FormatVisitor::visitBlock(LuaParser::BlockContext* ctx) {
 antlrcpp::Any FormatVisitor::visitStat(LuaParser::StatContext* ctx) {
     LOG("visitStat");
     stringstream ss;
-    ss << indent() << visitChildren(ctx).as<string>();
+    ss << indent();
+    ss << visitChildren(ctx).as<string>();
     return ss.str();
 }
 
@@ -248,11 +250,11 @@ antlrcpp::Any FormatVisitor::visitGotoStat(LuaParser::GotoStatContext* ctx) {
 antlrcpp::Any FormatVisitor::visitDoStat(LuaParser::DoStatContext* ctx) {
     LOG("visitDoStat");
     stringstream ss;
-    ss << ctx->DO()->getText()                   //
-       << commentAfterNewLine(ctx->DO(), 1)      //
-       << visitBlock(ctx->block()).as<string>()  //
-       << commentAfterNewLine(ctx->block(), -1)  //
-       << indent()                               //
+    ss << ctx->DO()->getText();                   //
+    ss << commentAfterNewLine(ctx->DO(), 1);      //
+    ss << visitBlock(ctx->block()).as<string>();  //
+    ss << commentAfterNewLine(ctx->block(), -1);  //
+    ss << indent()                                //
        << ctx->END()->getText();
     return ss.str();
 }
@@ -261,15 +263,15 @@ antlrcpp::Any FormatVisitor::visitDoStat(LuaParser::DoStatContext* ctx) {
 antlrcpp::Any FormatVisitor::visitWhileStat(LuaParser::WhileStatContext* ctx) {
     LOG("visitWhileStat");
     stringstream ss;
-    ss << ctx->WHILE()->getText()                //
-       << commentAfter(ctx->WHILE(), " ")        //
-       << visitExp(ctx->exp()).as<string>()      //
-       << commentAfter(ctx->exp(), " ")          //
-       << ctx->DO()->getText()                   //
-       << commentAfterNewLine(ctx->DO(), 1)      //
-       << visitBlock(ctx->block()).as<string>()  //
-       << commentAfterNewLine(ctx->block(), -1)  //
-       << indent()                               //
+    ss << ctx->WHILE()->getText()                 //
+       << commentAfter(ctx->WHILE(), " ")         //
+       << visitExp(ctx->exp()).as<string>()       //
+       << commentAfter(ctx->exp(), " ")           //
+       << ctx->DO()->getText();                   //
+    ss << commentAfterNewLine(ctx->DO(), 1);      //
+    ss << visitBlock(ctx->block()).as<string>();  //
+    ss << commentAfterNewLine(ctx->block(), -1);  //
+    ss << indent()                                //
        << ctx->END()->getText();
     return ss.str();
 }
@@ -278,14 +280,14 @@ antlrcpp::Any FormatVisitor::visitWhileStat(LuaParser::WhileStatContext* ctx) {
 antlrcpp::Any FormatVisitor::visitRepeatStat(LuaParser::RepeatStatContext* ctx) {
     LOG("visitRepeatStat");
     stringstream ss;
-    ss << ctx->REPEAT()->getText()               //
-       << commentAfterNewLine(ctx->REPEAT(), 1)  //
-       << visitBlock(ctx->block()).as<string>()  //
-       << commentAfterNewLine(ctx->block(), -1)  //
-       << indent()                               //
-       << ctx->UNTIL()->getText()                //
-       << commentAfter(ctx->UNTIL(), " ")        //
-       << visitExp(ctx->exp()).as<string>();     //
+    ss << ctx->REPEAT()->getText();               //
+    ss << commentAfterNewLine(ctx->REPEAT(), 1);  //
+    ss << visitBlock(ctx->block()).as<string>();  //
+    ss << commentAfterNewLine(ctx->block(), -1);  //
+    ss << indent()                                //
+       << ctx->UNTIL()->getText()                 //
+       << commentAfter(ctx->UNTIL(), " ")         //
+       << visitExp(ctx->exp()).as<string>();      //
     if (ctx->SEMI() != NULL) {
         ss << commentAfter(ctx->exp(), "");
         if (shouldKeepSemicolon(ctx->exp(), ctx->SEMI())) {
@@ -299,32 +301,32 @@ antlrcpp::Any FormatVisitor::visitRepeatStat(LuaParser::RepeatStatContext* ctx) 
 antlrcpp::Any FormatVisitor::visitIfStat(LuaParser::IfStatContext* ctx) {
     LOG("visitIfStat");
     stringstream ss;
-    ss << ctx->IF()->getText()                           //
-       << commentAfter(ctx->IF(), " ")                   //
-       << visitExp(ctx->exp().front()).as<string>()      //
-       << commentAfter(ctx->exp().front(), " ")          //
-       << ctx->THEN().front()->getText()                 //
-       << commentAfterNewLine(ctx->THEN().front(), 1)    //
-       << visitBlock(ctx->block().front()).as<string>()  //
-       << commentAfterNewLine(ctx->block().front(), -1);
+    ss << ctx->IF()->getText()                            //
+       << commentAfter(ctx->IF(), " ")                    //
+       << visitExp(ctx->exp().front()).as<string>()       //
+       << commentAfter(ctx->exp().front(), " ")           //
+       << ctx->THEN().front()->getText();                 //
+    ss << commentAfterNewLine(ctx->THEN().front(), 1);    //
+    ss << visitBlock(ctx->block().front()).as<string>();  //
+    ss << commentAfterNewLine(ctx->block().front(), -1);
     int n = ctx->ELSEIF().size();
     for (int i = 0; i < n; i++) {
-        ss << indent()                                      //
-           << ctx->ELSEIF()[i]->getText()                   //
-           << commentAfter(ctx->ELSEIF()[i], " ")           //
-           << visitExp(ctx->exp()[i + 1]).as<string>()      //
-           << commentAfter(ctx->exp()[i + 1], " ")          //
-           << ctx->THEN()[i + 1]->getText()                 //
-           << commentAfterNewLine(ctx->THEN()[i + 1], 1)    //
-           << visitBlock(ctx->block()[i + 1]).as<string>()  //
-           << commentAfterNewLine(ctx->block()[i + 1], -1);
+        ss << indent()                                       //
+           << ctx->ELSEIF()[i]->getText()                    //
+           << commentAfter(ctx->ELSEIF()[i], " ")            //
+           << visitExp(ctx->exp()[i + 1]).as<string>()       //
+           << commentAfter(ctx->exp()[i + 1], " ")           //
+           << ctx->THEN()[i + 1]->getText();                 //
+        ss << commentAfterNewLine(ctx->THEN()[i + 1], 1);    //
+        ss << visitBlock(ctx->block()[i + 1]).as<string>();  //
+        ss << commentAfterNewLine(ctx->block()[i + 1], -1);
     }
     if (ctx->ELSE() != NULL) {
-        ss << indent()                                      //
-           << ctx->ELSE()->getText()                        //
-           << commentAfterNewLine(ctx->ELSE(), 1)           //
-           << visitBlock(ctx->block().back()).as<string>()  //
-           << commentAfterNewLine(ctx->block().back(), -1);
+        ss << indent()                                       //
+           << ctx->ELSE()->getText();                        //
+        ss << commentAfterNewLine(ctx->ELSE(), 1);           //
+        ss << visitBlock(ctx->block().back()).as<string>();  //
+        ss << commentAfterNewLine(ctx->block().back(), -1);
     }
     ss << indent()  //
        << ctx->END()->getText();
@@ -355,11 +357,11 @@ antlrcpp::Any FormatVisitor::visitForStat(LuaParser::ForStatContext* ctx) {
     } else {
         ss << commentAfter(ctx->exp()[1], " ");
     }
-    ss << ctx->DO()->getText()                   //
-       << commentAfterNewLine(ctx->DO(), 1)      //
-       << visitBlock(ctx->block()).as<string>()  //
-       << commentAfterNewLine(ctx->block(), -1)  //
-       << indent()                               //
+    ss << ctx->DO()->getText();                   //
+    ss << commentAfterNewLine(ctx->DO(), 1);      //
+    ss << visitBlock(ctx->block()).as<string>();  //
+    ss << commentAfterNewLine(ctx->block(), -1);  //
+    ss << indent()                                //
        << ctx->END()->getText();
 
     return ss.str();
@@ -377,11 +379,11 @@ antlrcpp::Any FormatVisitor::visitForInStat(LuaParser::ForInStatContext* ctx) {
        << commentAfter(ctx->IN(), " ")                 //
        << visitExplist(ctx->explist()).as<string>()    //
        << commentAfter(ctx->explist(), " ")            //
-       << ctx->DO()->getText()                         //
-       << commentAfterNewLine(ctx->DO(), 1)            //
-       << visitBlock(ctx->block()).as<string>()        //
-       << commentAfterNewLine(ctx->block(), -1)        //
-       << indent()                                     //
+       << ctx->DO()->getText();                        //
+    ss << commentAfterNewLine(ctx->DO(), 1);           //
+    ss << visitBlock(ctx->block()).as<string>();       //
+    ss << commentAfterNewLine(ctx->block(), -1);       //
+    ss << indent()                                     //
        << ctx->END()->getText();
 
     return ss.str();
@@ -443,7 +445,8 @@ antlrcpp::Any FormatVisitor::visitLocalVarDecl(LuaParser::LocalVarDeclContext* c
 antlrcpp::Any FormatVisitor::visitRetstat(LuaParser::RetstatContext* ctx) {
     LOG("visitRetstat");
     stringstream ss;
-    ss << indent() << ctx->RETURN()->getText();
+    ss << indent();
+    ss << ctx->RETURN()->getText();
     if (ctx->explist() != NULL) {
         ss << commentAfter(ctx->RETURN(), " ")            //
            << visitExplist(ctx->explist()).as<string>();  //
@@ -718,12 +721,12 @@ antlrcpp::Any FormatVisitor::visitFuncbody(LuaParser::FuncbodyContext* ctx) {
         }
         return ss.str();
     }
-    ss << ctx->RP()->getText()                   //
-       << commentAfterNewLine(ctx->RP(), 1)      //
-       << visitBlock(ctx->block()).as<string>()  //
-       << commentAfterNewLine(ctx->block(), -1)  //
-       << indent()                               //
-       << ctx->END()->getText();                 //
+    ss << ctx->RP()->getText();                   //
+    ss << commentAfterNewLine(ctx->RP(), 1);      //
+    ss << visitBlock(ctx->block()).as<string>();  //
+    ss << commentAfterNewLine(ctx->block(), -1);  //
+    ss << indent()                                //
+       << ctx->END()->getText();                  //
     return ss.str();
 }
 
@@ -758,22 +761,22 @@ antlrcpp::Any FormatVisitor::visitTableconstructor(LuaParser::TableconstructorCo
                << commentAfter(ctx->fieldlist(), " ")            //
                << ctx->RB()->getText();
         } else {
-            ss << commentAfterNewLine(ctx->LB(), 1)               //
-               << visitFieldlist(ctx->fieldlist()).as<string>();  //
+            ss << commentAfterNewLine(ctx->LB(), 1);              //
+            ss << visitFieldlist(ctx->fieldlist()).as<string>();  //
             if (config.extra_sep_at_table_end() && ctx->fieldlist()->field().size() > 0) {
                 ss << config.table_sep();
             }
-            ss << commentAfterNewLine(ctx->fieldlist(), -1)  //
-               << indent()                                   //
-               << ctx->RB()->getText();
+            ss << commentAfterNewLine(ctx->fieldlist(), -1);  //
+            ss << indent();                                   //
+            ss << ctx->RB()->getText();
         }
     } else {
         string comment = commentAfter(ctx->LB(), "");
         // if comment contains line break, then keep it.
         if (comment.find("\n") != string::npos) {
-            ss << commentAfterNewLine(ctx->LB(), 1)  //
-               << decIndent()                        //
-               << ctx->RB()->getText();
+            ss << commentAfterNewLine(ctx->LB(), 1);  //
+            ss << decIndent();                        //
+            ss << ctx->RB()->getText();
         } else {
             // comment not contains line break, format the table to one line.
             ss << commentAfter(ctx->LB(), "")  //
@@ -972,6 +975,8 @@ bool FormatVisitor::isTableSimple(LuaParser::TableconstructorContext* ctx) {
     }
     return true;
 }
+
+string test_step(int i) { return to_string(i); }
 
 string FormatVisitor::indent() {
     stringstream ss;

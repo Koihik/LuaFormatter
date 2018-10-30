@@ -76,16 +76,14 @@ tbl = {
 ```
 
 ## Compiling
-Build from source, only support mac os now (Linux should also work).
+Build from source, only support Mac OS/Linux now.
 
 ### Requirements
-* c++ 11 compiler
 * cmake 3.0+
-* antlr4-cpp-runtime 4.7.1+
+* c++ 11 compiler
 
 ### Steps
 ```bash
-    brew install antlr4-cpp-runtime
     cmake .
     make
 ```
