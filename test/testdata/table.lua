@@ -16,4 +16,4 @@ q = {
 q[ [=[key1]=] ] = "value1"
 q[ [[key2]] ] = "value2"
 q['\'"key3"'] = "value3"
-q["\"key4\""] = "value4"
+q["\"key4\""] = "value4"    

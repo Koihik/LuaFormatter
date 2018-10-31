@@ -52,7 +52,7 @@ if(BUILD_TESTS)
   message("BUILD_TESTS enabled.")
   enable_testing()
 
-  add_executable(lua-format-test ${src_dir} test/test.cpp test/test_config.cpp test/test_format_file.cpp)
+  add_executable(lua-format-test ${src_dir} test/test.cpp test/test_config.cpp test/test_format_file.cpp test/test_flag_parser.cpp)
   set_target_properties(lua-format-test PROPERTIES LINKER_LANGUAGE CXX)
 
   if(COVERAGE)

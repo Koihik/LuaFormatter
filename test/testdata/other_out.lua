@@ -59,4 +59,7 @@ function xx()
     end
 end
 
+x = x & y or not z or #z;
+(#{}):func():func()
+
 -- last comment

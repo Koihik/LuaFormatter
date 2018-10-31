@@ -14,8 +14,7 @@ string __foramt(ANTLRInputStream& input, Config& config) {
     LuaParser::ChunkContext* chunk = parser.chunk();
 
     if (parser.getNumberOfSyntaxErrors() > 0) {
-        cerr << "syntax err in lua code" << endl;
-        exit(-1);
+        throw invalid_argument("Input contains syntax errors");
     }
 
     vector<antlr4::Token*> tokenVector;

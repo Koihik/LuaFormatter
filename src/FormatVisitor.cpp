@@ -157,20 +157,16 @@ antlrcpp::Any FormatVisitor::visitChunk(LuaParser::ChunkContext* ctx) {
        << visitBlock(ctx->block()).as<string>();
     string comment = commentAfterNewLine(ctx->block(), 0);
 
+    ss << comment;
     // If there is no line break at the end of the file, add one
-    if (comment.size() == 0) {
-        ss << "\n";
-    } else {
-        ss << comment;
-        for (int i = comment.size() - 1; i >= 0; i--) {
-            if (comment[i] == ' ' || comment[i] == '\t' || comment[i] == '\u000C') {
-                continue;
-            }
-            if (comment[i] != '\n') {
-                ss << "\n";
-            }
-            break;
+    for (int i = comment.size() - 1; i >= 0; i--) {
+        if (comment[i] == ' ' || comment[i] == '\t' || comment[i] == '\u000C') {
+            continue;
         }
+        if (comment[i] != '\n') {
+            ss << "\n";
+        }
+        break;
     }
     return ss.str();
 }
@@ -651,7 +647,7 @@ antlrcpp::Any FormatVisitor::visitVarSuffix(LuaParser::VarSuffixContext* ctx) {
     if (ctx->exp() != NULL) {
         string expString = ctx->exp()->getText();
         // if table key is a nested string, keep the whitespace
-        // example: 
+        // example:
         // x = {}
         // x[ [[key]] ] = "value"
         if (expString.size() > 0 && expString[0] == '[') {

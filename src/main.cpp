@@ -1,31 +1,22 @@
 #include <sys/stat.h>
 #include <fstream>
 #include "Config.h"
+#include "FlagParser.h"
 #include "lua-format.h"
 
 int main(int argc, const char* argv[]) {
-    // FIXME: import some parse flag lib
-    if (argc == 1) {
-        cerr << "No input file specified." << endl;
-        return -1;
-    }
-    if (argc != 2 && argc != 4) {
-        cerr << "Arguements count err." << endl;
-        return -1;
-    }
+    FlagParser parser;
+    parser.define("-c", 1);
+    parser.define("-v", 0);
+
+    parser.parse(argc, argv);
+
+    bool verbose = parser.hasOption("-v");
 
     string configFileName;
-    string fileName;
-    if (argc == 2) {
-        fileName = argv[1];
-    } else {
-        string cfg = argv[1];
-        if (cfg != "-c" && cfg != "-config" && cfg != "--config") {
-            cerr << "Unknown flag: " << argv[1] << endl;
-            return -1;
-        }
-        configFileName = argv[2];
-        fileName = argv[3];
+
+    if (parser.hasOption("-c")) {
+        configFileName = parser.getOption("-c");
     }
 
     struct stat s;
@@ -35,19 +26,14 @@ int main(int argc, const char* argv[]) {
                 cerr << configFileName << ": Not a file." << endl;
                 return -1;
             }
+            if (!(s.st_mode & S_IREAD)) {
+                cerr << configFileName << ": No access to read." << endl;
+                return -1;
+            }
         } else {
-            cerr << configFileName << ": No such file or no access to write." << endl;
+            cerr << configFileName << ": No such file." << endl;
             return -1;
         }
-    }
-    if (stat(fileName.c_str(), &s) == 0) {
-        if (!(s.st_mode & S_IFREG)) {
-            cerr << fileName << ": Not a file." << endl;
-            return -1;
-        }
-    } else {
-        cerr << fileName << ": No such file or no access to write." << endl;
-        return -1;
     }
 
     Config config;
@@ -55,13 +41,49 @@ int main(int argc, const char* argv[]) {
     if (configFileName != "") {
         config.readFromFile(configFileName);
     }
+    vector<string> files = parser.getValues();
+    if (files.size() == 0) {
+        cerr << "No input file specified.";
+    }
+    for (string fileName : files) {
+        if (verbose) {
+            cerr << "formatting: " << fileName << endl;
+        }
+        if (stat(fileName.c_str(), &s) == 0) {
+            if (!(s.st_mode & S_IFREG)) {
+                cerr << fileName << ": Not a file." << endl;
+                continue;
+            }
+            if (!(s.st_mode & S_IREAD)) {
+                cerr << fileName << ": No access to read." << endl;
+                continue;
+            }
+            if (!(s.st_mode & S_IWRITE)) {
+                cerr << fileName << ": No access to write." << endl;
+                continue;
+            }
+        } else {
+            cerr << fileName << ": No such file." << endl;
+            continue;
+        }
 
-    std::ifstream ifs;
-    ifs.open(fileName);
-    string out = lua_format(ifs, config);
+        std::ifstream ifs;
+        ifs.open(fileName);
 
-    ofstream fout(fileName);
-    fout << out;
-    fout.close();
+        try {
+            string out = lua_format(ifs, config);
+
+            ofstream fout(fileName);
+            fout << out;
+            fout.close();
+
+            if (verbose) {
+                cerr << "format success: " << fileName << endl;
+            }
+        } catch (const std::invalid_argument& e) {
+            cerr << e.what() << endl;
+        }
+    }
+
     return 0;
 }
