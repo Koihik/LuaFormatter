@@ -138,6 +138,7 @@ string FormatVisitor::commentAfterNewLine(tree::ParseTree* node, int indentSize)
     return ss.str();
 }
 
+// Add a white space before line comment
 string FormatVisitor::formatLineComment(Token* token) {
     string c = token->getText();
     char firstChar = c[2];
@@ -648,11 +649,24 @@ antlrcpp::Any FormatVisitor::visitVarSuffix(LuaParser::VarSuffixContext* ctx) {
            << commentAfter(na, "");
     }
     if (ctx->exp() != NULL) {
-        ss << ctx->LSB()->getText()              //
-           << commentAfter(ctx->LSB(), "")       //
-           << visitExp(ctx->exp()).as<string>()  //
-           << commentAfter(ctx->exp(), "")       //
-           << ctx->RSB()->getText();
+        string expString = ctx->exp()->getText();
+        // if table key is a nested string, keep the whitespace
+        // example: 
+        // x = {}
+        // x[ [[key]] ] = "value"
+        if (expString.size() > 0 && expString[0] == '[') {
+            ss << ctx->LSB()->getText()              //
+               << commentAfter(ctx->LSB(), " ")      //
+               << visitExp(ctx->exp()).as<string>()  //
+               << commentAfter(ctx->exp(), " ")      //
+               << ctx->RSB()->getText();
+        } else {
+            ss << ctx->LSB()->getText()              //
+               << commentAfter(ctx->LSB(), "")       //
+               << visitExp(ctx->exp()).as<string>()  //
+               << commentAfter(ctx->exp(), "")       //
+               << ctx->RSB()->getText();
+        }
     } else {
         ss << ctx->DOT()->getText()         //
            << commentAfter(ctx->DOT(), "")  //

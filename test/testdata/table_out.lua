@@ -1,3 +1,5 @@
+key = "some key"
+
 q = {
     a = "1",
     b = 1,
@@ -7,7 +9,7 @@ q = {
     d = {
         [1] = {},
         [2] = {},
-        [xyz] = (function()
+        [key] = (function()
             return {
                 1,
                 2,
@@ -16,3 +18,8 @@ q = {
         end)()
     }
 }
+
+q[ [=[key1]=] ] = "value1"
+q[ [[key2]] ] = "value2"
+q['\'"key3"'] = "value3"
+q["\"key4\""] = "value4"
