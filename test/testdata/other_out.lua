@@ -60,6 +60,6 @@ function xx()
 end
 
 x = x & y or not z or #z;
-(#{}):func():func()
+(#{})[0]:func()[1]:func().v.w()
 
 -- last comment

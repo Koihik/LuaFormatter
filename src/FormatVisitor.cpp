@@ -877,14 +877,6 @@ antlrcpp::Any FormatVisitor::visitChildren(tree::ParseTree* node) {
 
 antlrcpp::Any FormatVisitor::visitTerminal(tree::TerminalNode* node) { return node->getText(); }
 
-LuaParser::ExpContext* _lastExp(LuaParser::ExplistContext* ctx) {
-    LuaParser::ExpContext* lastExp = ctx->exp().back();
-    while (!lastExp->exp().empty()) {
-        lastExp = lastExp->exp().back();
-    }
-    return lastExp;
-}
-
 // If both of the following conditions are met, the custom semicolon should not be deleted:
 // 1. There is a variable token or function call token at end of previous statement
 //    e.g. 'local x = y' or 'y:func()'

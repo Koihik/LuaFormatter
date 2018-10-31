@@ -71,15 +71,22 @@ before_install:
   - export CXX=${COMPILER}
 
 install:
-  - cmake .
+  - cmake . -BRelease -DCMAKE_BUILD_TYPE=Release
+  - cmake . -BDebug -DCMAKE_BUILD_TYPE=Debug
 
 script:
-  - make
-  - ./lua-format-test
+  - cd Debug
+  - make -j 2
+  - CTEST_OUTPUT_ON_FAILURE=1 ctest -j 2
+  - cd ../Release
+  - make -j 2
+  - CTEST_OUTPUT_ON_FAILURE=1 ctest -j 2
 
 after_success:
-  - cd ${TRAVIS_BUILD_DIR}
-  - lcov --directory . --capture --output-file coverage.info
-  - lcov --remove coverage.info '*/usr/*' '*/test/*' '*/generated/*' '*/third_party/*' --output-file coverage.info
-  - lcov --list coverage.info
-  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
+  - if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      cd ${TRAVIS_BUILD_DIR}/Debug;
+      lcov --directory . --capture --output-file coverage.info;
+      lcov --remove coverage.info '*/usr/*' '*/test/*' '*/generated/*' '*/third_party/*' --output-file coverage.info;
+      lcov --list coverage.info;
+      bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports";
+    fi

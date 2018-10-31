@@ -68,7 +68,7 @@ TEST_CASE("keep_simple_table_one_line", "config") {
 
 TEST_CASE("read from file", "config") {
     Config config;
-    config.readFromFile("test/testconfig/1.lua-format");
+    config.readFromFile("../test/testconfig/1.lua-format");
 
     REQUIRE("  " == config.indent());
     REQUIRE(";" == config.table_sep());
@@ -76,7 +76,7 @@ TEST_CASE("read from file", "config") {
     REQUIRE(true == config.keep_simple_function_one_line());
     REQUIRE(true == config.keep_simple_table_one_line());
 
-    config.readFromFile("test/testconfig/2.lua-format");
+    config.readFromFile("../test/testconfig/2.lua-format");
 
     REQUIRE("    " == config.indent());
     REQUIRE("," == config.table_sep());
