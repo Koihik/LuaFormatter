@@ -553,7 +553,11 @@ antlrcpp::Any FormatVisitor::visitExp(LuaParser::ExpContext* ctx) {
         if (ctx->unaryOperator()->getText() == "not") {
             ss << commentAfter(ctx->unaryOperator(), " ");
         } else {
-            ss << commentAfter(ctx->unaryOperator(), "");
+            if (ctx->unaryOperator()->getText() == "-" && ctx->exp().front()->getText()[0] == '-') {
+                ss << commentAfter(ctx->unaryOperator(), " ");
+            } else {
+                ss << commentAfter(ctx->unaryOperator(), "");
+            }
         }
         ss << visitExp(ctx->exp().front()).as<string>();
         return ss.str();

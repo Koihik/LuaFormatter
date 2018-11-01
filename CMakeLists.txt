@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-project("lua-formatter")
+project("lua-formatter" VERSION 1.0.0 LANGUAGES CXX)
 
 option(BUILD_TESTS "set ON to build tests" ON)
 option(COVERAGE "set ON to enable coverage" ON)
@@ -12,6 +12,14 @@ else()
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
   set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
+
+if(NOT CMAKE_BUILD_TYPE)
+  message("set build type to Release.")
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -Wall")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 include_directories(
   ${PROJECT_SOURCE_DIR}/generated/
@@ -48,14 +56,24 @@ set_target_properties(lua-format PROPERTIES LINKER_LANGUAGE CXX)
 
 target_link_libraries(lua-format antlr4-cpp-runtime)
 
+install(TARGETS lua-format
+  RUNTIME DESTINATION bin
+)
+
 if(BUILD_TESTS)
   message("BUILD_TESTS enabled.")
   enable_testing()
 
-  add_executable(lua-format-test ${src_dir} test/test.cpp test/test_config.cpp test/test_format_file.cpp test/test_flag_parser.cpp)
+  add_executable(lua-format-test 
+    ${src_dir} 
+    test/test.cpp 
+    test/test_config.cpp 
+    test/test_format_file.cpp 
+    test/test_flag_parser.cpp
+  )
   set_target_properties(lua-format-test PROPERTIES LINKER_LANGUAGE CXX)
 
-  if(COVERAGE)
+  if(COVERAGE AND CMAKE_BUILD_TYPE MATCHES "Debug")
     message("COVERAGE enabled.")
     set_target_properties(lua-format-test
       PROPERTIES COMPILE_FLAGS "-fprofile-arcs -ftest-coverage ${CMAKE_CXX_FLAGS}"

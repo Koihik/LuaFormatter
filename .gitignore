@@ -366,8 +366,5 @@ CTestTestfile.cmake
 *.app
 
 # Project-specific
-lua-format
-lua-format-test
-libantlr4-cpp-runtime.a
 .vs-code/
 .DS_Store

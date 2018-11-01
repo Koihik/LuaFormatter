@@ -29,3 +29,4 @@ TEST_FILE("../test/testdata/comments.lua");
 TEST_FILE("../test/testdata/table.lua");
 TEST_FILE("../test/testdata/semi.lua");
 TEST_FILE("../test/testdata/statements.lua");
+TEST_FILE("../test/testdata/operator.lua");

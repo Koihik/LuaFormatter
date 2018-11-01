@@ -11,6 +11,8 @@ TEST_CASE("flag parser works", "flag_parser") {
 
     REQUIRE(true == p.hasOption("-c"));
     REQUIRE(true == p.hasOption("-v"));
+    REQUIRE(false == p.hasOption("-q"));
+    REQUIRE(false == p.hasOption("--config"));
 
     REQUIRE("c" == p.getOption("-c"));
 

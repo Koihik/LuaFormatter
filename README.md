@@ -5,6 +5,22 @@ Reformats your Lua source code.
 [![Build Status](https://travis-ci.org/Koihik/LuaFormatter.svg?branch=master)](https://travis-ci.org/Koihik/LuaFormatter)
 [![codecov](https://codecov.io/gh/Koihik/LuaFormatter/branch/master/graph/badge.svg)](https://codecov.io/gh/Koihik/LuaFormatter)
 
+## Install
+Build from source, only support Mac OS/Linux now.
+
+### Requirements
+* cmake 3.0+
+* c++ 11 compiler
+
+### Steps
+```bash
+    git clone https://github.com/Koihik/LuaFormatter.git
+    cd LuaFormatter
+    cmake .
+    make
+    make install
+```
+
 ## Usage
 `lua-format -c your_style_file your_lua_file.lua`
 
@@ -73,17 +89,4 @@ tbl = {
     key3 = pcall(function() return "ww" end)
 }
 
-```
-
-## Compiling
-Build from source, only support Mac OS/Linux now.
-
-### Requirements
-* cmake 3.0+
-* c++ 11 compiler
-
-### Steps
-```bash
-    cmake .
-    make
 ```
