@@ -783,10 +783,13 @@ antlrcpp::Any FormatVisitor::visitTableconstructor(LuaParser::TableconstructorCo
     ss << ctx->LB()->getText();
     if (ctx->fieldlist() != NULL) {
         if (config.keep_simple_table_one_line() && isTableSimple(ctx)) {
-            ss << commentAfter(ctx->LB(), " ")                   //
-               << visitFieldlist(ctx->fieldlist()).as<string>()  //
-               << commentAfter(ctx->fieldlist(), " ")            //
-               << ctx->RB()->getText();
+            ss << commentAfter(ctx->LB(), " ");  //
+            int temp = _indent;
+            _indent = 0;
+            ss << visitFieldlist(ctx->fieldlist()).as<string>();  //
+            _indent = temp;
+            ss << commentAfter(ctx->fieldlist(), " ");  //
+            ss << ctx->RB()->getText();
         } else {
             ss << commentAfterNewLine(ctx->LB(), 1);              //
             ss << visitFieldlist(ctx->fieldlist()).as<string>();  //
