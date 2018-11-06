@@ -53,6 +53,10 @@ class FormatVisitor : public LuaBaseVisitor {
     antlrcpp::Any visitTerminal(tree::TerminalNode* node) override;
 
    private:
+    bool _chopDownParameter = false;
+    bool _chopDownTable = false;
+    bool _chopDownFunction = true;
+
     int _indent = 0;
     const vector<Token*>& tokens;
     const Config& config;
@@ -60,8 +64,10 @@ class FormatVisitor : public LuaBaseVisitor {
     string formatLineComment(Token* token);
 
     bool shouldKeepSemicolon(ParserRuleContext* ctx, tree::TerminalNode* node);
+    bool hasHardLineBreak(ParserRuleContext* ctx);
     bool isFunctionSimple(LuaParser::FuncbodyContext* ctx);
     bool isTableSimple(LuaParser::TableconstructorContext* ctx);
+    bool isParameterSimple(LuaParser::ExplistContext* ctx);
 
     string indent();
     string commentAfter(tree::ParseTree* a, const string& expect);

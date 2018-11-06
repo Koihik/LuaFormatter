@@ -32,11 +32,7 @@ for i = 1, 5 do
 end
 
 -- forInStat
-a = {
-    "1",
-    "2",
-    "3"
-}
+a = {"1", "2", "3"}
 for i, v in ipairs(a) do
     print(i, v)
 end

@@ -33,10 +33,7 @@ local f = f or function() print("f") end
 xxx:qqq():www():eee({
     func = function() print("xx") end,
     func1 = function() print("www") end,
-    [ab_c] = {
-        "sss",
-        "qqq"
-    }
+    [ab_c] = {"sss", "qqq"}
 })
 
 do
