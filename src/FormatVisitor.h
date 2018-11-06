@@ -9,7 +9,7 @@ using namespace antlr4;
 
 class FormatVisitor : public LuaBaseVisitor {
    public:
-    FormatVisitor(const vector<Token*>& t, Config& c) : tokens(t), config(c) {}
+    FormatVisitor(const vector<Token*>& t, const Config& c) : tokens(t), config(c) {}
 
     antlrcpp::Any visitChunk(LuaParser::ChunkContext* context) override;
     antlrcpp::Any visitBlock(LuaParser::BlockContext* context) override;
@@ -55,7 +55,7 @@ class FormatVisitor : public LuaBaseVisitor {
    private:
     int _indent = 0;
     const vector<Token*>& tokens;
-    Config& config;
+    const Config& config;
 
     string formatLineComment(Token* token);
 

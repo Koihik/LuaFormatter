@@ -5,16 +5,16 @@
 
 using namespace std;
 
-#define BIND_STR(VARNAME)                          \
-    string VARNAME() { return _map["" #VARNAME]; } \
+#define BIND_STR(VARNAME)                                   \
+    string VARNAME() const { return _map.at("" #VARNAME); } \
     void VARNAME(const string& s) { _map["" #VARNAME] = s; }
 
-#define BIND_INT(VARNAME)                             \
-    int VARNAME() { return stoi(_map["" #VARNAME]); } \
+#define BIND_INT(VARNAME)                                      \
+    int VARNAME() const { return stoi(_map.at("" #VARNAME)); } \
     void VARNAME(int i) { _map["" #VARNAME] = to_string(i); }
 
-#define BIND_BOOL(VARNAME)                                 \
-    bool VARNAME() { return _map["" #VARNAME] == "true"; } \
+#define BIND_BOOL(VARNAME)                                          \
+    bool VARNAME() const { return _map.at("" #VARNAME) == "true"; } \
     void VARNAME(bool x) { _map["" #VARNAME] = x ? "true" : "false"; }
 
 class Config {

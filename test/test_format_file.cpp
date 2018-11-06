@@ -22,6 +22,8 @@ using namespace std;
         ss << expectFile.rdbuf();                                                     \
         string expect = ss.str();                                                     \
         REQUIRE(expect == actul);                                                     \
+        string formatTwice = lua_format(actul, config);                               \
+        REQUIRE(expect == formatTwice);                                               \
     }
 
 TEST_FILE("../test/testdata/other.lua");

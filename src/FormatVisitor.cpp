@@ -18,7 +18,14 @@ using namespace antlr4;
 
 #define SIMPLE_TABLE_THRESHOLD 50
 
-int lastIdx(tree::ParseTree* t) {
+bool _isBlankChar(char c) { return c == ' ' || c == '\t' || c == '\u000C'; }
+
+bool _isLastWhiteSpace(stringstream& ss) {
+    string s = ss.str();
+    return s.size() > 0 && s[s.size() - 1] == ' ';
+}
+
+int _lastIdx(tree::ParseTree* t) {
     if (t == NULL) {
         return -1;
     }
@@ -36,7 +43,7 @@ int lastIdx(tree::ParseTree* t) {
 // commentAfter returns comments between a ParseTreeNode and the next Node.
 // expect: return expect string if no comments found
 string FormatVisitor::commentAfter(tree::ParseTree* node, const string& expect) {
-    int l = lastIdx(node);
+    int l = _lastIdx(node);
     stringstream ss;
     // No space on left of first comment
     bool lastComment = node != NULL;
@@ -79,7 +86,7 @@ string FormatVisitor::commentAfterNewLine(tree::ParseTree* node, int indentSize)
         _indent += indentSize;
         return "";
     }
-    int l = lastIdx(node);
+    int l = _lastIdx(node);
     if (indentSize > 0) {
         _indent += indentSize;
     }
@@ -140,14 +147,14 @@ string FormatVisitor::commentAfterNewLine(tree::ParseTree* node, int indentSize)
 
 // Add a white space before line comment
 string FormatVisitor::formatLineComment(Token* token) {
-    string c = token->getText();
-    char firstChar = c[2];
-    if (firstChar == '-' || firstChar == ' ' || firstChar == '\u000C' || firstChar == '\t' || firstChar == '\r' || firstChar == '\n') {
+    string comment = token->getText();
+    char firstChar = comment[2];
+    if (_isBlankChar(firstChar) || firstChar == '-' || firstChar == '\r' || firstChar == '\n') {
         // do nothing
     } else {
-        c = "-- " + c.substr(2, c.size());
+        comment = "-- " + comment.substr(2, comment.size());
     }
-    return c;
+    return comment;
 }
 
 antlrcpp::Any FormatVisitor::visitChunk(LuaParser::ChunkContext* ctx) {
@@ -160,7 +167,7 @@ antlrcpp::Any FormatVisitor::visitChunk(LuaParser::ChunkContext* ctx) {
     ss << comment;
     // If there is no line break at the end of the file, add one
     for (int i = comment.size() - 1; i >= 0; i--) {
-        if (comment[i] == ' ' || comment[i] == '\t' || comment[i] == '\u000C') {
+        if (_isBlankChar(comment[i])) {
             continue;
         }
         if (comment[i] != '\n') {
@@ -178,21 +185,40 @@ antlrcpp::Any FormatVisitor::visitBlock(LuaParser::BlockContext* ctx) {
     auto stats = ctx->stat();
     int n = stats.size();
     for (int i = 0; i < n; i++) {
-        if (stats[i]->SEMI() == NULL) {
+        bool isSemi = stats[i]->SEMI() != NULL;
+        bool needComment = i < n - 1 || ctx->retstat() != NULL;
+        bool isNextSemi = i + 1 < n && stats[i + 1]->SEMI() != NULL;
+        if (!isSemi) {
             ss << visitStat(stats[i]).as<string>();
         }
-        if (i != n - 1 || ctx->retstat() != NULL) {
-            // FIXME: fix single semi between comments
-            // if next stat is not semicolon
-            if (i + 1 >= n || stats[i + 1]->SEMI() == NULL) {
-                ss << commentAfterNewLine(stats[i], 0);
+        bool previousWhiteSpace = isSemi || _isLastWhiteSpace(ss);
+        if (needComment) {
+            if (isNextSemi) {
+                string comment = commentAfter(stats[i], "");
+                if (previousWhiteSpace && comment.size() > 0 && comment[0] == ' ') {
+                    ss << comment.substr(1, comment.size() - 1);
+                } else {
+                    ss << comment;
+                }
             } else {
-                ss << commentAfter(stats[i], "");
+                string comment = commentAfterNewLine(stats[i], 0);
+                if (previousWhiteSpace && comment.size() > 0 && comment[0] == ' ') {
+                    ss << comment.substr(1, comment.size() - 1);
+                } else {
+                    ss << comment;
+                }
             }
         }
     }
     if (ctx->retstat() != NULL) {
         ss << visitRetstat(ctx->retstat()).as<string>();
+    }
+    if (ctx->retstat() == NULL && _isLastWhiteSpace(ss)) {
+        string blockComment = commentAfter(ctx, "");
+        if (blockComment.size() > 0 && blockComment[0] == ' ') {
+            string ret = ss.str();
+            return ret.substr(0, ret.size() - 1);
+        }
     }
     return ss.str();
 }
@@ -948,7 +974,12 @@ bool FormatVisitor::shouldKeepSemicolon(ParserRuleContext* ctx, tree::TerminalNo
 
 // Judge a function is 'simple function' or not
 bool FormatVisitor::isFunctionSimple(LuaParser::FuncbodyContext* ctx) {
-    int stats = ctx->block()->stat().size();
+    int stats = 0;
+    for (auto& s : ctx->block()->stat()) {
+        if (s->SEMI() == NULL) {
+            stats++;
+        }
+    }
     if (ctx->block()->retstat() != NULL) {
         stats++;
     }
@@ -997,8 +1028,6 @@ bool FormatVisitor::isTableSimple(LuaParser::TableconstructorContext* ctx) {
     }
     return true;
 }
-
-string test_step(int i) { return to_string(i); }
 
 string FormatVisitor::indent() {
     stringstream ss;

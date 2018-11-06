@@ -366,5 +366,5 @@ CTestTestfile.cmake
 *.app
 
 # Project-specific
-.vs-code/
+.vscode/
 .DS_Store
