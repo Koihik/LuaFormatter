@@ -69,7 +69,7 @@ string FormatVisitor::commentAfter(tree::ParseTree* node, const string& expect) 
             break;
         }
     }
-    if (ss.tellp() == 0) {
+    if (!ss.tellp()) {
         ss << expect;
     } else if (lastComment) {
         ss << " ";
