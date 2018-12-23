@@ -1,0 +1,13 @@
+before_build:
+  - cmake .
+
+build_script:
+  - msbuild lua-formatter.sln /m /p:Configuration=Debug /t:ALL_BUILD /clp:ErrorsOnly
+  - msbuild lua-formatter.sln /m /p:Configuration=Release /t:ALL_BUILD /clp:ErrorsOnly
+  - cd %APPVEYOR_BUILD_FOLDER%\Debug
+  - lua-format-test.exe
+  - cd %APPVEYOR_BUILD_FOLDER%\Release
+  - lua-format-test.exe
+
+artifacts:
+  - path: Release\lua-format.exe
