@@ -52,6 +52,11 @@ file(GLOB antlr4-cpp-src
 add_library (antlr4-cpp-runtime ${antlr4-cpp-src})
 
 add_executable(lua-format ${src_dir} src/main.cpp)
+
+if(WIN32)
+  target_compile_definitions(antlr4-cpp-runtime PRIVATE ANTLR4CPP_EXPORTS)
+endif()
+
 set_target_properties(lua-format PROPERTIES LINKER_LANGUAGE CXX)
 
 target_link_libraries(lua-format antlr4-cpp-runtime)
