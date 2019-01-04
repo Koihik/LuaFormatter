@@ -12,7 +12,9 @@ Config::Config() {
     _map["indent"] = "    ";
     _map["table_sep"] = ",";
     _map["extra_sep_at_table_end"] = "false";
-    _map["chop_down_parameter"] = "30";
+    _map["chop_down_parameter"] = "50";
+    _map["chop_down_function"] = "50";
+    _map["chop_down_table"] = "50";
 }
 
 void Config::readFromFile(const string& file) {

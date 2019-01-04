@@ -33,6 +33,35 @@ TEST_CASE("extra_sep_at_table_end", "config") {
     REQUIRE("x = {\n  1, -- line break\n  2,\n  3\n}\n" == lua_format("x = {1,-- line break\n2;3}", config));
 }
 
+TEST_CASE("chop_down_parameter", "config") {
+    Config config;
+    config.indent("  ");
+
+    REQUIRE("call(1, 2, 3)\n" == lua_format("call(1,2,3)", config));
+
+    config.chop_down_parameter(5);
+    REQUIRE("call(\n  1,\n  2,\n  3\n)\n" == lua_format("call(1,2,3)", config));
+}
+
+TEST_CASE("chop_down_function", "config") {
+    Config config;
+    config.indent("  ");
+
+    REQUIRE("function a() print(1) end\n" == lua_format("function a() print(1) end", config));
+
+    config.chop_down_function(5);
+    REQUIRE("function a()\n  print(1)\nend\n" == lua_format("function a() print(1) end", config));
+}
+TEST_CASE("chop_down_table", "config") {
+    Config config;
+    config.indent("  ");
+
+    REQUIRE("x = {1, 2, 3}\n" == lua_format("x = {1,2,3}", config));
+
+    config.chop_down_table(5);
+    REQUIRE("x = {\n  1,\n  2,\n  3\n}\n" == lua_format("x = {1,2,3}", config));
+}
+
 TEST_CASE("read from file", "config") {
     Config config;
     config.readFromFile("../test/testconfig/1.lua-format");

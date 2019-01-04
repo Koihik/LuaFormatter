@@ -16,10 +16,6 @@ using namespace antlr4;
 #define LOGVAR(arg) ;
 #endif
 
-#define SIMPLE_PARAMETER_THRESHOLD 50
-#define SIMPLE_TABLE_THRESHOLD 50
-#define SIMPLE_FUNCTION_THRESHOLD 50
-
 bool _isBlankChar(char c) { return c == ' ' || c == '\t' || c == '\u000C'; }
 
 bool _isLastWhiteSpace(stringstream& ss) {
@@ -257,14 +253,29 @@ antlrcpp::Any FormatVisitor::visitVarDecl(LuaParser::VarDeclContext* ctx) {
 antlrcpp::Any FormatVisitor::visitFunctioncall(LuaParser::FunctioncallContext* ctx) {
     LOG("visitFunctioncall");
     stringstream ss;
-    ss << visitVarOrExp(ctx->varOrExp()).as<string>();  //
-    ss << commentAfter(ctx->varOrExp(), "");
+    ss << visitVarOrExp(ctx->varOrExp()).as<string>();
+
+    bool needWhiteSpace = false;
+    if (ctx->nameAndArgs().size() > 0) {
+        LuaParser::NameAndArgsContext* naaCtx = ctx->nameAndArgs().front();
+        if (naaCtx->COLON() == NULL) {
+            LuaParser::StringContext* stringContext = naaCtx->args()->string();
+            needWhiteSpace = stringContext != NULL;
+        }
+    }
+    ss << commentAfter(ctx->varOrExp(), needWhiteSpace ? " " : "");
 
     int n = ctx->nameAndArgs().size();
     for (int i = 0; i < n; i++) {
         ss << visitNameAndArgs(ctx->nameAndArgs()[i]).as<string>();
         if (i != n - 1) {
-            ss << commentAfter(ctx->nameAndArgs()[i], "");
+            needWhiteSpace = false;
+            LuaParser::NameAndArgsContext* naaCtx = ctx->nameAndArgs()[i + 1];
+            if (naaCtx->COLON() == NULL) {
+                LuaParser::StringContext* stringContext = naaCtx->args()->string();
+                needWhiteSpace = stringContext != NULL;
+            }
+            ss << commentAfter(ctx->nameAndArgs()[i], needWhiteSpace ? " " : "");
         }
     }
     if (ctx->SEMI() != NULL) {
@@ -615,13 +626,25 @@ antlrcpp::Any FormatVisitor::visitPrefixexp(LuaParser::PrefixexpContext* ctx) {
     stringstream ss;
     ss << visitVarOrExp(ctx->varOrExp()).as<string>();
     int n = ctx->nameAndArgs().size();
+    bool needWhiteSpace = false;
     if (n > 0) {
-        ss << commentAfter(ctx->varOrExp(), "");
+        LuaParser::NameAndArgsContext* naaCtx = ctx->nameAndArgs().front();
+        if (naaCtx->COLON() == NULL) {
+            LuaParser::StringContext* stringContext = naaCtx->args()->string();
+            needWhiteSpace = stringContext != NULL;
+        }
+        ss << commentAfter(ctx->varOrExp(), needWhiteSpace ? " " : "");
     }
     for (int i = 0; i < n; i++) {
         ss << visitNameAndArgs(ctx->nameAndArgs()[i]).as<string>();
         if (i != n - 1) {
-            ss << commentAfter(ctx->nameAndArgs()[i], "");
+            needWhiteSpace = false;
+            LuaParser::NameAndArgsContext* naaCtx = ctx->nameAndArgs()[i + 1];
+            if (naaCtx->COLON() == NULL) {
+                LuaParser::StringContext* stringContext = naaCtx->args()->string();
+                needWhiteSpace = stringContext != NULL;
+            }
+            ss << commentAfter(ctx->nameAndArgs()[i], needWhiteSpace ? " " : "");
         }
     }
     return ss.str();
@@ -722,9 +745,7 @@ antlrcpp::Any FormatVisitor::visitNameAndArgs(LuaParser::NameAndArgsContext* ctx
         ss << ctx->NAME()->getText();
         bool needWhiteSpace = false;
         LuaParser::StringContext* stringContext = ctx->args()->string();
-        if (stringContext != NULL) {
-            needWhiteSpace = stringContext->NORMALSTRING() != NULL || stringContext->CHARSTRING() != NULL;
-        }
+        needWhiteSpace = stringContext != NULL;
         ss << commentAfter(ctx->NAME(), needWhiteSpace ? " " : "");
         ss << visitArgs(ctx->args()).as<string>();
         return ss.str();
@@ -1058,7 +1079,7 @@ bool FormatVisitor::isFunctionSimple(LuaParser::FuncbodyContext* ctx) {
     }
 
     // function too long
-    if (ctx->getText().size() >= SIMPLE_FUNCTION_THRESHOLD) {
+    if (ctx->getText().size() >= config.chop_down_function()) {
         return false;
     }
 
@@ -1081,7 +1102,7 @@ bool FormatVisitor::isFunctionSimple(LuaParser::FuncbodyContext* ctx) {
 // Judge a table is 'simple table' or not
 bool FormatVisitor::isTableSimple(LuaParser::TableconstructorContext* ctx) {
     // table too long
-    if (ctx->getText().size() >= SIMPLE_TABLE_THRESHOLD) {
+    if (ctx->getText().size() >= config.chop_down_table()) {
         return false;
     }
 
@@ -1112,7 +1133,7 @@ bool FormatVisitor::isParameterSimple(LuaParser::ExplistContext* ctx) {
     if (ctx->exp().size() <= 1) {
         return true;
     }
-    if (ctx->getText().size() >= SIMPLE_PARAMETER_THRESHOLD) {
+    if (ctx->getText().size() >= config.chop_down_parameter()) {
         return false;
     }
     if (hasHardLineBreak(ctx)) {
