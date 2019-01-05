@@ -26,8 +26,9 @@ class Config {
     BIND_STR(indent);
     BIND_STR(table_sep);
     BIND_BOOL(extra_sep_at_table_end);
-    BIND_BOOL(keep_simple_function_one_line);
-    BIND_BOOL(keep_simple_table_one_line);
+    BIND_INT(chop_down_parameter);
+    BIND_INT(chop_down_function);
+    BIND_INT(chop_down_table);
 
    private:
     map<string, string> _map;

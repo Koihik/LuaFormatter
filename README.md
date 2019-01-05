@@ -2,14 +2,12 @@
 
 Reformats your Lua source code.
 
-[![Build Status](https://travis-ci.org/Koihik/LuaFormatter.svg?branch=master)](https://travis-ci.org/Koihik/LuaFormatter)
-
-[![Build status](https://ci.appveyor.com/api/projects/status/to7uvpkdgj96aumg/branch/master?svg=true)](https://ci.appveyor.com/project/Koihik/luaformatter/branch/master)
-
+[![Build Status (Linux & MacOS)](https://travis-ci.org/Koihik/LuaFormatter.svg?branch=master)](https://travis-ci.org/Koihik/LuaFormatter)
+[![Build status (Windows)](https://ci.appveyor.com/api/projects/status/to7uvpkdgj96aumg/branch/master?svg=true)](https://ci.appveyor.com/project/Koihik/luaformatter/branch/master)
 [![codecov](https://codecov.io/gh/Koihik/LuaFormatter/branch/master/graph/badge.svg)](https://codecov.io/gh/Koihik/LuaFormatter)
 
 ## Install
-Build from source, only support Mac OS/Linux now.
+Build from source.
 
 ### Requirements
 * cmake 3.0+
@@ -41,11 +39,14 @@ table_sep: ','
 # add a extra separator at the end of table
 extra_sep_at_table_end: false
 
-# allow format simple function to one-line
-keep_simple_function_one_line: true
+# chop down parameter if characters of parameter >= 50 (without white space)
+chop_down_parameter: 50
 
-# allow format simple table to one-line
-keep_simple_table_one_line: true
+# chop down function if characters of function >= 50 (without white space)
+chop_down_function: 50
+
+# chop down table if characters of table >= 50 (without white space)
+chop_down_table: 50
 ```
 
 ## Feature
@@ -74,7 +75,7 @@ tbl = {
     key="value";
     key2=function() print("function value"); print("long function body"); end;
     
-    -- custom new line
+    -- custom blank line
     key3=pcall(function() return "ww";end)
 }
 ```
@@ -88,8 +89,13 @@ tbl = {
         print("long function body")
     end,
 
-    -- custom new line
+    -- custom blank line
     key3 = pcall(function() return "ww" end)
 }
 
 ```
+
+## Limitations
+
+* Do not work when source file contains syntax error
+* Do not support 'Format selection'

@@ -1,9 +1,6 @@
 -- varDecl
 x, y = 1, 2
 
--- functioncall
-print("123")
-
 -- label
 ::LBL_A::
 
@@ -32,21 +29,20 @@ for i = 1, 5 do
 end
 
 -- forInStat
-a = {
-    "1",
-    "2",
-    "3"
-}
+a = {"1", "2", "3"}
 for i, v in ipairs(a) do
     print(i, v)
 end
 
--- funcStat
-function f1() print("f1") end
-
--- localFuncStat
-local function f2() print("f2") end
-
 -- localVarDecl
 local q, w, e = 1, 2, 3
 local p, o
+
+-- ifStat
+if x then
+    print(x)
+elseif y == 2 then
+    -- empty
+else
+    -- do nothing
+end

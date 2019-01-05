@@ -9,26 +9,37 @@
 
 using namespace std;
 
-#define TEST_FILE(file)                                                               \
-    TEST_CASE("format file " + string(file) + " works well", "format_file") {         \
-        string filename(file);                                                        \
-        ifstream input;                                                               \
-        input.open(filename);                                                         \
-        Config config;                                                                \
-        string actul = lua_format(input, config);                                     \
-        string expectFileName = filename.substr(0, filename.size() - 4) + "_out.lua"; \
-        ifstream expectFile(expectFileName);                                          \
-        stringstream ss;                                                              \
-        ss << expectFile.rdbuf();                                                     \
-        string expect = ss.str();                                                     \
-        REQUIRE(expect == actul);                                                     \
-        string formatTwice = lua_format(actul, config);                               \
-        REQUIRE(expect == formatTwice);                                               \
+#define TEST_FILE(file)                                                                                     \
+    TEST_CASE("format file " + string(file) + " works well", "format_file") {                               \
+        string filename(file);                                                                              \
+        ifstream input;                                                                                     \
+        input.open(filename);                                                                               \
+        Config config;                                                                                      \
+        string actul = lua_format(input, config);                                                           \
+        int idx = filename.find_last_of('/');                                                               \
+        string expectFileName = filename.substr(0, idx) + "/_" + filename.substr(idx + 1, filename.size()); \
+        ifstream expectFile(expectFileName);                                                                \
+        stringstream ss;                                                                                    \
+        ss << expectFile.rdbuf();                                                                           \
+        string expect = ss.str();                                                                           \
+        REQUIRE(expect == actul);                                                                           \
+        string formatTwice = lua_format(actul, config);                                                     \
+        REQUIRE(expect == formatTwice);                                                                     \
     }
 
-TEST_FILE("../test/testdata/other.lua");
-TEST_FILE("../test/testdata/comments.lua");
-TEST_FILE("../test/testdata/table.lua");
-TEST_FILE("../test/testdata/semi.lua");
-TEST_FILE("../test/testdata/statements.lua");
-TEST_FILE("../test/testdata/operator.lua");
+TEST_FILE("../test/testdata/chop_down/parameter.lua");
+TEST_FILE("../test/testdata/chop_down/function.lua");
+TEST_FILE("../test/testdata/chop_down/table.lua");
+
+TEST_FILE("../test/testdata/comment/function.lua");
+TEST_FILE("../test/testdata/comment/space.lua");
+TEST_FILE("../test/testdata/comment/table.lua");
+TEST_FILE("../test/testdata/comment/varlist.lua");
+
+TEST_FILE("../test/testdata/statement/function_call.lua");
+TEST_FILE("../test/testdata/statement/function.lua");
+TEST_FILE("../test/testdata/statement/operator.lua");
+TEST_FILE("../test/testdata/statement/semi.lua");
+TEST_FILE("../test/testdata/statement/shebang.lua");
+TEST_FILE("../test/testdata/statement/statements.lua");
+TEST_FILE("../test/testdata/statement/table.lua");

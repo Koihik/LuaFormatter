@@ -15,10 +15,10 @@ TEST_CASE("table_sep", "config") {
     config.indent("  ");
     config.table_sep(",");
 
-    REQUIRE("x = {\n  1,\n  2,\n  3\n}\n" == lua_format("x = {1,2;3}", config));
+    REQUIRE("x = {1, 2, 3}\n" == lua_format("x = {1,2;3}", config));
 
     config.table_sep(";");
-    REQUIRE("x = {\n  1;\n  2;\n  3\n}\n" == lua_format("x = {1,2;3}", config));
+    REQUIRE("x = {1; 2; 3}\n" == lua_format("x = {1,2;3}", config));
 }
 
 TEST_CASE("extra_sep_at_table_end", "config") {
@@ -26,44 +26,40 @@ TEST_CASE("extra_sep_at_table_end", "config") {
     config.indent("  ");
     config.extra_sep_at_table_end(true);
 
-    REQUIRE("x = {\n  1,\n  2,\n  3,\n}\n" == lua_format("x = {1,2;3}", config));
+    REQUIRE("x = {1, 2, 3}\n" == lua_format("x = {1,2;3}", config));
 
+    REQUIRE("x = {\n  1, -- line break\n  2,\n  3,\n}\n" == lua_format("x = {1,-- line break\n2;3}", config));
     config.extra_sep_at_table_end(false);
-    REQUIRE("x = {\n  1,\n  2,\n  3\n}\n" == lua_format("x = {1,2;3}", config));
+    REQUIRE("x = {\n  1, -- line break\n  2,\n  3\n}\n" == lua_format("x = {1,-- line break\n2;3}", config));
 }
 
-TEST_CASE("keep_simple_function_one_line", "config") {
+TEST_CASE("chop_down_parameter", "config") {
     Config config;
     config.indent("  ");
-    config.keep_simple_function_one_line(true);
 
-    REQUIRE("function x() end\n" == lua_format("function x()end", config));
-    REQUIRE("function x() print(1) end\n" == lua_format("function x() print(1) end", config));
-    // more than one statement
-    REQUIRE("function x()\n  print(1)\n  print(2)\nend\n" == lua_format("function x() print(1) print(2) end", config));
-    // comment contains line break
-    REQUIRE("function x()\n  -- line break\nend\n" == lua_format("function x() \n-- line break\n end", config));
+    REQUIRE("call(1, 2, 3)\n" == lua_format("call(1,2,3)", config));
 
-    config.keep_simple_function_one_line(false);
-    REQUIRE("function x()\nend\n" == lua_format("function x()end", config));
-    REQUIRE("function x()\n  print(1)\nend\n" == lua_format("function x() print(1) end", config));
+    config.chop_down_parameter(5);
+    REQUIRE("call(\n  1,\n  2,\n  3\n)\n" == lua_format("call(1,2,3)", config));
 }
 
-TEST_CASE("keep_simple_table_one_line", "config") {
+TEST_CASE("chop_down_function", "config") {
     Config config;
     config.indent("  ");
-    config.keep_simple_table_one_line(true);
 
-    REQUIRE("x = { var1 }\n" == lua_format("x = {var1}", config));
-    REQUIRE("x = { func_call:func() }\n" == lua_format("x = {\nfunc_call:func()\n}", config));
-    // more than one field
+    REQUIRE("function a() print(1) end\n" == lua_format("function a() print(1) end", config));
+
+    config.chop_down_function(5);
+    REQUIRE("function a()\n  print(1)\nend\n" == lua_format("function a() print(1) end", config));
+}
+TEST_CASE("chop_down_table", "config") {
+    Config config;
+    config.indent("  ");
+
+    REQUIRE("x = {1, 2, 3}\n" == lua_format("x = {1,2,3}", config));
+
+    config.chop_down_table(5);
     REQUIRE("x = {\n  1,\n  2,\n  3\n}\n" == lua_format("x = {1,2,3}", config));
-    // comment contains line break
-    REQUIRE("x = {\n  -- line break\n}\n" == lua_format("x = {\n-- line break\n}", config));
-
-    config.keep_simple_table_one_line(false);
-    REQUIRE("x = {\n  var1\n}\n" == lua_format("x = {var1}", config));
-    REQUIRE("x = {\n  func_call:func()\n}\n" == lua_format("x = {\nfunc_call:func()\n}", config));
 }
 
 TEST_CASE("read from file", "config") {
@@ -73,14 +69,10 @@ TEST_CASE("read from file", "config") {
     REQUIRE("  " == config.indent());
     REQUIRE(";" == config.table_sep());
     REQUIRE(false == config.extra_sep_at_table_end());
-    REQUIRE(true == config.keep_simple_function_one_line());
-    REQUIRE(true == config.keep_simple_table_one_line());
 
     config.readFromFile("../test/testconfig/2.lua-format");
 
     REQUIRE("    " == config.indent());
     REQUIRE("," == config.table_sep());
     REQUIRE(false == config.extra_sep_at_table_end());
-    REQUIRE(true == config.keep_simple_function_one_line());
-    REQUIRE(true == config.keep_simple_table_one_line());
 }

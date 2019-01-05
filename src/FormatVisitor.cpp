@@ -16,8 +16,6 @@ using namespace antlr4;
 #define LOGVAR(arg) ;
 #endif
 
-#define SIMPLE_TABLE_THRESHOLD 50
-
 bool _isBlankChar(char c) { return c == ' ' || c == '\t' || c == '\u000C'; }
 
 bool _isLastWhiteSpace(stringstream& ss) {
@@ -226,7 +224,9 @@ antlrcpp::Any FormatVisitor::visitBlock(LuaParser::BlockContext* ctx) {
 antlrcpp::Any FormatVisitor::visitStat(LuaParser::StatContext* ctx) {
     LOG("visitStat");
     stringstream ss;
-    ss << indent();
+    if (_chopDownFunction) {
+        ss << indent();
+    }
     ss << visitChildren(ctx).as<string>();
     return ss.str();
 }
@@ -253,14 +253,29 @@ antlrcpp::Any FormatVisitor::visitVarDecl(LuaParser::VarDeclContext* ctx) {
 antlrcpp::Any FormatVisitor::visitFunctioncall(LuaParser::FunctioncallContext* ctx) {
     LOG("visitFunctioncall");
     stringstream ss;
-    ss << visitVarOrExp(ctx->varOrExp()).as<string>()  //
-       << commentAfter(ctx->varOrExp(), "");
+    ss << visitVarOrExp(ctx->varOrExp()).as<string>();
+
+    bool needWhiteSpace = false;
+    if (ctx->nameAndArgs().size() > 0) {
+        LuaParser::NameAndArgsContext* naaCtx = ctx->nameAndArgs().front();
+        if (naaCtx->COLON() == NULL) {
+            LuaParser::StringContext* stringContext = naaCtx->args()->string();
+            needWhiteSpace = stringContext != NULL;
+        }
+    }
+    ss << commentAfter(ctx->varOrExp(), needWhiteSpace ? " " : "");
 
     int n = ctx->nameAndArgs().size();
     for (int i = 0; i < n; i++) {
         ss << visitNameAndArgs(ctx->nameAndArgs()[i]).as<string>();
         if (i != n - 1) {
-            ss << commentAfter(ctx->nameAndArgs()[i], "");
+            needWhiteSpace = false;
+            LuaParser::NameAndArgsContext* naaCtx = ctx->nameAndArgs()[i + 1];
+            if (naaCtx->COLON() == NULL) {
+                LuaParser::StringContext* stringContext = naaCtx->args()->string();
+                needWhiteSpace = stringContext != NULL;
+            }
+            ss << commentAfter(ctx->nameAndArgs()[i], needWhiteSpace ? " " : "");
         }
     }
     if (ctx->SEMI() != NULL) {
@@ -481,7 +496,9 @@ antlrcpp::Any FormatVisitor::visitLocalVarDecl(LuaParser::LocalVarDeclContext* c
 antlrcpp::Any FormatVisitor::visitRetstat(LuaParser::RetstatContext* ctx) {
     LOG("visitRetstat");
     stringstream ss;
-    ss << indent();
+    if (_chopDownFunction) {
+        ss << indent();
+    }
     ss << ctx->RETURN()->getText();
     if (ctx->explist() != NULL) {
         ss << commentAfter(ctx->RETURN(), " ")            //
@@ -540,9 +557,14 @@ antlrcpp::Any FormatVisitor::visitExplist(LuaParser::ExplistContext* ctx) {
         ss << commentAfter(ctx->exp().front(), "");
     }
     for (int i = 0; i < n; i++) {
-        ss << ctx->COMMA()[i]->getText()          //
-           << commentAfter(ctx->COMMA()[i], " ")  //
-           << visitExp(ctx->exp()[i + 1]).as<string>();
+        ss << ctx->COMMA()[i]->getText();
+        if (_chopDownParameter) {
+            ss << commentAfterNewLine(ctx->COMMA()[i], 0);
+            ss << indent();
+        } else {
+            ss << commentAfter(ctx->COMMA()[i], " ");
+        }
+        ss << visitExp(ctx->exp()[i + 1]).as<string>();
         if (i != n - 1) {
             ss << commentAfter(ctx->exp()[i + 1], "");
         }
@@ -604,13 +626,25 @@ antlrcpp::Any FormatVisitor::visitPrefixexp(LuaParser::PrefixexpContext* ctx) {
     stringstream ss;
     ss << visitVarOrExp(ctx->varOrExp()).as<string>();
     int n = ctx->nameAndArgs().size();
+    bool needWhiteSpace = false;
     if (n > 0) {
-        ss << commentAfter(ctx->varOrExp(), "");
+        LuaParser::NameAndArgsContext* naaCtx = ctx->nameAndArgs().front();
+        if (naaCtx->COLON() == NULL) {
+            LuaParser::StringContext* stringContext = naaCtx->args()->string();
+            needWhiteSpace = stringContext != NULL;
+        }
+        ss << commentAfter(ctx->varOrExp(), needWhiteSpace ? " " : "");
     }
     for (int i = 0; i < n; i++) {
         ss << visitNameAndArgs(ctx->nameAndArgs()[i]).as<string>();
         if (i != n - 1) {
-            ss << commentAfter(ctx->nameAndArgs()[i], "");
+            needWhiteSpace = false;
+            LuaParser::NameAndArgsContext* naaCtx = ctx->nameAndArgs()[i + 1];
+            if (naaCtx->COLON() == NULL) {
+                LuaParser::StringContext* stringContext = naaCtx->args()->string();
+                needWhiteSpace = stringContext != NULL;
+            }
+            ss << commentAfter(ctx->nameAndArgs()[i], needWhiteSpace ? " " : "");
         }
     }
     return ss.str();
@@ -706,11 +740,14 @@ antlrcpp::Any FormatVisitor::visitNameAndArgs(LuaParser::NameAndArgsContext* ctx
     LOG("visitNameAndArgs");
     if (ctx->COLON() != NULL) {
         stringstream ss;
-        ss << ctx->COLON()->getText()         //
-           << commentAfter(ctx->COLON(), "")  //
-           << ctx->NAME()->getText()          //
-           << commentAfter(ctx->NAME(), "")   //
-           << visitArgs(ctx->args()).as<string>();
+        ss << ctx->COLON()->getText();
+        ss << commentAfter(ctx->COLON(), "");
+        ss << ctx->NAME()->getText();
+        bool needWhiteSpace = false;
+        LuaParser::StringContext* stringContext = ctx->args()->string();
+        needWhiteSpace = stringContext != NULL;
+        ss << commentAfter(ctx->NAME(), needWhiteSpace ? " " : "");
+        ss << visitArgs(ctx->args()).as<string>();
         return ss.str();
     } else {
         return visitArgs(ctx->args()).as<string>();
@@ -722,13 +759,31 @@ antlrcpp::Any FormatVisitor::visitArgs(LuaParser::ArgsContext* ctx) {
     LOG("visitArgs");
     if (ctx->LP() != NULL) {
         stringstream ss;
-        ss << ctx->LP()->getText()  //
-           << commentAfter(ctx->LP(), "");
+        ss << ctx->LP()->getText();
         if (ctx->explist() != NULL) {
-            ss << visitExplist(ctx->explist()).as<string>()  //
-               << commentAfter(ctx->explist(), "");
+            if (isParameterSimple(ctx->explist())) {
+                ss << commentAfter(ctx->LP(), "");
+                bool temp = _chopDownParameter;
+                _chopDownParameter = false;
+                ss << visitExplist(ctx->explist()).as<string>();
+                _chopDownParameter = temp;
+                ss << commentAfter(ctx->explist(), "");
+                ss << ctx->RP()->getText();
+            } else {
+                ss << commentAfterNewLine(ctx->LP(), 1);
+                ss << indent();
+                bool temp = _chopDownParameter;
+                _chopDownParameter = true;
+                ss << visitExplist(ctx->explist()).as<string>();
+                _chopDownParameter = temp;
+                ss << commentAfterNewLine(ctx->explist(), -1);
+                ss << indent();
+                ss << ctx->RP()->getText();
+            }
+        } else {
+            ss << commentAfter(ctx->LP(), "");
+            ss << ctx->RP()->getText();
         }
-        ss << ctx->RP()->getText();
         return ss.str();
     } else {
         return visitChildren(ctx);
@@ -755,7 +810,7 @@ antlrcpp::Any FormatVisitor::visitFuncbody(LuaParser::FuncbodyContext* ctx) {
         ss << visitParlist(ctx->parlist()).as<string>()  //
            << commentAfter(ctx->parlist(), "");          //
     }
-    if (config.keep_simple_function_one_line() && isFunctionSimple(ctx)) {
+    if (isFunctionSimple(ctx)) {
         if (ctx->block()->stat().size() == 0 && ctx->block()->retstat() == NULL) {
             ss << ctx->RP()->getText()          //
                << commentAfter(ctx->RP(), " ")  //
@@ -765,21 +820,24 @@ antlrcpp::Any FormatVisitor::visitFuncbody(LuaParser::FuncbodyContext* ctx) {
                << commentAfter(ctx->RP(), " ");  //
 
             // ignore indent when function is a single line
-            int temp = _indent;
-            _indent = 0;
+            bool temp = _chopDownFunction;
+            _chopDownFunction = false;
             ss << visitBlock(ctx->block()).as<string>();
-            _indent = temp;
+            _chopDownFunction = temp;
             ss << commentAfter(ctx->block(), " ")  //
                << ctx->END()->getText();           //
         }
-        return ss.str();
+    } else {
+        ss << ctx->RP()->getText();               //
+        ss << commentAfterNewLine(ctx->RP(), 1);  //
+        bool temp = _chopDownFunction;
+        _chopDownFunction = true;
+        ss << visitBlock(ctx->block()).as<string>();
+        _chopDownFunction = temp;
+        ss << commentAfterNewLine(ctx->block(), -1);  //
+        ss << indent()                                //
+           << ctx->END()->getText();                  //
     }
-    ss << ctx->RP()->getText();                   //
-    ss << commentAfterNewLine(ctx->RP(), 1);      //
-    ss << visitBlock(ctx->block()).as<string>();  //
-    ss << commentAfterNewLine(ctx->block(), -1);  //
-    ss << indent()                                //
-       << ctx->END()->getText();                  //
     return ss.str();
 }
 
@@ -808,17 +866,20 @@ antlrcpp::Any FormatVisitor::visitTableconstructor(LuaParser::TableconstructorCo
     stringstream ss;
     ss << ctx->LB()->getText();
     if (ctx->fieldlist() != NULL) {
-        if (config.keep_simple_table_one_line() && isTableSimple(ctx)) {
-            ss << commentAfter(ctx->LB(), " ");  //
-            int temp = _indent;
-            _indent = 0;
+        if (isTableSimple(ctx)) {
+            ss << commentAfter(ctx->LB(), "");  //
+            bool temp = _chopDownTable;
+            _chopDownTable = false;
             ss << visitFieldlist(ctx->fieldlist()).as<string>();  //
-            _indent = temp;
-            ss << commentAfter(ctx->fieldlist(), " ");  //
+            _chopDownTable = temp;
+            ss << commentAfter(ctx->fieldlist(), "");  //
             ss << ctx->RB()->getText();
         } else {
-            ss << commentAfterNewLine(ctx->LB(), 1);              //
+            ss << commentAfterNewLine(ctx->LB(), 1);  //
+            bool temp = _chopDownTable;
+            _chopDownTable = true;
             ss << visitFieldlist(ctx->fieldlist()).as<string>();  //
+            _chopDownTable = temp;
             if (config.extra_sep_at_table_end() && ctx->fieldlist()->field().size() > 0) {
                 ss << config.table_sep();
             }
@@ -854,13 +915,17 @@ antlrcpp::Any FormatVisitor::visitFieldlist(LuaParser::FieldlistContext* ctx) {
         int n = fields.size();
         for (int i = 1; i < n; i++) {
             ss << visitFieldsep(seps[i - 1]).as<string>();
-            ss << commentAfterNewLine(seps[i - 1], 0);
+            if (_chopDownTable) {
+                ss << commentAfterNewLine(seps[i - 1], 0);
+            } else {
+                ss << commentAfter(seps[i - 1], " ");
+            }
             ss << visitField(fields[i]).as<string>();
             if (i != n - 1 || seps.size() == n) {
                 ss << commentAfter(fields[i], "");
             }
         }
-        if (seps.size() == n) {
+        if (seps.size() == n && !config.extra_sep_at_table_end()) {
             ss << visitFieldsep(seps.back()).as<string>();
         }
     }
@@ -872,8 +937,10 @@ antlrcpp::Any FormatVisitor::visitFieldlist(LuaParser::FieldlistContext* ctx) {
 antlrcpp::Any FormatVisitor::visitField(LuaParser::FieldContext* ctx) {
     stringstream ss;
     if (ctx->LSB() != NULL) {
-        ss << indent()                               //
-           << ctx->LSB()->getText()                  //
+        if (_chopDownTable) {
+            ss << indent();
+        }
+        ss << ctx->LSB()->getText()                  //
            << commentAfter(ctx->LSB(), "")           //
            << visitExp(ctx->exp()[0]).as<string>()   //
            << commentAfter(ctx->exp()[0], "")        //
@@ -883,15 +950,19 @@ antlrcpp::Any FormatVisitor::visitField(LuaParser::FieldContext* ctx) {
            << commentAfter(ctx->EQL(), " ")          //
            << visitExp(ctx->exp()[1]).as<string>();  //
     } else if (ctx->NAME() != NULL) {
-        ss << indent()                                    //
-           << ctx->NAME()->getText()                      //
+        if (_chopDownTable) {
+            ss << indent();
+        }
+        ss << ctx->NAME()->getText()                      //
            << commentAfter(ctx->NAME(), " ")              //
            << ctx->EQL()->getText()                       //
            << commentAfter(ctx->EQL(), " ")               //
            << visitExp(ctx->exp().front()).as<string>();  //
     } else {
-        ss << indent()  //
-           << visitExp(ctx->exp().front()).as<string>();
+        if (_chopDownTable) {
+            ss << indent();
+        }
+        ss << visitExp(ctx->exp().front()).as<string>();
     }
     return ss.str();
 }
@@ -972,6 +1043,25 @@ bool FormatVisitor::shouldKeepSemicolon(ParserRuleContext* ctx, tree::TerminalNo
     return startWithLP;
 }
 
+// Judge a rule context has force linebreak
+bool FormatVisitor::hasHardLineBreak(ParserRuleContext* ctx) {
+    int l = ctx->getStart()->getTokenIndex();
+    int r = ctx->getStop()->getTokenIndex();
+
+    for (int i = l + 1; i < tokens.size() && i < r; i++) {
+        auto token = tokens[i];
+        if (token->getType() == LuaLexer::COMMENT) {
+            string str = token->getText();
+            if (str.find('\n') != string::npos) {
+                return true;
+            }
+        } else if (token->getType() == LuaLexer::LINE_COMMENT) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // Judge a function is 'simple function' or not
 bool FormatVisitor::isFunctionSimple(LuaParser::FuncbodyContext* ctx) {
     int stats = 0;
@@ -983,11 +1073,17 @@ bool FormatVisitor::isFunctionSimple(LuaParser::FuncbodyContext* ctx) {
     if (ctx->block()->retstat() != NULL) {
         stats++;
     }
-    // 1. function contains more than one statement.
+    // function contains more than one statement.
     if (stats > 1) {
         return false;
     }
-    // 2. function contains a line break.
+
+    // function too long
+    if (ctx->getText().size() >= config.chop_down_function()) {
+        return false;
+    }
+
+    // function contains a line break.
     string preComment = commentAfter(ctx->RP(), "");
     if (preComment.find("\n") != string::npos) {
         return false;
@@ -1005,27 +1101,45 @@ bool FormatVisitor::isFunctionSimple(LuaParser::FuncbodyContext* ctx) {
 
 // Judge a table is 'simple table' or not
 bool FormatVisitor::isTableSimple(LuaParser::TableconstructorContext* ctx) {
-    // 1. table has more than one field.
-    if (ctx->fieldlist()->field().size() > 1) {
+    // table too long
+    if (ctx->getText().size() >= config.chop_down_table()) {
         return false;
     }
-    // 2. key-value table.
-    if (ctx->fieldlist()->field().front()->EQL() != NULL) {
-        return false;
-    }
-    // 3. table contains line break.
+
+    // table contains line break.
     string preComment = commentAfter(ctx->LB(), "");
     if (preComment.find("\n") != string::npos) {
         return false;
     }
-    string fieldContent = visitFieldlist(ctx->fieldlist()).as<string>();
-    if (fieldContent.find("\n") != string::npos) {
+    if (hasHardLineBreak(ctx)) {
+        return false;
+    }
+    bool temp = _chopDownTable;
+    _chopDownTable = false;
+    string fieldContext = visitFieldlist(ctx->fieldlist()).as<string>();
+    _chopDownTable = temp;
+    if (fieldContext.find("\n") != string::npos) {
         return false;
     }
     string postComment = commentAfter(ctx->fieldlist(), "");
     if (postComment.find("\n") != string::npos) {
         return false;
     }
+    return true;
+}
+
+// Judge explist need chop down or not
+bool FormatVisitor::isParameterSimple(LuaParser::ExplistContext* ctx) {
+    if (ctx->exp().size() <= 1) {
+        return true;
+    }
+    if (ctx->getText().size() >= config.chop_down_parameter()) {
+        return false;
+    }
+    if (hasHardLineBreak(ctx)) {
+        return false;
+    }
+
     return true;
 }
 

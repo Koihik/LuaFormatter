@@ -9,18 +9,12 @@ q = {
     d = {
         [1] = {},
         [2] = {},
-        [key] = (function()
-            return {
-                1,
-                2,
-                3
-            }
-        end)()
+        [key] = (function() return {1, 2, 3} end)()
     }
 }
 
 function a(...)
-    local t = { ... }
+    local t = {...}
     for k, v in ipairs(t) do
         print(k, v)
     end
