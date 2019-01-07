@@ -13,8 +13,9 @@ Config::Config() {
     _map["table_sep"] = ",";
     _map["extra_sep_at_table_end"] = "false";
     _map["chop_down_parameter"] = "50";
-    _map["chop_down_function"] = "50";
+    _map["chop_down_block"] = "50";
     _map["chop_down_table"] = "50";
+    _map["keep_simple_block_one_line"] = "true";
 }
 
 void Config::readFromFile(const string& file) {
