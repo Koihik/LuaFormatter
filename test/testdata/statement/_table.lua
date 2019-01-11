@@ -15,9 +15,7 @@ q = {
 
 function a(...)
     local t = {...}
-    for k, v in ipairs(t) do
-        print(k, v)
-    end
+    for k, v in ipairs(t) do print(k, v) end
 end
 a(1, 2, 3)
 

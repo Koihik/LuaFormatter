@@ -27,8 +27,9 @@ class Config {
     BIND_STR(table_sep);
     BIND_BOOL(extra_sep_at_table_end);
     BIND_INT(chop_down_parameter);
-    BIND_INT(chop_down_function);
+    BIND_INT(chop_down_block);
     BIND_INT(chop_down_table);
+    BIND_BOOL(keep_simple_block_one_line);
 
    private:
     map<string, string> _map;

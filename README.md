@@ -42,11 +42,14 @@ extra_sep_at_table_end: false
 # chop down parameter if characters of parameter >= 50 (without white space)
 chop_down_parameter: 50
 
-# chop down function if characters of function >= 50 (without white space)
-chop_down_function: 50
+# chop down block if characters of block >= 50 (without white space)
+chop_down_block: 50
 
 # chop down table if characters of table >= 50 (without white space)
 chop_down_table: 50
+
+# keep simple block one line
+keep_simple_block_one_line: true
 ```
 
 ## Feature

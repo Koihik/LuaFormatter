@@ -30,6 +30,7 @@ using namespace std;
 TEST_FILE("../test/testdata/chop_down/parameter.lua");
 TEST_FILE("../test/testdata/chop_down/function.lua");
 TEST_FILE("../test/testdata/chop_down/table.lua");
+TEST_FILE("../test/testdata/chop_down/block.lua");
 
 TEST_FILE("../test/testdata/comment/function.lua");
 TEST_FILE("../test/testdata/comment/space.lua");

@@ -55,7 +55,7 @@ class FormatVisitor : public LuaBaseVisitor {
    private:
     bool _chopDownParameter = false;
     bool _chopDownTable = false;
-    bool _chopDownFunction = true;
+    bool _chopDownBlock = true;
 
     int _indent = 0;
     const vector<Token*>& tokens;
@@ -65,9 +65,11 @@ class FormatVisitor : public LuaBaseVisitor {
 
     bool shouldKeepSemicolon(ParserRuleContext* ctx, tree::TerminalNode* node);
     bool hasHardLineBreak(ParserRuleContext* ctx);
-    bool isFunctionSimple(LuaParser::FuncbodyContext* ctx);
     bool isTableSimple(LuaParser::TableconstructorContext* ctx);
     bool isParameterSimple(LuaParser::ExplistContext* ctx);
+    bool needKeepBlockOneLine(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx);
+    bool isBlockEmpty(LuaParser::BlockContext* ctx);
+    string visitBlockAndComment(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx);
 
     string indent();
     string commentAfter(tree::ParseTree* a, const string& expect);
