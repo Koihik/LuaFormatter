@@ -1,12 +1,25 @@
+environment:
+  matrix:
+    - VisualStudioVersion: 14.0
+      platform: "Win32"
+      configuration: "Release"
+      vcvarsall_platform: "x86"
+      PlatformToolset: "v140"
+    - VisualStudioVersion: 14.0
+      platform: "Win32"
+      configuration: "Debug"
+      vcvarsall_platform: "x86"
+      PlatformToolset: "v140"
+
+
 before_build:
-  - cmake .
+  - cmake . -G "Visual Studio 14"
 
 build_script:
-  - msbuild lua-formatter.sln /m /p:Configuration=Debug /t:ALL_BUILD /clp:ErrorsOnly
-  - msbuild lua-formatter.sln /m /p:Configuration=Release /t:ALL_BUILD /clp:ErrorsOnly
-  - cd %APPVEYOR_BUILD_FOLDER%\Debug
-  - lua-format-test.exe
-  - cd %APPVEYOR_BUILD_FOLDER%\Release
+  - msbuild "lua-formatter.sln" /clp:ErrorsOnly /target:Build /property:Configuration="%configuration%";Platform=%platform% /p:PlatformToolset=%PlatformToolset% /m"
+
+test_script:
+  - cd %APPVEYOR_BUILD_FOLDER%\%configuration%
   - lua-format-test.exe
 
 artifacts:
