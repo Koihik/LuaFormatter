@@ -6,6 +6,11 @@ Reformats your Lua source code.
 [![Build status (Windows)](https://ci.appveyor.com/api/projects/status/to7uvpkdgj96aumg/branch/master?svg=true)](https://ci.appveyor.com/project/Koihik/luaformatter/branch/master)
 [![codecov](https://codecov.io/gh/Koihik/LuaFormatter/branch/master/graph/badge.svg)](https://codecov.io/gh/Koihik/LuaFormatter)
 
+## Editor support
+
+* VS Code: https://github.com/Koihik/vscode-lua-format
+* Sublime: https://github.com/Koihik/sublime-lua-format
+
 ## Install
 Build from source.
 
