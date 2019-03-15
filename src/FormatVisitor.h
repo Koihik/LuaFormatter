@@ -3,13 +3,14 @@
 #include "Config.h"
 #include "LuaBaseVisitor.h"
 #include "LuaParser.h"
+#include "SourceWriter.h"
 
 using namespace std;
 using namespace antlr4;
 
 class FormatVisitor : public LuaBaseVisitor {
    public:
-    FormatVisitor(const vector<Token*>& t, const Config& c) : tokens(t), config(c) {}
+    FormatVisitor(const vector<Token*>& tokens, const Config& config) : tokens_(tokens), config_(config) {}
 
     antlrcpp::Any visitChunk(LuaParser::ChunkContext* context) override;
     antlrcpp::Any visitBlock(LuaParser::BlockContext* context) override;
@@ -53,13 +54,16 @@ class FormatVisitor : public LuaBaseVisitor {
     antlrcpp::Any visitTerminal(tree::TerminalNode* node) override;
 
    private:
-    bool _chopDownParameter = false;
-    bool _chopDownTable = false;
-    bool _chopDownBlock = true;
+    bool chop_down_parameter_ = false;
+    bool chop_down_table_ = false;
+    bool chop_down_block_ = true;
 
-    int _indent = 0;
-    const vector<Token*>& tokens;
-    const Config& config;
+    vector<SourceWriter*> writers_;
+
+    int columns_ = 0;
+    int indent_ = 0;
+    const vector<Token*>& tokens_;
+    const Config& config_;
 
     string formatLineComment(Token* token);
 
@@ -69,7 +73,12 @@ class FormatVisitor : public LuaBaseVisitor {
     bool isParameterSimple(LuaParser::ExplistContext* ctx);
     bool needKeepBlockOneLine(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx);
     bool isBlockEmpty(LuaParser::BlockContext* ctx);
-    string visitBlockAndComment(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx);
+    void visitBlockAndComment(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx);
+
+    void pushWriter();
+    string popWriter();
+    SourceWriter& cur_writer();
+    int cur_columns();
 
     string indent();
     string commentAfter(tree::ParseTree* a, const string& expect);

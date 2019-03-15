@@ -9,13 +9,14 @@ void trim(string& s) {
 }
 
 Config::Config() {
-    _map["indent"] = "    ";
-    _map["table_sep"] = ",";
-    _map["extra_sep_at_table_end"] = "false";
-    _map["chop_down_parameter"] = "50";
-    _map["chop_down_block"] = "50";
-    _map["chop_down_table"] = "50";
-    _map["keep_simple_block_one_line"] = "true";
+    map_["indent"] = "    ";
+    map_["table_sep"] = ",";
+    map_["extra_sep_at_table_end"] = "false";
+    map_["chop_down_parameter"] = "50";
+    map_["chop_down_block"] = "50";
+    map_["chop_down_table"] = "50";
+    map_["keep_simple_block_one_line"] = "true";
+    map_["columns_limit"] = 80;
 }
 
 void Config::readFromFile(const string& file) {
@@ -36,7 +37,7 @@ void Config::readFromFile(const string& file) {
                         value = value.substr(1, value.size() - 2);
                     }
                 }
-                _map[key] = value;
+                map_[key] = value;
             }
         }
     }

@@ -6,16 +6,16 @@
 using namespace std;
 
 #define BIND_STR(VARNAME)                                   \
-    string VARNAME() const { return _map.at("" #VARNAME); } \
-    void VARNAME(const string& s) { _map["" #VARNAME] = s; }
+    string VARNAME() const { return map_.at("" #VARNAME); } \
+    void VARNAME(const string& s) { map_["" #VARNAME] = s; }
 
 #define BIND_INT(VARNAME)                                      \
-    int VARNAME() const { return stoi(_map.at("" #VARNAME)); } \
-    void VARNAME(int i) { _map["" #VARNAME] = to_string(i); }
+    int VARNAME() const { return stoi(map_.at("" #VARNAME)); } \
+    void VARNAME(int i) { map_["" #VARNAME] = to_string(i); }
 
 #define BIND_BOOL(VARNAME)                                          \
-    bool VARNAME() const { return _map.at("" #VARNAME) == "true"; } \
-    void VARNAME(bool x) { _map["" #VARNAME] = x ? "true" : "false"; }
+    bool VARNAME() const { return map_.at("" #VARNAME) == "true"; } \
+    void VARNAME(bool x) { map_["" #VARNAME] = x ? "true" : "false"; }
 
 class Config {
    public:
@@ -30,7 +30,8 @@ class Config {
     BIND_INT(chop_down_block);
     BIND_INT(chop_down_table);
     BIND_BOOL(keep_simple_block_one_line);
+    BIND_INT(columns_limit);
 
    private:
-    map<string, string> _map;
+    map<string, string> map_;
 };
