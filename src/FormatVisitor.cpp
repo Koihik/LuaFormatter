@@ -6,7 +6,7 @@
 using namespace std;
 using namespace antlr4;
 
-#define LOG_FLAG
+// #define LOG_FLAG
 
 #ifdef LOG_FLAG
 #define LOGVAR(arg) cout << "" #arg " = " << (arg) << endl
@@ -158,7 +158,7 @@ string FormatVisitor::popWriter() {
 
 SourceWriter& FormatVisitor::cur_writer() { return *writers_.back(); }
 
-int FormatVisitor::cur_columns() { return (*writers_.back()).columns(); }
+int FormatVisitor::cur_columns() { return (*writers_.back()).columns().back(); }
 
 // Add a white space before line comment
 string FormatVisitor::formatLineComment(Token* token) {
@@ -233,7 +233,6 @@ antlrcpp::Any FormatVisitor::visitBlock(LuaParser::BlockContext* ctx) {
     if (ctx->retstat() == NULL && isLastWhiteSpace(cur_writer().ss())) {
         string blockComment = commentAfter(ctx, "");
         if (blockComment.size() > 0 && blockComment[0] == ' ') {
-            LOG("seekp");
             cur_writer().ss().seekp(-1, ios::end);
         }
     }
@@ -256,10 +255,7 @@ antlrcpp::Any FormatVisitor::visitVarDecl(LuaParser::VarDeclContext* ctx) {
     cur_writer() << commentAfter(ctx->varlist(), " ");
     cur_writer() << ctx->EQL()->getText();
     cur_writer() << commentAfter(ctx->EQL(), " ");
-    bool temp = chop_down_parameter_;
-    chop_down_parameter_ = false;
     visitExplist(ctx->explist());
-    chop_down_parameter_ = temp;
     if (ctx->SEMI() != NULL) {
         cur_writer() << commentAfter(ctx->explist(), "");
         if (shouldKeepSemicolon(ctx->explist(), ctx->SEMI())) {
@@ -272,6 +268,7 @@ antlrcpp::Any FormatVisitor::visitVarDecl(LuaParser::VarDeclContext* ctx) {
 // varOrExp nameAndArgs+;
 antlrcpp::Any FormatVisitor::visitFunctioncall(LuaParser::FunctioncallContext* ctx) {
     LOG("visitFunctioncall");
+    chainedMethodCallHasIncIndent_.push_back(false);
     visitVarOrExp(ctx->varOrExp());
 
     bool needWhiteSpace = false;
@@ -303,6 +300,10 @@ antlrcpp::Any FormatVisitor::visitFunctioncall(LuaParser::FunctioncallContext* c
             cur_writer() << ctx->SEMI()->getText();
         }
     }
+    if (chainedMethodCallHasIncIndent_.back()) {
+        indent_--;
+    }
+    chainedMethodCallHasIncIndent_.pop_back();
     return nullptr;
 }
 
@@ -443,10 +444,7 @@ antlrcpp::Any FormatVisitor::visitForInStat(LuaParser::ForInStatContext* ctx) {
     cur_writer() << commentAfter(ctx->namelist(), " ");
     cur_writer() << ctx->IN()->getText();
     cur_writer() << commentAfter(ctx->IN(), " ");
-    bool temp = chop_down_parameter_;
-    chop_down_parameter_ = false;
     visitExplist(ctx->explist());
-    chop_down_parameter_ = temp;
     cur_writer() << commentAfter(ctx->explist(), " ");
     cur_writer() << ctx->DO()->getText();
     visitBlockAndComment(ctx->DO(), ctx->block());
@@ -488,10 +486,7 @@ antlrcpp::Any FormatVisitor::visitLocalVarDecl(LuaParser::LocalVarDeclContext* c
         cur_writer() << commentAfter(ctx->namelist(), " ");
         cur_writer() << ctx->EQL()->getText();
         cur_writer() << commentAfter(ctx->EQL(), " ");
-        bool temp = chop_down_parameter_;
-        chop_down_parameter_ = false;
         visitExplist(ctx->explist());
-        chop_down_parameter_ = temp;
     }
     if (ctx->SEMI() != NULL) {
         if (ctx->EQL() == NULL) {
@@ -515,10 +510,7 @@ antlrcpp::Any FormatVisitor::visitRetstat(LuaParser::RetstatContext* ctx) {
     cur_writer() << ctx->RETURN()->getText();
     if (ctx->explist() != NULL) {
         cur_writer() << commentAfter(ctx->RETURN(), " ");
-        bool temp = chop_down_parameter_;
-        chop_down_parameter_ = false;
         visitExplist(ctx->explist());
-        chop_down_parameter_ = temp;
     }
     return nullptr;
 }
@@ -564,23 +556,72 @@ antlrcpp::Any FormatVisitor::visitNamelist(LuaParser::NamelistContext* ctx) {
 // exp (COMMA exp)*;
 antlrcpp::Any FormatVisitor::visitExplist(LuaParser::ExplistContext* ctx) {
     LOG("visitExplist");
-    visitExp(ctx->exp().front());
     int n = ctx->COMMA().size();
+    pushWriter();
+    visitExp(ctx->exp().front());
+    int firstExpLength = cur_writer().columns().front();
+    string firstExpStr = popWriter();
+    bool hasIncIndent = false;
+    if (n > 0) firstExpLength++;  // calc a ',' if exp > 1
+    if (cur_columns() + firstExpLength > config_.column_limit()) {
+        LOG("newline in visitExplist");
+        cur_writer() << "\n";
+        if (!hasIncIndent) {
+            cur_writer() << incIndent();
+            hasIncIndent = true;
+        }
+        if (config_.align_args()) {
+            firstArgsColumn_.push_back(cur_columns());
+        }
+        cur_writer() << firstExpStr;
+    } else {
+        if (config_.align_args()) {
+            firstArgsColumn_.push_back(cur_columns());
+        }
+        cur_writer() << firstExpStr;
+    }
     if (n > 0) {
         cur_writer() << commentAfter(ctx->exp().front(), "");
     }
     for (int i = 0; i < n; i++) {
         cur_writer() << ctx->COMMA()[i]->getText();
-        if (chop_down_parameter_) {
-            cur_writer() << commentAfterNewLine(ctx->COMMA()[i], 0);
-            cur_writer() << indent();
-        } else {
-            cur_writer() << commentAfter(ctx->COMMA()[i], " ");
-        }
+        cur_writer() << commentAfter(ctx->COMMA()[i], " ");
+        pushWriter();
         visitExp(ctx->exp()[i + 1]);
+        int expLength = cur_writer().columns().front();
+        string expStr = popWriter();
+        if (i != n - 1) expLength++;  // calc a ',' if exp > 1
+        if (cur_columns() + expLength > config_.column_limit()) {
+            // erase last whitespace when there is a line break
+            if (isLastWhiteSpace(cur_writer().ss())) {
+                cur_writer().ss().seekp(-1, ios::end);
+            }
+            cur_writer() << "\n";
+            if (config_.align_args()) {
+                for (int i = 0; i < firstArgsColumn_.back(); i++) {
+                    cur_writer() << " ";
+                }
+            } else {
+                if (hasIncIndent) {
+                    cur_writer() << indent();
+                } else {
+                    cur_writer() << incIndent();
+                    hasIncIndent = true;
+                }
+            }
+            cur_writer() << expStr;
+        } else {
+            cur_writer() << expStr;
+        }
         if (i != n - 1) {
             cur_writer() << commentAfter(ctx->exp()[i + 1], "");
         }
+    }
+    if (hasIncIndent) {
+        indent_--;
+    }
+    if (config_.align_args()) {
+        firstArgsColumn_.pop_back();
     }
     return nullptr;
 }
@@ -633,6 +674,7 @@ antlrcpp::Any FormatVisitor::visitExp(LuaParser::ExpContext* ctx) {
 // varOrExp nameAndArgs*;
 antlrcpp::Any FormatVisitor::visitPrefixexp(LuaParser::PrefixexpContext* ctx) {
     LOG("visitPrefixexp");
+    chainedMethodCallHasIncIndent_.push_back(false);
     visitVarOrExp(ctx->varOrExp());
     int n = ctx->nameAndArgs().size();
     bool needWhiteSpace = false;
@@ -656,6 +698,10 @@ antlrcpp::Any FormatVisitor::visitPrefixexp(LuaParser::PrefixexpContext* ctx) {
             cur_writer() << commentAfter(ctx->nameAndArgs()[i], needWhiteSpace ? " " : "");
         }
     }
+    if (chainedMethodCallHasIncIndent_.back()) {
+        indent_--;
+    }
+    chainedMethodCallHasIncIndent_.pop_back();
     return nullptr;
 }
 
@@ -686,10 +732,16 @@ antlrcpp::Any FormatVisitor::visitVar(LuaParser::VarContext* ctx) {
         cur_writer() << commentAfter(ctx->exp(), "");
         cur_writer() << ctx->RP()->getText();
         cur_writer() << commentAfter(ctx->RP(), "");
+        if (ctx->varSuffix().size() > 1) {
+            nextVarSuffixContext_.push_back(ctx->varSuffix()[1]);
+        } else {
+            nextVarSuffixContext_.push_back(nullptr);
+        }
         visitVarSuffix(ctx->varSuffix().front());
         if (ctx->varSuffix().size() > 1) {
             cur_writer() << commentAfter(ctx->varSuffix().front(), "");
         }
+        nextVarSuffixContext_.pop_back();
         startAt = 1;
     } else {
         cur_writer() << ctx->NAME()->getText();
@@ -700,10 +752,16 @@ antlrcpp::Any FormatVisitor::visitVar(LuaParser::VarContext* ctx) {
     }
     int n = ctx->varSuffix().size();
     for (int i = startAt; i < n; i++) {
+        if (i != n - 1) {
+            nextVarSuffixContext_.push_back(ctx->varSuffix()[i + 1]);
+        } else {
+            nextVarSuffixContext_.push_back(nullptr);
+        }
         visitVarSuffix(ctx->varSuffix()[i]);
         if (i != n - 1) {
             cur_writer() << commentAfter(ctx->varSuffix()[i], "");
         }
+        nextVarSuffixContext_.pop_back();
     }
     return nullptr;
 }
@@ -735,6 +793,60 @@ antlrcpp::Any FormatVisitor::visitVarSuffix(LuaParser::VarSuffixContext* ctx) {
             cur_writer() << ctx->RSB()->getText();
         }
     } else {
+        pushWriter();
+        cur_writer() << ctx->DOT()->getText();
+        cur_writer() << commentAfter(ctx->DOT(), "");
+        cur_writer() << ctx->NAME()->getText();
+
+        // find args of NAME
+        LuaParser::VarContext* varCtx = dynamic_cast<LuaParser::VarContext*>(ctx->parent);
+        const vector<LuaParser::VarSuffixContext*>& arr = varCtx->varSuffix();
+        int index = find(arr.begin(), arr.end(), ctx) - arr.begin();
+        if (index + 1 < arr.size()) {
+            for (auto na : arr[index + 1]->nameAndArgs()) {
+                visitNameAndArgs(na);
+                cur_writer() << commentAfter(na, "");
+            }
+        } else {
+            LuaParser::VarOrExpContext* varOrExpCtx = dynamic_cast<LuaParser::VarOrExpContext*>(varCtx->parent);
+            // parent maybe VarlistContext
+            if (varOrExpCtx != nullptr) {
+                tree::ParseTree* parent = varOrExpCtx->parent;
+
+                LuaParser::PrefixexpContext* peCtx = dynamic_cast<LuaParser::PrefixexpContext*>(parent);
+                if (peCtx != nullptr) {
+                    for (auto na : peCtx->nameAndArgs()) {
+                        visitNameAndArgs(na);
+                        cur_writer() << commentAfter(na, "");
+                    }
+                }
+
+                LuaParser::FunctioncallContext* fcCtx = dynamic_cast<LuaParser::FunctioncallContext*>(parent);
+                if (fcCtx != nullptr) {
+                    for (auto na : fcCtx->nameAndArgs()) {
+                        visitNameAndArgs(na);
+                        cur_writer() << commentAfter(na, "");
+                    }
+                }
+            }
+        }
+
+        int length = cur_writer().columns().front();
+        string s = popWriter();
+        if (cur_columns() + length > config_.column_limit()) {
+            cur_writer() << "\n";
+            if (chainedMethodCallHasIncIndent_.empty()) {
+                // chainedMethodCallHasIncIndent_ is empty when visit var in varlist
+                cur_writer() << indent();
+            } else {
+                if (chainedMethodCallHasIncIndent_.back()) {
+                    cur_writer() << indent();
+                } else {
+                    cur_writer() << incIndent();
+                    chainedMethodCallHasIncIndent_[chainedMethodCallHasIncIndent_.size() - 1] = true;
+                }
+            }
+        }
         cur_writer() << ctx->DOT()->getText();
         cur_writer() << commentAfter(ctx->DOT(), "");
         cur_writer() << ctx->NAME()->getText();
@@ -746,6 +858,7 @@ antlrcpp::Any FormatVisitor::visitVarSuffix(LuaParser::VarSuffixContext* ctx) {
 antlrcpp::Any FormatVisitor::visitNameAndArgs(LuaParser::NameAndArgsContext* ctx) {
     LOG("visitNameAndArgs");
     if (ctx->COLON() != NULL) {
+        pushWriter();
         cur_writer() << ctx->COLON()->getText();
         cur_writer() << commentAfter(ctx->COLON(), "");
         cur_writer() << ctx->NAME()->getText();
@@ -754,6 +867,20 @@ antlrcpp::Any FormatVisitor::visitNameAndArgs(LuaParser::NameAndArgsContext* ctx
         needWhiteSpace = stringContext != NULL;
         cur_writer() << commentAfter(ctx->NAME(), needWhiteSpace ? " " : "");
         visitArgs(ctx->args());
+        int length = cur_writer().columns().front();
+        string str = popWriter();
+        if (cur_columns() + length > config_.column_limit()) {
+            cur_writer() << "\n";
+            if (chainedMethodCallHasIncIndent_.back()) {
+                cur_writer() << indent();
+            } else {
+                cur_writer() << incIndent();
+                chainedMethodCallHasIncIndent_[chainedMethodCallHasIncIndent_.size() - 1] = true;
+            }
+            cur_writer() << str;
+        } else {
+            cur_writer() << str;
+        }
     } else {
         visitArgs(ctx->args());
     }
@@ -766,25 +893,10 @@ antlrcpp::Any FormatVisitor::visitArgs(LuaParser::ArgsContext* ctx) {
     if (ctx->LP() != NULL) {
         cur_writer() << ctx->LP()->getText();
         if (ctx->explist() != NULL) {
-            if (isParameterSimple(ctx->explist())) {
-                cur_writer() << commentAfter(ctx->LP(), "");
-                bool temp = chop_down_parameter_;
-                chop_down_parameter_ = false;
-                visitExplist(ctx->explist());
-                chop_down_parameter_ = temp;
-                cur_writer() << commentAfter(ctx->explist(), "");
-                cur_writer() << ctx->RP()->getText();
-            } else {
-                cur_writer() << commentAfterNewLine(ctx->LP(), 1);
-                cur_writer() << indent();
-                bool temp = chop_down_parameter_;
-                chop_down_parameter_ = true;
-                visitExplist(ctx->explist());
-                chop_down_parameter_ = temp;
-                cur_writer() << commentAfterNewLine(ctx->explist(), -1);
-                cur_writer() << indent();
-                cur_writer() << ctx->RP()->getText();
-            }
+            cur_writer() << commentAfter(ctx->LP(), "");
+            visitExplist(ctx->explist());
+            cur_writer() << commentAfter(ctx->explist(), "");
+            cur_writer() << ctx->RP()->getText();
         } else {
             cur_writer() << commentAfter(ctx->LP(), "");
             cur_writer() << ctx->RP()->getText();

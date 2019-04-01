@@ -16,7 +16,8 @@ Config::Config() {
     map_["chop_down_block"] = "50";
     map_["chop_down_table"] = "50";
     map_["keep_simple_block_one_line"] = "true";
-    map_["columns_limit"] = 80;
+    map_["column_limit"] = "80";
+    map_["align_args"] = "true";
 }
 
 void Config::readFromFile(const string& file) {

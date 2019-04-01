@@ -30,7 +30,9 @@ class Config {
     BIND_INT(chop_down_block);
     BIND_INT(chop_down_table);
     BIND_BOOL(keep_simple_block_one_line);
-    BIND_INT(columns_limit);
+    BIND_INT(column_limit);
+
+    BIND_BOOL(align_args);
 
    private:
     map<string, string> map_;

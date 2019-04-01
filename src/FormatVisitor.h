@@ -54,11 +54,13 @@ class FormatVisitor : public LuaBaseVisitor {
     antlrcpp::Any visitTerminal(tree::TerminalNode* node) override;
 
    private:
-    bool chop_down_parameter_ = false;
     bool chop_down_table_ = false;
     bool chop_down_block_ = true;
 
     vector<SourceWriter*> writers_;
+    vector<int> firstArgsColumn_;
+    vector<bool> chainedMethodCallHasIncIndent_;
+    vector<LuaParser::VarSuffixContext*> nextVarSuffixContext_;
 
     int columns_ = 0;
     int indent_ = 0;
