@@ -14,7 +14,7 @@ while x do y() end
 while x do for a in b do y() end end
 
 -- too long, break
-while x do for i in k do local sumFunction = function(a,b) return a+b end end end
+while cond do for i in k do local sumFunction = function(a,b) return a+b end end end
 
 -- keep
 repeat x() until y
