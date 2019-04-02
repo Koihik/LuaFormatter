@@ -27,10 +27,11 @@ using namespace std;
         REQUIRE(expect == formatTwice);                                                                     \
     }
 
-TEST_FILE("../test/testdata/chop_down/parameter.lua");
-TEST_FILE("../test/testdata/chop_down/function.lua");
-TEST_FILE("../test/testdata/chop_down/table.lua");
-TEST_FILE("../test/testdata/chop_down/block.lua");
+TEST_FILE("../test/testdata/linebreak/block.lua");
+TEST_FILE("../test/testdata/linebreak/functioncall.lua");
+TEST_FILE("../test/testdata/linebreak/functiondef.lua");
+TEST_FILE("../test/testdata/linebreak/operators.lua");
+TEST_FILE("../test/testdata/linebreak/table.lua");
 
 TEST_FILE("../test/testdata/comment/function.lua");
 TEST_FILE("../test/testdata/comment/space.lua");

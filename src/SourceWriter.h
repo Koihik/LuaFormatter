@@ -10,7 +10,7 @@ class SourceWriter {
    private:
     stringstream ss_;
     vector<int> columns_;
-    int lines_ = 0;
+    int lines_ = 1;
 
    public:
     SourceWriter() { columns_.push_back(0); }

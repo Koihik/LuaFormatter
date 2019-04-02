@@ -6,11 +6,7 @@ q = {
 
     -- line break
     c = function() return 1 end,
-    d = {
-        [1] = {},
-        [2] = {},
-        [key] = (function() return {1, 2, 3} end)()
-    }
+    d = {[1] = {}, [2] = {}, [key] = (function() return {1, 2, 3} end)()}
 }
 
 function a(...)

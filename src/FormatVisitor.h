@@ -8,6 +8,8 @@
 using namespace std;
 using namespace antlr4;
 
+enum NewLineIndent { NONE_INDENT, INC_INDENT, DEC_INDENT, INC_CONTINUATION_INDENT, DEC_CONTINUATION_INDENT };
+
 class FormatVisitor : public LuaBaseVisitor {
    public:
     FormatVisitor(const vector<Token*>& tokens, const Config& config) : tokens_(tokens), config_(config) {}
@@ -54,11 +56,13 @@ class FormatVisitor : public LuaBaseVisitor {
     antlrcpp::Any visitTerminal(tree::TerminalNode* node) override;
 
    private:
-    bool chop_down_table_ = false;
     bool chop_down_block_ = true;
+    bool chop_down_table_ = true;
 
     vector<SourceWriter*> writers_;
     vector<int> firstArgsColumn_;
+    vector<int> firstParameterColumn_;
+    vector<int> firstTableFieldColumn_;
     vector<bool> chainedMethodCallHasIncIndent_;
     vector<LuaParser::VarSuffixContext*> nextVarSuffixContext_;
 
@@ -71,8 +75,6 @@ class FormatVisitor : public LuaBaseVisitor {
 
     bool shouldKeepSemicolon(ParserRuleContext* ctx, tree::TerminalNode* node);
     bool hasHardLineBreak(ParserRuleContext* ctx);
-    bool isTableSimple(LuaParser::TableconstructorContext* ctx);
-    bool isParameterSimple(LuaParser::ExplistContext* ctx);
     bool needKeepBlockOneLine(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx);
     bool isBlockEmpty(LuaParser::BlockContext* ctx);
     void visitBlockAndComment(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx);
@@ -83,8 +85,11 @@ class FormatVisitor : public LuaBaseVisitor {
     int cur_columns();
 
     string indent();
+    string lineBreak();
     string commentAfter(tree::ParseTree* a, const string& expect);
-    string commentAfterNewLine(tree::ParseTree* a, int intdentSize);
-    string incIndent();
-    string decIndent();
+    string commentAfterNewLine(tree::ParseTree* a, NewLineIndent newLineIndent);
+    void incIndent();
+    void decIndent();
+    void incContinuationIndent();
+    void decContinuationIndent();
 };

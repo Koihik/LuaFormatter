@@ -1,4 +1,4 @@
-indent: '  '
+indent_width: 2
 table_sep: ';'
 extra_sep_at_table_end: false
 keep_simple_function_one_line: true
