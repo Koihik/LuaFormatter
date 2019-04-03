@@ -88,6 +88,10 @@ string FormatVisitor::commentAfterNewLine(tree::ParseTree* node, NewLineIndent n
             incIndent();
         } else if (newLineIndent == INC_CONTINUATION_INDENT) {
             incContinuationIndent();
+        } else if (newLineIndent == DEC_INDENT) {
+            decIndent();
+        } else if (newLineIndent == DEC_CONTINUATION_INDENT) {
+            decContinuationIndent();
         }
         return "";
     }
@@ -553,20 +557,15 @@ antlrcpp::Any FormatVisitor::visitNamelist(LuaParser::NamelistContext* ctx) {
     if (cur_columns() + firstParameterLength > config_.column_limit()) {
         cur_writer() << "\n";
         if (!hasIncIndent) {
-            incIndent();
+            incContinuationIndent();
             cur_writer() << indent();
             hasIncIndent = true;
         }
-        if (config_.align_parameter()) {
-            firstParameterColumn_.push_back(cur_columns());
-        }
-        cur_writer() << ctx->NAME().front()->getText();
-    } else {
-        if (config_.align_parameter()) {
-            firstParameterColumn_.push_back(cur_columns());
-        }
-        cur_writer() << ctx->NAME().front()->getText();
     }
+    if (config_.align_parameter()) {
+        firstParameterColumn_.push_back(cur_columns());
+    }
+    cur_writer() << ctx->NAME().front()->getText();
     if (n > 0) {
         cur_writer() << commentAfter(ctx->NAME().front(), "");
     }
@@ -587,13 +586,14 @@ antlrcpp::Any FormatVisitor::visitNamelist(LuaParser::NamelistContext* ctx) {
                     cur_writer() << commentAfterNewLine(ctx->COMMA()[i], NONE_INDENT);
                     cur_writer() << indent();
                 } else {
-                    cur_writer() << commentAfterNewLine(ctx->COMMA()[i], INC_INDENT);
+                    cur_writer() << commentAfterNewLine(ctx->COMMA()[i], INC_CONTINUATION_INDENT);
                     cur_writer() << indent();
                     hasIncIndent = true;
                 }
             }
             cur_writer() << str;
         } else {
+            cur_writer() << commentAfter(ctx->COMMA()[i], " ");
             cur_writer() << str;
         }
         if (i != n - 1) {
@@ -601,7 +601,7 @@ antlrcpp::Any FormatVisitor::visitNamelist(LuaParser::NamelistContext* ctx) {
         }
     }
     if (hasIncIndent) {
-        decIndent();
+        decContinuationIndent();
     }
     if (config_.align_parameter()) {
         firstParameterColumn_.pop_back();
@@ -625,7 +625,7 @@ antlrcpp::Any FormatVisitor::visitExplist(LuaParser::ExplistContext* ctx) {
         }
         cur_writer() << "\n";
         if (!hasIncIndent) {
-            incIndent();
+            incContinuationIndent();
             cur_writer() << indent();
             hasIncIndent = true;
         }
@@ -660,7 +660,7 @@ antlrcpp::Any FormatVisitor::visitExplist(LuaParser::ExplistContext* ctx) {
                     cur_writer() << commentAfterNewLine(ctx->COMMA()[i], NONE_INDENT);
                     cur_writer() << indent();
                 } else {
-                    cur_writer() << commentAfterNewLine(ctx->COMMA()[i], INC_INDENT);
+                    cur_writer() << commentAfterNewLine(ctx->COMMA()[i], INC_CONTINUATION_INDENT);
                     cur_writer() << indent();
                     hasIncIndent = true;
                 }
@@ -675,7 +675,7 @@ antlrcpp::Any FormatVisitor::visitExplist(LuaParser::ExplistContext* ctx) {
         }
     }
     if (hasIncIndent) {
-        decIndent();
+        decContinuationIndent();
     }
     if (config_.align_args()) {
         firstArgsColumn_.pop_back();
@@ -710,6 +710,7 @@ antlrcpp::Any FormatVisitor::visitExp(LuaParser::ExpContext* ctx) {
             popWriter();
             if (cur_columns() + length > config_.column_limit()) {
                 cur_writer() << commentAfterNewLine(ctx->linkOperator(), INC_CONTINUATION_INDENT);
+                cur_writer() << indent();
                 hasIncIndent = true;
             } else {
                 cur_writer() << commentAfter(ctx->linkOperator(), " ");
@@ -930,7 +931,7 @@ antlrcpp::Any FormatVisitor::visitVarSuffix(LuaParser::VarSuffixContext* ctx) {
                 if (chainedMethodCallHasIncIndent_.back()) {
                     cur_writer() << indent();
                 } else {
-                    incIndent();
+                    incContinuationIndent();
                     cur_writer() << indent();
                     chainedMethodCallHasIncIndent_[chainedMethodCallHasIncIndent_.size() - 1] = true;
                 }
@@ -963,7 +964,7 @@ antlrcpp::Any FormatVisitor::visitNameAndArgs(LuaParser::NameAndArgsContext* ctx
             if (chainedMethodCallHasIncIndent_.back()) {
                 cur_writer() << indent();
             } else {
-                incIndent();
+                incContinuationIndent();
                 cur_writer() << indent();
                 chainedMethodCallHasIncIndent_[chainedMethodCallHasIncIndent_.size() - 1] = true;
             }
@@ -985,9 +986,37 @@ antlrcpp::Any FormatVisitor::visitArgs(LuaParser::ArgsContext* ctx) {
     if (ctx->LP() != NULL) {
         cur_writer() << ctx->LP()->getText();
         if (ctx->explist() != NULL) {
+            pushWriter();
             cur_writer() << commentAfter(ctx->LP(), "");
             visitExplist(ctx->explist());
             cur_writer() << commentAfter(ctx->explist(), "");
+            int length = cur_writer().columns().front();
+            int lines = cur_writer().lines();
+            popWriter();
+            bool hasIncIndent = false;
+            if (cur_columns() + length > config_.column_limit() || lines > 1) {
+                if (config_.break_after_functioncall_lp()) {
+                    hasIncIndent = true;
+                    cur_writer() << commentAfterNewLine(ctx->LP(), INC_CONTINUATION_INDENT);
+                    cur_writer() << indent();
+                } else {
+                    cur_writer() << commentAfter(ctx->LP(), "");
+                }
+            } else {
+                cur_writer() << commentAfter(ctx->LP(), "");
+            }
+            visitExplist(ctx->explist());
+            if (hasIncIndent) {
+                if (config_.break_before_functioncall_rp()) {
+                    cur_writer() << commentAfterNewLine(ctx->explist(), DEC_CONTINUATION_INDENT);
+                    cur_writer() << indent();
+                } else {
+                    decContinuationIndent();
+                    cur_writer() << commentAfter(ctx->explist(), "");
+                }
+            } else {
+                cur_writer() << commentAfter(ctx->explist(), "");
+            }
             cur_writer() << ctx->RP()->getText();
         } else {
             cur_writer() << commentAfter(ctx->LP(), "");
@@ -1014,17 +1043,15 @@ antlrcpp::Any FormatVisitor::visitFuncbody(LuaParser::FuncbodyContext* ctx) {
     cur_writer() << ctx->LP()->getText();
     if (ctx->parlist() != NULL) {
         bool breakAfterLp = false;
-        bool newline = false;
         pushWriter();
         visitParlist(ctx->parlist());
         int length = cur_writer().columns().front();
         popWriter();
         if (cur_columns() + length > config_.column_limit()) {
-            newline = true;
             breakAfterLp = config_.break_after_functiondef_lp();
         }
         if (breakAfterLp) {
-            cur_writer() << commentAfterNewLine(ctx->LP(), INC_INDENT);
+            cur_writer() << commentAfterNewLine(ctx->LP(), INC_CONTINUATION_INDENT);
             cur_writer() << indent();
         } else {
             cur_writer() << commentAfter(ctx->LP(), "");
@@ -1034,13 +1061,13 @@ antlrcpp::Any FormatVisitor::visitFuncbody(LuaParser::FuncbodyContext* ctx) {
 
         if (config_.break_before_functiondef_rp()) {
             if (breakAfterLp) {
-                cur_writer() << commentAfterNewLine(ctx->parlist(), DEC_INDENT);
+                cur_writer() << commentAfterNewLine(ctx->parlist(), DEC_CONTINUATION_INDENT);
                 cur_writer() << indent();
             } else {
                 cur_writer() << commentAfter(ctx->parlist(), "");
             }
         } else {
-            if (breakAfterLp) decIndent();
+            if (breakAfterLp) decContinuationIndent();
             cur_writer() << commentAfter(ctx->parlist(), "");
         }
     } else {
@@ -1197,6 +1224,7 @@ antlrcpp::Any FormatVisitor::visitFieldlist(LuaParser::FieldlistContext* ctx) {
                     cur_writer() << commentAfterNewLine(ctx->fieldsep()[i - 1], INC_INDENT);
                     cur_writer() << indent();
                     customIncIndent = true;
+                    hasIncIndent = true;
                 }
             }
             visitField(ctx->field()[i]);
@@ -1207,9 +1235,6 @@ antlrcpp::Any FormatVisitor::visitFieldlist(LuaParser::FieldlistContext* ctx) {
         if (i != n - 1 || ctx->fieldsep().size() == n) {
             cur_writer() << commentAfter(ctx->field()[i], "");
         }
-    }
-    if (ctx->fieldsep().size() == n && !config_.extra_sep_at_table_end()) {
-        visitFieldsep(ctx->fieldsep().back());
     }
     if (config_.align_table_field()) {
         firstTableFieldColumn_.pop_back();
@@ -1386,6 +1411,7 @@ bool FormatVisitor::isBlockEmpty(LuaParser::BlockContext* ctx) { return ctx->sta
 void FormatVisitor::visitBlockAndComment(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx) {
     LOG("visitBlockAndComment");
     bool oneline = needKeepBlockOneLine(previousNode, ctx);
+    LOGVAR(oneline);
     if (oneline) {
         cur_writer() << commentAfter(previousNode, " ");
         bool temp = chop_down_block_;
@@ -1401,7 +1427,11 @@ void FormatVisitor::visitBlockAndComment(tree::ParseTree* previousNode, LuaParse
         chop_down_block_ = true;
         visitBlock(ctx);
         chop_down_block_ = temp;
+        LOG("cur indent: ");
+        LOGVAR(indent_);
         cur_writer() << commentAfterNewLine(ctx, DEC_INDENT);
+        LOG("cur indent: ");
+        LOGVAR(indent_);
         cur_writer() << indent();
     }
 }

@@ -1,13 +1,13 @@
 -- long chained method call
 ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
     .w(wwwwwwwww, ddq, q.w(qqqqqq, wsssssssw), q.w(qqqqqq, wsssssssw),
-        q.w(qqqqqq, wsssssssw), q.w(qqqqqq, wsssssssw))
+       q.w(qqqqqq, wsssssssw), q.w(qqqqqq, wsssssssw))
 
 local x = function()
     ddd.www:map(function(it)
         it.aaa(wwww)(wwww)(wwww)(wwww) -- comment
+        .wwwww(wwww)(wwww)(wwww)(wwww).wwwww(wwww)(wwww)(wwww)(wwww)
             .wwwww(wwww)(wwww)(wwww)(wwww)
-            .wwwww(wwww)(wwww)(wwww)(wwww).wwwww(wwww)(wwww)(wwww)(wwww)
             .wwwww(wwww):wwwww(wwww):wwwww(wwww):wwwww(wwww):wwwww(wwww)
             :wwwww(wwww)
     end)
