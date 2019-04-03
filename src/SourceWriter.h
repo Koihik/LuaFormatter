@@ -31,6 +31,6 @@ class SourceWriter {
 
     string str() { return ss_.str(); }
     stringstream& ss() { return ss_; }
-    vector<int> columns() { return columns_; }
+    const vector<int>& columns() { return columns_; }
     int lines() { return lines_; }
 };

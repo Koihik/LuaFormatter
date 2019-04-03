@@ -60,11 +60,18 @@ class FormatVisitor : public LuaBaseVisitor {
     bool chop_down_table_ = true;
 
     vector<SourceWriter*> writers_;
+
+    // stack to record column of first args
     vector<int> firstArgsColumn_;
+
+    // stack to record column of first parameter
     vector<int> firstParameterColumn_;
+
+    // stack to record column of first table field
     vector<int> firstTableFieldColumn_;
+
+    // stack to record did a chained method call has increased indent
     vector<bool> chainedMethodCallHasIncIndent_;
-    vector<LuaParser::VarSuffixContext*> nextVarSuffixContext_;
 
     int columns_ = 0;
     int indent_ = 0;

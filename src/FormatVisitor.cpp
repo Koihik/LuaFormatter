@@ -821,16 +821,10 @@ antlrcpp::Any FormatVisitor::visitVar(LuaParser::VarContext* ctx) {
         cur_writer() << commentAfter(ctx->exp(), "");
         cur_writer() << ctx->RP()->getText();
         cur_writer() << commentAfter(ctx->RP(), "");
-        if (ctx->varSuffix().size() > 1) {
-            nextVarSuffixContext_.push_back(ctx->varSuffix()[1]);
-        } else {
-            nextVarSuffixContext_.push_back(nullptr);
-        }
         visitVarSuffix(ctx->varSuffix().front());
         if (ctx->varSuffix().size() > 1) {
             cur_writer() << commentAfter(ctx->varSuffix().front(), "");
         }
-        nextVarSuffixContext_.pop_back();
         startAt = 1;
     } else {
         cur_writer() << ctx->NAME()->getText();
@@ -841,16 +835,10 @@ antlrcpp::Any FormatVisitor::visitVar(LuaParser::VarContext* ctx) {
     }
     int n = ctx->varSuffix().size();
     for (int i = startAt; i < n; i++) {
-        if (i != n - 1) {
-            nextVarSuffixContext_.push_back(ctx->varSuffix()[i + 1]);
-        } else {
-            nextVarSuffixContext_.push_back(nullptr);
-        }
         visitVarSuffix(ctx->varSuffix()[i]);
         if (i != n - 1) {
             cur_writer() << commentAfter(ctx->varSuffix()[i], "");
         }
-        nextVarSuffixContext_.pop_back();
     }
     return nullptr;
 }
@@ -992,6 +980,7 @@ antlrcpp::Any FormatVisitor::visitArgs(LuaParser::ArgsContext* ctx) {
             cur_writer() << commentAfter(ctx->explist(), "");
             int length = cur_writer().columns().front();
             int lines = cur_writer().lines();
+            if (!config_.break_before_functioncall_rp()) length++;
             popWriter();
             bool hasIncIndent = false;
             if (cur_columns() + length > config_.column_limit() || lines > 1) {
@@ -1411,7 +1400,6 @@ bool FormatVisitor::isBlockEmpty(LuaParser::BlockContext* ctx) { return ctx->sta
 void FormatVisitor::visitBlockAndComment(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx) {
     LOG("visitBlockAndComment");
     bool oneline = needKeepBlockOneLine(previousNode, ctx);
-    LOGVAR(oneline);
     if (oneline) {
         cur_writer() << commentAfter(previousNode, " ");
         bool temp = chop_down_block_;
@@ -1427,11 +1415,7 @@ void FormatVisitor::visitBlockAndComment(tree::ParseTree* previousNode, LuaParse
         chop_down_block_ = true;
         visitBlock(ctx);
         chop_down_block_ = temp;
-        LOG("cur indent: ");
-        LOGVAR(indent_);
         cur_writer() << commentAfterNewLine(ctx, DEC_INDENT);
-        LOG("cur indent: ");
-        LOGVAR(indent_);
         cur_writer() << indent();
     }
 }
