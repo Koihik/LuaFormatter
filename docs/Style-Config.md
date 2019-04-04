@@ -71,7 +71,7 @@ function x()
     print(1)
 end
 if cond then
-	xx()
+    xx()
 end
 ```
 
@@ -243,10 +243,10 @@ Chop down table if table contains key.
 ```lua
 -- chop_down_kv_table: true
 x = {
-	k1 = v1,
-	k2 = v2,
-	k3 = v3,
-	k4 = v4
+    k1 = v1,
+    k2 = v2,
+    k3 = v3,
+    k4 = v4
 }
 
 -- chop_down_kv_table: false
@@ -265,16 +265,16 @@ Define character to separate table fields.
 ```lua
 -- table_sep: ','
 x = {
-	k1 = v1,
-	k2 = v2,
-	k3 = v3
+    k1 = v1,
+    k2 = v2,
+    k3 = v3
 }
 
 -- table_sep: ';'
 x = {
-	k1 = v1;
-	k2 = v2;
-	k3 = v3
+    k1 = v1;
+    k2 = v2;
+    k3 = v3
 }
 ```
 
@@ -287,16 +287,16 @@ Add a extra field separator after last field unless the table is in a single lin
 ```lua
 -- extra_sep_at_table_end: true
 x = {
-	k1 = v1,
-	k2 = v2,
-	k3 = v3,
+    k1 = v1,
+    k2 = v2,
+    k3 = v3,
 }
 
 -- extra_sep_at_table_end: false
 x = {
-	k1 = v1,
-	k2 = v2,
-	k3 = v3
+    k1 = v1,
+    k2 = v2,
+    k3 = v3
 }
 ```
 

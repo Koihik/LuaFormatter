@@ -80,7 +80,7 @@ string FormatVisitor::commentAfter(tree::ParseTree* node, const string& expect) 
 
 // commentAfterNewLine returns comments between a ParseTreeNode and the next Node.
 // This function always expect a line break.
-// intdentSize: inc or dec indent after a line break.
+// NewLineIndent: inc or dec indent after a line break.
 string FormatVisitor::commentAfterNewLine(tree::ParseTree* node, NewLineIndent newLineIndent) {
     ParserRuleContext* ctx = dynamic_cast<ParserRuleContext*>(node);
     if (ctx != NULL && ctx->children.size() == 0) {
@@ -160,12 +160,10 @@ string FormatVisitor::commentAfterNewLine(tree::ParseTree* node, NewLineIndent n
 
 void FormatVisitor::pushWriter() { writers_.push_back(new SourceWriter()); }
 
-string FormatVisitor::popWriter() {
+void FormatVisitor::popWriter() {
     SourceWriter* writer = writers_.back();
-    string ret = writer->str();
     writers_.pop_back();
     delete writer;
-    return ret;
 }
 
 SourceWriter& FormatVisitor::cur_writer() { return *writers_.back(); }
@@ -205,7 +203,9 @@ antlrcpp::Any FormatVisitor::visitChunk(LuaParser::ChunkContext* ctx) {
         }
         break;
     }
-    return popWriter();
+    string ret = cur_writer().str();
+    popWriter();
+    return ret;
 }
 
 // stat* retstat?
@@ -882,6 +882,14 @@ antlrcpp::Any FormatVisitor::visitVarSuffix(LuaParser::VarSuffixContext* ctx) {
         int index = find(arr.begin(), arr.end(), ctx) - arr.begin();
         if (index + 1 < arr.size()) {
             for (auto na : arr[index + 1]->nameAndArgs()) {
+                // if next NameAndArgs's COLON is not null
+                // then formatter can place a break before COLON.
+                // So do not need to calc column length for current NAME, break the loop.
+                // example:
+                // self.xxx.yyy:foo()
+                // the 'xxx' and 'yyy' is a 'Variable', and 'foo' is a 'Method'
+                // It better break before 'foo' than break before 'yyy'
+                if (na->COLON() != nullptr) break;
                 visitNameAndArgs(na);
                 if (na != arr[index + 1]->nameAndArgs().back()) {
                     cur_writer() << commentAfter(na, "");
@@ -896,6 +904,7 @@ antlrcpp::Any FormatVisitor::visitVarSuffix(LuaParser::VarSuffixContext* ctx) {
                 LuaParser::PrefixexpContext* peCtx = dynamic_cast<LuaParser::PrefixexpContext*>(parent);
                 if (peCtx != nullptr) {
                     for (auto na : peCtx->nameAndArgs()) {
+                        if (na->COLON() != nullptr) break;
                         visitNameAndArgs(na);
                         if (na != peCtx->nameAndArgs().back()) {
                             cur_writer() << commentAfter(na, "");
@@ -906,6 +915,7 @@ antlrcpp::Any FormatVisitor::visitVarSuffix(LuaParser::VarSuffixContext* ctx) {
                 LuaParser::FunctioncallContext* fcCtx = dynamic_cast<LuaParser::FunctioncallContext*>(parent);
                 if (fcCtx != nullptr) {
                     for (auto na : fcCtx->nameAndArgs()) {
+                        if (na->COLON() != nullptr) break;
                         visitNameAndArgs(na);
                         if (na != fcCtx->nameAndArgs().back()) {
                             cur_writer() << commentAfter(na, "");
@@ -1343,25 +1353,6 @@ bool FormatVisitor::shouldKeepSemicolon(ParserRuleContext* ctx, tree::TerminalNo
         break;
     }
     return startWithLP;
-}
-
-// Judge a rule context has force linebreak
-bool FormatVisitor::hasHardLineBreak(ParserRuleContext* ctx) {
-    int l = ctx->getStart()->getTokenIndex();
-    int r = ctx->getStop()->getTokenIndex();
-
-    for (int i = l + 1; i < tokens_.size() && i < r; i++) {
-        auto token = tokens_[i];
-        if (token->getType() == LuaLexer::COMMENT) {
-            string str = token->getText();
-            if (str.find('\n') != string::npos) {
-                return true;
-            }
-        } else if (token->getType() == LuaLexer::LINE_COMMENT) {
-            return true;
-        }
-    }
-    return false;
 }
 
 bool FormatVisitor::needKeepBlockOneLine(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx) {

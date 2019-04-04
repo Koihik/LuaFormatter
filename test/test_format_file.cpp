@@ -32,6 +32,7 @@ TEST_FILE("../test/testdata/linebreak/functioncall.lua");
 TEST_FILE("../test/testdata/linebreak/functiondef.lua");
 TEST_FILE("../test/testdata/linebreak/operators.lua");
 TEST_FILE("../test/testdata/linebreak/table.lua");
+TEST_FILE("../test/testdata/linebreak/var_method_priority.lua");
 
 TEST_FILE("../test/testdata/comment/function.lua");
 TEST_FILE("../test/testdata/comment/space.lua");
