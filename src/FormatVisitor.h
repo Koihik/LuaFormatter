@@ -73,7 +73,6 @@ class FormatVisitor : public LuaBaseVisitor {
     // stack to record did a chained method call has increased indent
     vector<bool> chainedMethodCallHasIncIndent_;
 
-    int columns_ = 0;
     int indent_ = 0;
     const vector<Token*>& tokens_;
     const Config& config_;
@@ -81,13 +80,13 @@ class FormatVisitor : public LuaBaseVisitor {
     string formatLineComment(Token* token);
 
     bool shouldKeepSemicolon(ParserRuleContext* ctx, tree::TerminalNode* node);
-    bool hasHardLineBreak(ParserRuleContext* ctx);
     bool needKeepBlockOneLine(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx);
     bool isBlockEmpty(LuaParser::BlockContext* ctx);
     void visitBlockAndComment(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx);
 
     void pushWriter();
-    string popWriter();
+    void popWriter();
+    bool fastTestColumnLimit(tree::ParseTree* node);
     SourceWriter& cur_writer();
     int cur_columns();
 
