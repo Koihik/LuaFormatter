@@ -9,13 +9,28 @@ void trim(string& s) {
 }
 
 Config::Config() {
-    _map["indent"] = "    ";
-    _map["table_sep"] = ",";
-    _map["extra_sep_at_table_end"] = "false";
-    _map["chop_down_parameter"] = "50";
-    _map["chop_down_block"] = "50";
-    _map["chop_down_table"] = "50";
-    _map["keep_simple_block_one_line"] = "true";
+    map_["column_limit"] = "80";
+    map_["indent_width"] = "4";
+    map_["continuation_indent_width"] = "4";
+
+    map_["keep_simple_block_one_line"] = "true";
+
+    map_["align_args"] = "true";
+    map_["break_after_functioncall_lp"] = "false";
+    map_["break_before_functioncall_rp"] = "false";
+
+    map_["align_parameter"] = "true";
+    map_["break_after_functiondef_lp"] = "false";
+    map_["break_before_functiondef_rp"] = "false";
+
+    map_["align_table_field"] = "true";
+    map_["break_after_table_lb"] = "true";
+    map_["break_before_table_rb"] = "true";
+    map_["chop_down_kv_table"] = "true";
+    map_["table_sep"] = ",";
+    map_["extra_sep_at_table_end"] = "false";
+
+    map_["break_after_operator"] = "true";
 }
 
 void Config::readFromFile(const string& file) {
@@ -36,7 +51,7 @@ void Config::readFromFile(const string& file) {
                         value = value.substr(1, value.size() - 2);
                     }
                 }
-                _map[key] = value;
+                map_[key] = value;
             }
         }
     }

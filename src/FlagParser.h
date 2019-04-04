@@ -18,32 +18,32 @@ class FlagParser {
                 if (remain > 0) {
                     throw invalid_argument((lastKey + ": Not enough arguements.").c_str());
                 }
-                if (_optionDefs.find(value) == _optionDefs.end()) {
+                if (option_defs_.find(value) == option_defs_.end()) {
                     throw invalid_argument((value + ": Unknown option.").c_str());
                 }
                 lastKey = value;
-                remain = _optionDefs[value];
-                _options[lastKey] = {};
+                remain = option_defs_[value];
+                options_[lastKey] = {};
             } else {
                 if (lastKey != "" && remain > 0) {
-                    _options[lastKey].push_back(value);
+                    options_[lastKey].push_back(value);
                     remain--;
                 } else {
-                    _values.push_back(value);
+                    values_.push_back(value);
                 }
             }
         }
     }
 
-    void define(const string& key, int valueCount) { _optionDefs[key] = valueCount; }
+    void define(const string& key, int valueCount) { option_defs_[key] = valueCount; }
 
-    bool hasOption(const string& key) { return _options.count(key); }
-    vector<string> getOptions(const string& key) { return _options[key]; }
-    string getOption(const string& key) { return _options[key].front(); }
-    vector<string> getValues() { return _values; }
+    bool hasOption(const string& key) { return options_.count(key); }
+    vector<string> getOptions(const string& key) { return options_[key]; }
+    string getOption(const string& key) { return options_[key].front(); }
+    vector<string> getValues() { return values_; }
 
    private:
-    map<string, int> _optionDefs;
-    map<string, vector<string>> _options;
-    vector<string> _values;
+    map<string, int> option_defs_;
+    map<string, vector<string>> options_;
+    vector<string> values_;
 };

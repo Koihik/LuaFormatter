@@ -3,13 +3,16 @@
 #include "Config.h"
 #include "LuaBaseVisitor.h"
 #include "LuaParser.h"
+#include "SourceWriter.h"
 
 using namespace std;
 using namespace antlr4;
 
+enum NewLineIndent { NONE_INDENT, INC_INDENT, DEC_INDENT, INC_CONTINUATION_INDENT, DEC_CONTINUATION_INDENT };
+
 class FormatVisitor : public LuaBaseVisitor {
    public:
-    FormatVisitor(const vector<Token*>& t, const Config& c) : tokens(t), config(c) {}
+    FormatVisitor(const vector<Token*>& tokens, const Config& config) : tokens_(tokens), config_(config) {}
 
     antlrcpp::Any visitChunk(LuaParser::ChunkContext* context) override;
     antlrcpp::Any visitBlock(LuaParser::BlockContext* context) override;
@@ -53,27 +56,47 @@ class FormatVisitor : public LuaBaseVisitor {
     antlrcpp::Any visitTerminal(tree::TerminalNode* node) override;
 
    private:
-    bool _chopDownParameter = false;
-    bool _chopDownTable = false;
-    bool _chopDownBlock = true;
+    bool chop_down_block_ = true;
+    bool chop_down_table_ = true;
 
-    int _indent = 0;
-    const vector<Token*>& tokens;
-    const Config& config;
+    vector<SourceWriter*> writers_;
+
+    // stack to record column of first args
+    vector<int> firstArgsColumn_;
+
+    // stack to record column of first parameter
+    vector<int> firstParameterColumn_;
+
+    // stack to record column of first table field
+    vector<int> firstTableFieldColumn_;
+
+    // stack to record did a chained method call has increased indent
+    vector<bool> chainedMethodCallHasIncIndent_;
+
+    int columns_ = 0;
+    int indent_ = 0;
+    const vector<Token*>& tokens_;
+    const Config& config_;
 
     string formatLineComment(Token* token);
 
     bool shouldKeepSemicolon(ParserRuleContext* ctx, tree::TerminalNode* node);
     bool hasHardLineBreak(ParserRuleContext* ctx);
-    bool isTableSimple(LuaParser::TableconstructorContext* ctx);
-    bool isParameterSimple(LuaParser::ExplistContext* ctx);
     bool needKeepBlockOneLine(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx);
     bool isBlockEmpty(LuaParser::BlockContext* ctx);
-    string visitBlockAndComment(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx);
+    void visitBlockAndComment(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx);
+
+    void pushWriter();
+    string popWriter();
+    SourceWriter& cur_writer();
+    int cur_columns();
 
     string indent();
+    string lineBreak();
     string commentAfter(tree::ParseTree* a, const string& expect);
-    string commentAfterNewLine(tree::ParseTree* a, int intdentSize);
-    string incIndent();
-    string decIndent();
+    string commentAfterNewLine(tree::ParseTree* a, NewLineIndent newLineIndent);
+    void incIndent();
+    void decIndent();
+    void incContinuationIndent();
+    void decContinuationIndent();
 };

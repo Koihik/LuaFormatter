@@ -23,8 +23,7 @@ string __foramt(ANTLRInputStream& input, const Config& config) {
     }
 
     FormatVisitor visitor(tokenVector, config);
-    string out = chunk->accept(&visitor);
-    return out;
+    return chunk->accept(&visitor).as<string>();
 }
 
 string lua_format(istream& is, const Config& config) {
