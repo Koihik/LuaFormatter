@@ -86,6 +86,7 @@ class FormatVisitor : public LuaBaseVisitor {
 
     void pushWriter();
     void popWriter();
+    bool fastTestColumnLimit(tree::ParseTree* node);
     SourceWriter& cur_writer();
     int cur_columns();
 

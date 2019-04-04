@@ -18,12 +18,19 @@ using namespace antlr4;
 
 static bool isBlankChar(char c) { return c == ' ' || c == '\t' || c == '\u000C'; }
 
-static bool isLastWhiteSpace(stringstream& ss) {
-    if (!ss.tellp()) {
-        return false;
+int firstNodeIndex(tree::ParseTree* t) {
+    if (t == NULL) {
+        return -1;
     }
-    ss.seekg(-1, ios::end);
-    return ss.peek() == ' ';
+    ParserRuleContext* c = dynamic_cast<ParserRuleContext*>(t);
+    if (c != NULL) {
+        return c->getStart()->getTokenIndex();
+    }
+    tree::TerminalNode* n = dynamic_cast<tree::TerminalNode*>(t);
+    if (n != NULL) {
+        return n->getSymbol()->getTokenIndex();
+    }
+    return INT_MAX;
 }
 
 int lastNodeIndex(tree::ParseTree* t) {
@@ -158,12 +165,33 @@ string FormatVisitor::commentAfterNewLine(tree::ParseTree* node, NewLineIndent n
     return ss.str();
 }
 
-void FormatVisitor::pushWriter() { writers_.push_back(new SourceWriter()); }
+void FormatVisitor::pushWriter() {
+    SourceWriter* writer = new SourceWriter();
+    if (!writers_.empty()) {
+        writer->set_volatile(true);
+    }
+    writers_.push_back(writer);
+}
 
 void FormatVisitor::popWriter() {
     SourceWriter* writer = writers_.back();
     writers_.pop_back();
     delete writer;
+}
+
+bool FormatVisitor::fastTestColumnLimit(tree::ParseTree* node) {
+    int columns = cur_columns();
+    for (int i = firstNodeIndex(node), n = lastNodeIndex(node); i <= n; i++) {
+        if (tokens_[i]->getType() == LuaLexer::COMMENT || tokens_[i]->getType() == LuaLexer::LINE_COMMENT ||
+            tokens_[i]->getType() == LuaLexer::WS) {
+            continue;
+        }
+        columns += tokens_[i]->getText().size();
+        if (columns > config_.column_limit()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 SourceWriter& FormatVisitor::cur_writer() { return *writers_.back(); }
@@ -220,7 +248,7 @@ antlrcpp::Any FormatVisitor::visitBlock(LuaParser::BlockContext* ctx) {
         if (!isSemi) {
             visitStat(stats[i]);
         }
-        bool previousWhiteSpace = isSemi || isLastWhiteSpace(cur_writer().ss());
+        bool previousWhiteSpace = isSemi || cur_writer().isLastCharWhiteSpace();
         if (needComment) {
             if (isNextSemi) {
                 string comment = commentAfter(stats[i], "");
@@ -242,7 +270,7 @@ antlrcpp::Any FormatVisitor::visitBlock(LuaParser::BlockContext* ctx) {
     if (ctx->retstat() != NULL) {
         visitRetstat(ctx->retstat());
     }
-    if (ctx->retstat() == NULL && isLastWhiteSpace(cur_writer().ss())) {
+    if (ctx->retstat() == NULL && cur_writer().isLastCharWhiteSpace()) {
         string blockComment = commentAfter(ctx, "");
         if (blockComment.size() > 0 && blockComment[0] == ' ') {
             cur_writer().ss().seekp(-1, ios::end);
@@ -613,14 +641,16 @@ antlrcpp::Any FormatVisitor::visitNamelist(LuaParser::NamelistContext* ctx) {
 antlrcpp::Any FormatVisitor::visitExplist(LuaParser::ExplistContext* ctx) {
     LOG("visitExplist");
     int n = ctx->COMMA().size();
+    bool beyondLimit = false;
     pushWriter();
     visitExp(ctx->exp().front());
     int firstExpLength = cur_writer().columns().front();
     popWriter();
-    bool hasIncIndent = false;
     if (n > 0) firstExpLength++;  // calc a ',' if exp > 1
-    if (cur_columns() + firstExpLength > config_.column_limit()) {
-        if (isLastWhiteSpace(cur_writer().ss())) {
+    beyondLimit = cur_columns() + firstExpLength > config_.column_limit();
+    bool hasIncIndent = false;
+    if (beyondLimit) {
+        if (cur_writer().isLastCharWhiteSpace()) {
             cur_writer().ss().seekp(-1, ios::end);
         }
         cur_writer() << "\n";
@@ -644,12 +674,14 @@ antlrcpp::Any FormatVisitor::visitExplist(LuaParser::ExplistContext* ctx) {
     }
     for (int i = 0; i < n; i++) {
         cur_writer() << ctx->COMMA()[i]->getText();
+        bool beyondLimit = false;
         pushWriter();
         visitExp(ctx->exp()[i + 1]);
         int expLength = cur_writer().columns().front();
         popWriter();
         if (i != n - 1) expLength++;  // calc a ',' if exp > 1
-        if (cur_columns() + expLength > config_.column_limit()) {
+        beyondLimit = cur_columns() + expLength > config_.column_limit();
+        if (beyondLimit) {
             if (config_.align_args()) {
                 cur_writer() << commentAfterNewLine(ctx->COMMA()[i], NONE_INDENT);
                 for (int i = 0; i < firstArgsColumn_.back(); i++) {
@@ -704,11 +736,13 @@ antlrcpp::Any FormatVisitor::visitExp(LuaParser::ExpContext* ctx) {
         if (config_.break_after_operator()) {
             cur_writer() << commentAfter(ctx->exp()[0], " ");
             cur_writer() << ctx->linkOperator()->getText();
+            bool beyondLimit = false;
             pushWriter();
             visitExp(ctx->exp()[1]);
             int length = cur_writer().columns().front();
             popWriter();
-            if (cur_columns() + length > config_.column_limit()) {
+            beyondLimit = cur_columns() + length > config_.column_limit();
+            if (beyondLimit) {
                 cur_writer() << commentAfterNewLine(ctx->linkOperator(), INC_CONTINUATION_INDENT);
                 cur_writer() << indent();
                 hasIncIndent = true;
@@ -717,13 +751,15 @@ antlrcpp::Any FormatVisitor::visitExp(LuaParser::ExpContext* ctx) {
             }
             visitExp(ctx->exp()[1]);
         } else {
+            bool beyondLimit = false;
             pushWriter();
             cur_writer() << ctx->linkOperator()->getText();
             cur_writer() << commentAfter(ctx->linkOperator(), " ");
             visitExp(ctx->exp()[1]);
             int length = cur_writer().columns().front();
             popWriter();
-            if (cur_columns() + length > config_.column_limit()) {
+            beyondLimit = cur_columns() + length > config_.column_limit();
+            if (beyondLimit) {
                 cur_writer() << commentAfterNewLine(ctx->exp()[0], INC_CONTINUATION_INDENT);
                 cur_writer() << indent();
                 hasIncIndent = true;
@@ -991,16 +1027,20 @@ antlrcpp::Any FormatVisitor::visitArgs(LuaParser::ArgsContext* ctx) {
     if (ctx->LP() != NULL) {
         cur_writer() << ctx->LP()->getText();
         if (ctx->explist() != NULL) {
-            pushWriter();
-            cur_writer() << commentAfter(ctx->LP(), "");
-            visitExplist(ctx->explist());
-            cur_writer() << commentAfter(ctx->explist(), "");
-            int length = cur_writer().columns().front();
-            int lines = cur_writer().lines();
-            if (!config_.break_before_functioncall_rp()) length++;
-            popWriter();
+            bool beyondLimit = fastTestColumnLimit(ctx->explist());
+            if (!beyondLimit) {
+                pushWriter();
+                cur_writer() << commentAfter(ctx->LP(), "");
+                visitExplist(ctx->explist());
+                cur_writer() << commentAfter(ctx->explist(), "");
+                int length = cur_writer().columns().front();
+                int lines = cur_writer().lines();
+                if (!config_.break_before_functioncall_rp()) length++;
+                popWriter();
+                beyondLimit = cur_columns() + length > config_.column_limit() || lines > 1;
+            }
             bool hasIncIndent = false;
-            if (cur_columns() + length > config_.column_limit() || lines > 1) {
+            if (beyondLimit) {
                 if (config_.break_after_functioncall_lp()) {
                     hasIncIndent = true;
                     cur_writer() << commentAfterNewLine(ctx->LP(), INC_CONTINUATION_INDENT);
@@ -1049,11 +1089,13 @@ antlrcpp::Any FormatVisitor::visitFuncbody(LuaParser::FuncbodyContext* ctx) {
     cur_writer() << ctx->LP()->getText();
     if (ctx->parlist() != NULL) {
         bool breakAfterLp = false;
+        bool beyondLimit = false;
         pushWriter();
         visitParlist(ctx->parlist());
         int length = cur_writer().columns().front();
         popWriter();
-        if (cur_columns() + length > config_.column_limit()) {
+        beyondLimit = cur_columns() + length > config_.column_limit();
+        if (beyondLimit) {
             breakAfterLp = config_.break_after_functiondef_lp();
         }
         if (breakAfterLp) {
@@ -1119,17 +1161,21 @@ antlrcpp::Any FormatVisitor::visitTableconstructor(LuaParser::TableconstructorCo
             }
         }
         bool temp = chop_down_table_;
-        pushWriter();
-        cur_writer() << commentAfter(ctx->LB(), "");
-        chop_down_table_ = false;
-        visitFieldlist(ctx->fieldlist());
-        chop_down_table_ = temp;
-        cur_writer() << commentAfter(ctx->fieldlist(), "");
-        int length = cur_writer().columns().front();
-        int lines = cur_writer().lines();
-        popWriter();
+        bool beyondLimit = fastTestColumnLimit(ctx->fieldlist());
+        if (!beyondLimit) {
+            pushWriter();
+            cur_writer() << commentAfter(ctx->LB(), "");
+            chop_down_table_ = false;
+            visitFieldlist(ctx->fieldlist());
+            chop_down_table_ = temp;
+            cur_writer() << commentAfter(ctx->fieldlist(), "");
+            int length = cur_writer().columns().front();
+            int lines = cur_writer().lines();
+            popWriter();
+            beyondLimit = cur_columns() + length > config_.column_limit() || lines > 1;
+        }
         bool breakAfterLb = false;
-        if (cur_columns() + length > config_.column_limit() || lines > 1) {
+        if (beyondLimit) {
             breakAfterLb = config_.break_after_table_lb();
             chopDown = config_.chop_down_kv_table() && containsKv;
         }
@@ -1192,7 +1238,7 @@ antlrcpp::Any FormatVisitor::visitFieldlist(LuaParser::FieldlistContext* ctx) {
     if (config_.align_table_field()) {
         firstTableFieldColumn_.push_back(cur_columns());
     }
-    bool hasIncIndent = isLastWhiteSpace(cur_writer().ss());
+    bool hasIncIndent = cur_writer().isLastCharWhiteSpace();
     bool customIncIndent = false;
     visitField(ctx->field().front());
     if (n > 1 || sn > 0) {
@@ -1210,13 +1256,15 @@ antlrcpp::Any FormatVisitor::visitFieldlist(LuaParser::FieldlistContext* ctx) {
             continue;
         }
         visitFieldsep(ctx->fieldsep()[i - 1]);
+        bool beyondLimit = false;
         pushWriter();
         cur_writer() << commentAfter(ctx->fieldsep()[i - 1], " ");
         visitField(ctx->field()[i]);
         int length = cur_writer().columns().front();
         popWriter();
         if (i != n - 1 || config_.extra_sep_at_table_end()) length++;  // calc a ',' if exp > 1
-        if (cur_columns() + length > config_.column_limit()) {
+        beyondLimit = cur_columns() + length > config_.column_limit();
+        if (beyondLimit) {
             if (config_.align_table_field()) {
                 cur_writer() << commentAfterNewLine(ctx->fieldsep()[i - 1], NONE_INDENT);
                 for (int i = 0; i < firstTableFieldColumn_.back(); i++) {
@@ -1378,6 +1426,7 @@ bool FormatVisitor::needKeepBlockOneLine(tree::ParseTree* previousNode, LuaParse
     if (preComment.find("\n") != string::npos) {
         return false;
     }
+    if (fastTestColumnLimit(ctx)) return false;
     pushWriter();
     visitBlock(ctx);
     int length = cur_writer().columns().front();
