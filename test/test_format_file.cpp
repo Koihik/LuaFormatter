@@ -45,3 +45,5 @@ TEST_FILE("../test/testdata/statement/semi.lua");
 TEST_FILE("../test/testdata/statement/shebang.lua");
 TEST_FILE("../test/testdata/statement/statements.lua");
 TEST_FILE("../test/testdata/statement/table.lua");
+
+TEST_FILE("../test/testdata/issues/issue-1.lua");

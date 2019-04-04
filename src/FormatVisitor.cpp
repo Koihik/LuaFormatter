@@ -725,6 +725,7 @@ antlrcpp::Any FormatVisitor::visitExp(LuaParser::ExpContext* ctx) {
             popWriter();
             if (cur_columns() + length > config_.column_limit()) {
                 cur_writer() << commentAfterNewLine(ctx->exp()[0], INC_CONTINUATION_INDENT);
+                cur_writer() << indent();
                 hasIncIndent = true;
             } else {
                 cur_writer() << commentAfter(ctx->exp()[0], " ");
@@ -882,7 +883,9 @@ antlrcpp::Any FormatVisitor::visitVarSuffix(LuaParser::VarSuffixContext* ctx) {
         if (index + 1 < arr.size()) {
             for (auto na : arr[index + 1]->nameAndArgs()) {
                 visitNameAndArgs(na);
-                cur_writer() << commentAfter(na, "");
+                if (na != arr[index + 1]->nameAndArgs().back()) {
+                    cur_writer() << commentAfter(na, "");
+                }
             }
         } else {
             LuaParser::VarOrExpContext* varOrExpCtx = dynamic_cast<LuaParser::VarOrExpContext*>(varCtx->parent);
@@ -894,7 +897,9 @@ antlrcpp::Any FormatVisitor::visitVarSuffix(LuaParser::VarSuffixContext* ctx) {
                 if (peCtx != nullptr) {
                     for (auto na : peCtx->nameAndArgs()) {
                         visitNameAndArgs(na);
-                        cur_writer() << commentAfter(na, "");
+                        if (na != peCtx->nameAndArgs().back()) {
+                            cur_writer() << commentAfter(na, "");
+                        }
                     }
                 }
 
@@ -902,7 +907,9 @@ antlrcpp::Any FormatVisitor::visitVarSuffix(LuaParser::VarSuffixContext* ctx) {
                 if (fcCtx != nullptr) {
                     for (auto na : fcCtx->nameAndArgs()) {
                         visitNameAndArgs(na);
-                        cur_writer() << commentAfter(na, "");
+                        if (na != fcCtx->nameAndArgs().back()) {
+                            cur_writer() << commentAfter(na, "");
+                        }
                     }
                 }
             }
