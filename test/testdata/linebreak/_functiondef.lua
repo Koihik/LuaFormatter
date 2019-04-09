@@ -10,3 +10,19 @@ function very_very_very_very_very_very_very_very_very_very_long_method(
     iiiiiiiiii, jjjjjjjjjj, kkkkkkkkkkkk, lllllllllllllllll)
     -- do nothing
 end
+
+function x(aaaaaaa, aaaaaaaaa, aaaaaaaaaaaa, aaaaaaaaaaaa, aaaaaaaaaaaaaaaaaaaa)
+    print(1)
+    print(2)
+end
+
+function x(aaaaaaa, aaaaaaaaa, aaaaaaaaaaaa, aaaaaaaaaaaa, aaaaaaaaaaaaaaaaaaaaa)
+    print(1)
+    print(2)
+end
+
+function x(aaaaaaa, aaaaaaaaa, aaaaaaaaaaaa, aaaaaaaaaaaa,
+           aaaaaaaaaaaaaaaaaaaaaa)
+    print(1)
+    print(2)
+end

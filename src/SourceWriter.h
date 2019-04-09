@@ -12,10 +12,15 @@ class SourceWriter {
     vector<int> columns_;
     int lines_ = 1;
     bool volatile_ = false;
-    char lastChar;
+    char lastChar_;
+    int intiailColumn_ = 0;
 
    public:
     SourceWriter() { columns_.push_back(0); }
+    SourceWriter(int intiailColumn) {
+        intiailColumn_ = intiailColumn;
+        columns_.push_back(intiailColumn);
+    }
     ~SourceWriter() {}
 
     SourceWriter& operator<<(const string& str) {
@@ -26,7 +31,7 @@ class SourceWriter {
             } else {
                 columns_[columns_.size() - 1]++;
             }
-            lastChar = c;
+            lastChar_ = c;
             if (!volatile_) {
                 ss_ << c;
             }
@@ -37,7 +42,8 @@ class SourceWriter {
     string str() { return ss_.str(); }
     stringstream& ss() { return ss_; }
     const vector<int>& columns() { return columns_; }
+    int firstLineColumn() { return columns_.front() - intiailColumn_; }
     int lines() { return lines_; }
     void set_volatile(bool v) { volatile_ = v; }
-    bool isLastCharWhiteSpace() { return ' ' == lastChar; }
+    bool isLastCharWhiteSpace() { return ' ' == lastChar_; }
 };
