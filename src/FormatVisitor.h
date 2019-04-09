@@ -61,9 +61,6 @@ class FormatVisitor : public LuaBaseVisitor {
 
     vector<SourceWriter*> writers_;
 
-    // stack to record column of first args
-    vector<int> firstArgsColumn_;
-
     // stack to record column of first parameter
     vector<int> firstParameterColumn_;
 
@@ -72,6 +69,9 @@ class FormatVisitor : public LuaBaseVisitor {
 
     // stack to record did a chained method call has increased indent
     vector<bool> chainedMethodCallHasIncIndent_;
+
+    // stack to record is a chained method call is the first call
+    vector<bool> chainedMethodCallIsFirst_;
 
     int indent_ = 0;
     const vector<Token*>& tokens_;
@@ -83,8 +83,10 @@ class FormatVisitor : public LuaBaseVisitor {
     bool needKeepBlockOneLine(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx);
     bool isBlockEmpty(LuaParser::BlockContext* ctx);
     void visitBlockAndComment(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx);
+    void visitNextNameAndArgs(LuaParser::VarSuffixContext* ctx);
 
     void pushWriter();
+    void pushWriterWithColumn();
     void popWriter();
     bool fastTestColumnLimit(tree::ParseTree* node);
     SourceWriter& cur_writer();

@@ -9,7 +9,6 @@ TEST_CASE("indent", "config") {
     config.indent_width(1);
     REQUIRE("function W()\n print(1)\n print(2)\nend\n" == lua_format("function W() print(1) print(2) end", config));
 
-
 }
 
 TEST_CASE("column_limit", "config") {
@@ -116,7 +115,7 @@ TEST_CASE("table", "config") {
     config.break_before_table_rb(false);
     config.column_limit(15);
 
-    REQUIRE("x =\n    {1, 2, 3,\n     4, 5, 6, 7}\n" == lua_format("x = {1,2,3,4,5,6,7}", config));
+    REQUIRE("x = {1, 2, 3,\n     4, 5, 6, 7}\n" == lua_format("x = {1,2,3,4,5,6,7}", config));
 
     config.break_after_table_lb(true);
     REQUIRE("x = {\n  1, 2, 3, 4,\n  5, 6, 7}\n" == lua_format("x = {1,2,3,4,5,6,7}", config));
@@ -129,7 +128,7 @@ TEST_CASE("table", "config") {
     config.align_table_field(false);
     config.break_after_table_lb(false);
     config.break_before_table_rb(false);
-    REQUIRE("x =\n    {1, 2, 3,\n      4, 5, 6,\n      7}\n" == lua_format("x = {1,2,3,4,5,6,7}", config));
+    REQUIRE("x = {1, 2, 3,\n  4, 5, 6, 7}\n" == lua_format("x = {1,2,3,4,5,6,7}", config));
 }
 
 TEST_CASE("break_after_operator", "config") {

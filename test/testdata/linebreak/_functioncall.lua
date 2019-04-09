@@ -1,7 +1,13 @@
 -- long chained method call
-ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-    .w(wwwwwwwww, ddq, q.w(qqqqqq, wsssssssw), q.w(qqqqqq, wsssssssw),
-       q.w(qqqqqq, wsssssssw), q.w(qqqqqq, wsssssssw))
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss.w(wwwwwwwww, ddq,
+                                                               q.w(qqqqqq,
+                                                                   wsssssssw),
+                                                               q.w(qqqqqq,
+                                                                   wsssssssw),
+                                                               q.w(qqqqqq,
+                                                                   wsssssssw),
+                                                               q.w(qqqqqq,
+                                                                   wsssssssw))
 
 local x = function()
     ddd.www:map(function(it)
