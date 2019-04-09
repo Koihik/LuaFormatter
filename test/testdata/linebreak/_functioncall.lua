@@ -13,8 +13,8 @@ local x = function()
     ddd.www:map(function(it)
         it.aaa(wwww)(wwww)(wwww)(wwww) -- comment
         .wwwww(wwww)(wwww)(wwww)(wwww).wwwww(wwww)(wwww)(wwww)(wwww)
-            .wwwww(wwww)(wwww)(wwww)(wwww).wwwww(wwww):wwwww(wwww):wwwww(wwww)
-            :wwwww(wwww):wwwww(wwww):wwwww(wwww)
+                        .wwwww(wwww)(wwww)(wwww)(wwww).wwwww(wwww):wwwww(wwww)
+                        :wwwww(wwww):wwwww(wwww):wwwww(wwww):wwwww(wwww)
     end)
 end
 
@@ -36,3 +36,15 @@ call(1, 2, 3, {
         local q, w, e = a, b, c
     end
 }, function() return 1, 2, 3 end)
+
+x(1, 111111, 111111, 1111111, 1111111, 11111111, 1111111111, 11111111, 1111111)
+
+x(11, 111111, 111111, 1111111, 1111111, 11111111, 1111111111, 11111111, 1111111)
+
+x(111, 111111, 111111, 1111111, 1111111, 11111111, 1111111111, 11111111, 1111111)
+
+x(1111, 111111, 111111, 1111111, 1111111, 11111111, 1111111111, 11111111,
+  1111111)
+
+x(1111111111, 111111, 111111, 1111111, 1111111, 11111111, 1111111111, 11111111,
+  1)

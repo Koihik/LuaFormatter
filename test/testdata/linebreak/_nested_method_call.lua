@@ -3,5 +3,5 @@ function x()
         s:append("wwwwwwwwwwwwwww"):append("wwwwwwwwwwwwwwwwwwwwww")):append(
         s:append("wwwwwwwwwwwwwww"):append("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"))
         :append(s:append("ww"):append("wwwwwwwwwwwwwww"):append("ww"):append(
-            "wwww"))
+                    "wwww"))
 end

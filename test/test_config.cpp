@@ -138,10 +138,10 @@ TEST_CASE("break_after_operator", "config") {
     config.column_limit(10);
     config.break_after_operator(true);
 
-    REQUIRE("x = 111 +\n    1111111 +\n    1111111\n" == lua_format("x = 111 + 1111111 + 1111111", config));
+    REQUIRE("x = 111 +\n        1111111 +\n        1111111\n" == lua_format("x = 111 + 1111111 + 1111111", config));
 
     config.break_after_operator(false);
-    REQUIRE("x = 111\n    + 1111111\n    + 1111111\n" == lua_format("x = 111 + 1111111 + 1111111", config));
+    REQUIRE("x = 111\n        + 1111111\n        + 1111111\n" == lua_format("x = 111 + 1111111 + 1111111", config));
 
 }
 

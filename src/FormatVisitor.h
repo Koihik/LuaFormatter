@@ -61,9 +61,6 @@ class FormatVisitor : public LuaBaseVisitor {
 
     vector<SourceWriter*> writers_;
 
-    // stack to record column of first parameter
-    vector<int> firstParameterColumn_;
-
     // stack to record column of first table field
     vector<int> firstTableFieldColumn_;
 
@@ -74,6 +71,7 @@ class FormatVisitor : public LuaBaseVisitor {
     vector<bool> chainedMethodCallIsFirst_;
 
     int indent_ = 0;
+    int indentForAlign_ = 0;
     const vector<Token*>& tokens_;
     const Config& config_;
 
@@ -93,6 +91,7 @@ class FormatVisitor : public LuaBaseVisitor {
     int cur_columns();
 
     string indent();
+    string indentWithAlign();
     string lineBreak();
     string commentAfter(tree::ParseTree* a, const string& expect);
     string commentAfterNewLine(tree::ParseTree* a, NewLineIndent newLineIndent);
@@ -100,4 +99,6 @@ class FormatVisitor : public LuaBaseVisitor {
     void decIndent();
     void incContinuationIndent();
     void decContinuationIndent();
+    void incIndentForAlign(int indent);
+    void decIndentForAlign(int indent);
 };
