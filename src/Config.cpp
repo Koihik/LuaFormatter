@@ -11,6 +11,7 @@ void trim(string& s) {
 Config::Config() {
     map_["column_limit"] = "80";
     map_["indent_width"] = "4";
+    map_["use_tab"] = "false";
     map_["continuation_indent_width"] = "4";
 
     map_["keep_simple_block_one_line"] = "true";
