@@ -1556,7 +1556,11 @@ void FormatVisitor::visitBlockAndComment(tree::ParseTree* previousNode, LuaParse
 string FormatVisitor::indent() {
     stringstream ss;
     for (int i = 0; i < indent_; i++) {
-        ss << " ";
+        if (config_.use_tab()) {
+            ss << "\t";
+        } else {
+            ss << " ";
+        }
     }
     return ss.str();
 }
@@ -1564,7 +1568,11 @@ string FormatVisitor::indent() {
 string FormatVisitor::indentWithAlign() {
     stringstream ss;
     for (int i = 0; i < indent_ + indentForAlign_; i++) {
-        ss << " ";
+        if (config_.use_tab()) {
+            ss << "\t";
+        } else {
+            ss << " ";
+        }
     }
     return ss.str();
 }

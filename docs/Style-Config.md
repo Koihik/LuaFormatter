@@ -35,9 +35,28 @@ end
 
 -- indent_width: 4
 function x()
-    print(1)
+	print(1)
 end
 ```
+
+### use_tab
+
+type: bool, default: false
+
+Use tab for indent.
+
+```lua
+-- use_tab: false
+function x()
+  print(1)
+end
+
+-- use_tab: true
+function x()
+	print(1)
+end
+```
+
 
 ### continuation_indent_width
 

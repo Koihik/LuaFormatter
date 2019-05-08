@@ -8,7 +8,17 @@ TEST_CASE("indent", "config") {
 
     config.indent_width(1);
     REQUIRE("function W()\n print(1)\n print(2)\nend\n" == lua_format("function W() print(1) print(2) end", config));
+}
 
+TEST_CASE("use_tab", "config") {
+    Config config;
+    config.indent_width(1);
+    config.use_tab(true);
+
+    REQUIRE("function W()\n\tprint(1)\n\tprint(2)\nend\n" == lua_format("function W() print(1) print(2) end", config));
+
+    config.use_tab(false);
+    REQUIRE("function W()\n print(1)\n print(2)\nend\n" == lua_format("function W() print(1) print(2) end", config));
 }
 
 TEST_CASE("column_limit", "config") {
