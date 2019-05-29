@@ -10,6 +10,7 @@ Reformats your Lua source code.
 
 * VS Code: https://github.com/Koihik/vscode-lua-format
 * Sublime: https://github.com/Koihik/sublime-lua-format
+* Vim:     https://github.com/andrejlevkovitch/vim-lua-format
 
 ## Install
 Build from source.
