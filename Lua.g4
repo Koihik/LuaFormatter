@@ -108,8 +108,8 @@ exp:
 	| prefixexp
 	| functiondef
 	| tableconstructor
-	| exp linkOperator exp
-	| unaryOperator exp;
+	| unaryOperator exp
+	| exp linkOperator exp;
 
 prefixexp: varOrExp nameAndArgs*;
 
