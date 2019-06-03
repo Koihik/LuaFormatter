@@ -27,14 +27,16 @@ using namespace std;
         REQUIRE(expect == formatTwice);                                                                     \
     }
 
+TEST_FILE("../test/testdata/linebreak/args_length.lua");
 TEST_FILE("../test/testdata/linebreak/block.lua");
+TEST_FILE("../test/testdata/linebreak/chained_call_args.lua");
 TEST_FILE("../test/testdata/linebreak/functioncall.lua");
 TEST_FILE("../test/testdata/linebreak/functiondef.lua");
+TEST_FILE("../test/testdata/linebreak/indent_in_explist.lua");
+TEST_FILE("../test/testdata/linebreak/long_var.lua");
+TEST_FILE("../test/testdata/linebreak/nested_method_call.lua");
 TEST_FILE("../test/testdata/linebreak/operators.lua");
 TEST_FILE("../test/testdata/linebreak/table.lua");
-TEST_FILE("../test/testdata/linebreak/chained_call_args.lua");
-TEST_FILE("../test/testdata/linebreak/nested_method_call.lua");
-TEST_FILE("../test/testdata/linebreak/args_length.lua");
 
 TEST_FILE("../test/testdata/comment/function.lua");
 TEST_FILE("../test/testdata/comment/space.lua");
@@ -50,3 +52,4 @@ TEST_FILE("../test/testdata/statement/statements.lua");
 TEST_FILE("../test/testdata/statement/table.lua");
 
 TEST_FILE("../test/testdata/issues/issue-1.lua");
+TEST_FILE("../test/testdata/issues/issue-18.lua");
