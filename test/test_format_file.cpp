@@ -30,6 +30,7 @@ using namespace std;
 TEST_FILE("../test/testdata/linebreak/args_length.lua");
 TEST_FILE("../test/testdata/linebreak/block.lua");
 TEST_FILE("../test/testdata/linebreak/chained_call_args.lua");
+TEST_FILE("../test/testdata/linebreak/disable_align_in_function.lua");
 TEST_FILE("../test/testdata/linebreak/functioncall.lua");
 TEST_FILE("../test/testdata/linebreak/functiondef.lua");
 TEST_FILE("../test/testdata/linebreak/indent_in_explist.lua");

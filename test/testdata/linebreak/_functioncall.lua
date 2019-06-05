@@ -13,8 +13,8 @@ local x = function()
     ddd.www:map(function(it)
         it.aaa(wwww)(wwww)(wwww)(wwww) -- comment
         .wwwww(wwww)(wwww)(wwww)(wwww).wwwww(wwww)(wwww)(wwww)(wwww)
-                        .wwwww(wwww)(wwww)(wwww)(wwww).wwwww(wwww):wwwww(wwww)
-                        :wwwww(wwww):wwwww(wwww):wwwww(wwww):wwwww(wwww)
+            .wwwww(wwww)(wwww)(wwww)(wwww).wwwww(wwww):wwwww(wwww):wwwww(wwww)
+            :wwwww(wwww):wwwww(wwww):wwwww(wwww)
     end)
 end
 

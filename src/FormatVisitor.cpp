@@ -1151,7 +1151,11 @@ antlrcpp::Any FormatVisitor::visitFunctiondef(LuaParser::FunctiondefContext* ctx
     LOG_FUNCTION_BEGIN("visitFunctiondef");
     cur_writer() << ctx->FUNCTION()->getText();
     cur_writer() << commentAfter(ctx->FUNCTION(), "");
+    // disable indentForAlign_ in function body
+    int temp = indentForAlign_;
+    indentForAlign_ = 0;
     visitFuncbody(ctx->funcbody());
+    indentForAlign_ = temp;
     LOG_FUNCTION_END("visitFunctiondef");
     return nullptr;
 }
@@ -1226,6 +1230,9 @@ antlrcpp::Any FormatVisitor::visitParlist(LuaParser::ParlistContext* ctx) {
 antlrcpp::Any FormatVisitor::visitTableconstructor(LuaParser::TableconstructorContext* ctx) {
     LOG_FUNCTION_BEGIN("visitTableconstructor");
     cur_writer() << ctx->LB()->getText();
+    // disable indentForAlign_ in table
+    int temp = indentForAlign_;
+    indentForAlign_ = 0;
     if (ctx->fieldlist() != NULL) {
         bool containsKv = false;
         bool chopDown = false;
@@ -1306,6 +1313,7 @@ antlrcpp::Any FormatVisitor::visitTableconstructor(LuaParser::TableconstructorCo
             cur_writer() << ctx->RB()->getText();
         }
     }
+    indentForAlign_ = temp;
     LOG_FUNCTION_END("visitTableconstructor");
     return nullptr;
 }
