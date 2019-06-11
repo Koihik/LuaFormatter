@@ -727,9 +727,42 @@ antlrcpp::Any FormatVisitor::visitExplist(LuaParser::ExplistContext* ctx) {
         cur_writer() << commentAfter(ctx->COMMA()[i], " ");
         visitExp(ctx->exp()[i + 1]);
         int expLength = cur_writer().firstLineColumn();
+        int lines = cur_writer().lines();
         popWriter();
         if (i != n - 1) expLength++;  // calc a ',' if exp > 1
         beyondLimit = cur_columns() + expLength > config_.column_limit();
+        if (beyondLimit && lines == 1) {
+            // lines is 1 means expression is enough short. But with current columns,
+            // it beyonds column limit, need a line break here.
+            // But if after a line break, the expression is still beyond column limit.
+            // Then don't let it break the line at the beginning.
+            // example:
+            // longlonglongvar.longlonglongmethod(arg11111, function() print("11111111111111111111111111111111") end)
+            //
+            // This function call is beyond column limit when visit the second args.
+            // so if we break after ',' , it become:
+            // longlonglongvar.longlonglongmethod(arg11111,
+            //                                    function() print("11111111111111111111111111111111") end)
+            //
+            // The second args is still too long, and need another break:
+            // longlonglongvar.longlonglongmethod(arg11111,
+            //                                    function()
+            //     print("11111111111111111111111111111111")
+            // end)
+            //
+            // The first break (before 'function()') doesn't seem to make sense.
+            // So determine if this expression is still beyond column limit after break.
+            // If true, determine the column again with current columns.
+            if (indentWithAlign().size() + expLength + firstArgsIndent > config_.column_limit()) {
+                pushWriterWithColumn();
+                cur_writer() << commentAfter(ctx->COMMA()[i], " ");
+                visitExp(ctx->exp()[i + 1]);
+                int expLength = cur_writer().firstLineColumn();
+                popWriter();
+                if (i != n - 1) expLength++;  // calc a ',' if exp > 1
+                beyondLimit = cur_columns() + expLength > config_.column_limit();
+            }
+        }
         if (beyondLimit) {
             bool hasIncIndentForAlign = false;
             if (hasIncIndent) {
@@ -752,8 +785,16 @@ antlrcpp::Any FormatVisitor::visitExplist(LuaParser::ExplistContext* ctx) {
                 decIndentForAlign(firstArgsIndent);
             }
         } else {
+            bool hasIncIndentForAlign = false;
+            if (config_.align_args()) {
+                incIndentForAlign(firstArgsIndent);
+                hasIncIndentForAlign = true;
+            }
             cur_writer() << commentAfter(ctx->COMMA()[i], " ");
             visitExp(ctx->exp()[i + 1]);
+            if (hasIncIndentForAlign) {
+                decIndentForAlign(firstArgsIndent);
+            }
         }
         if (i != n - 1) {
             cur_writer() << commentAfter(ctx->exp()[i + 1], "");

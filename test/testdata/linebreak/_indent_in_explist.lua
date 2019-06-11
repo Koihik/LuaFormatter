@@ -1,20 +1,16 @@
 xxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxx("wwwwwwwwwwwwwww" .. "wwwwwwwwwwwww" ..
-                                      "wwwww",
+                                      "wwwww", "wwwwwwwwwwwwwww" ..
+                                      "wwwwwwwwwwwww" .. "wwwww",
                                   "wwwwwwwwwwwwwww" .. "wwwwwwwwwwwww" ..
-                                      "wwwww",
-                                  "wwwwwwwwwwwwwww" .. "wwwwwwwwwwwww" ..
-                                      "wwwww",
-                                  "wwwwwwwwwwwwwww" .. "wwwwwwwwwwwww" ..
-                                      "wwwww")
+                                      "wwwww", "wwwwwwwwwwwwwww" ..
+                                      "wwwwwwwwwwwww" .. "wwwww")
 
 varvarvarvarvarvarvarvarvarvarvar = "wwwwwwwwwwwwwww" .. "wwwwwwwwwwwww" ..
-                                        "wwwww",
+                                        "wwwww", "wwwwwwwwwwwwwww" ..
+                                        "wwwwwwwwwwwww" .. "wwwww",
                                     "wwwwwwwwwwwwwww" .. "wwwwwwwwwwwww" ..
-                                        "wwwww",
-                                    "wwwwwwwwwwwwwww" .. "wwwwwwwwwwwww" ..
-                                        "wwwww",
-                                    "wwwwwwwwwwwwwww" .. "wwwwwwwwwwwww" ..
-                                        "wwwww"
+                                        "wwwww", "wwwwwwwwwwwwwww" ..
+                                        "wwwwwwwwwwwww" .. "wwwww"
 
 do
     do

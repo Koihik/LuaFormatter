@@ -54,3 +54,4 @@ TEST_FILE("../test/testdata/statement/table.lua");
 
 TEST_FILE("../test/testdata/issues/issue-1.lua");
 TEST_FILE("../test/testdata/issues/issue-18.lua");
+TEST_FILE("../test/testdata/issues/issue-19.lua");
