@@ -1616,10 +1616,16 @@ string FormatVisitor::indent() {
 
 string FormatVisitor::indentWithAlign() {
     stringstream ss;
-    for (int i = 0; i < indent_ + indentForAlign_; i++) {
-        if (config_.use_tab()) {
+    if (config_.use_tab()) {
+        int indent = indent_;
+        int tabWidth = config_.tab_width();
+        indent += indentForAlign_ / tabWidth;
+        if (indentForAlign_ % tabWidth) indent++;
+        for (int i = 0; i < indent; i++) {
             ss << "\t";
-        } else {
+        }
+    } else {
+        for (int i = 0; i < indent_ + indentForAlign_; i++) {
             ss << " ";
         }
     }

@@ -26,6 +26,7 @@ class Config {
     BIND_INT(column_limit);
     BIND_INT(indent_width);
     BIND_BOOL(use_tab);
+    BIND_INT(tab_width);
     BIND_INT(continuation_indent_width);
     
     BIND_BOOL(keep_simple_block_one_line);
