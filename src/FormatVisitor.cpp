@@ -1617,11 +1617,10 @@ string FormatVisitor::indent() {
 string FormatVisitor::indentWithAlign() {
     stringstream ss;
     if (config_.use_tab()) {
-        int indent = indent_;
-        int tabWidth = config_.tab_width();
-        indent += indentForAlign_ / tabWidth;
-        if (indentForAlign_ % tabWidth) indent++;
-        for (int i = 0; i < indent; i++) {
+        for (int i = 0; i < indentForAlign_; i++) {
+            ss << " ";
+        }
+        for (int i = 0; i < indent_; i++) {
             ss << "\t";
         }
     } else {
