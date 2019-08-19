@@ -6,7 +6,7 @@
 using namespace std;
 using namespace antlr4;
 
-// #define LOG_FLAG
+//#define LOG_FLAG
 
 #ifdef LOG_FLAG
 #define LOGVAR(arg)                                      \
@@ -153,7 +153,7 @@ string FormatVisitor::commentAfterNewLine(tree::ParseTree* node, NewLineIndent n
             int rn = token->getText().rfind("\n");
             if (ln != string::npos) {
                 if (ln != rn && !lastestNewLine) {
-                    ss << "\n\n";
+                    ss << "\n";
                 } else {
                     ss << "\n";
                 }
@@ -237,6 +237,7 @@ antlrcpp::Any FormatVisitor::visitChunk(LuaParser::ChunkContext* ctx) {
     LOG_FUNCTION_BEGIN("visitChunk");
     pushWriter();
     cur_writer() << commentAfter(NULL, "");
+    cur_writer() << "\n";
     bool temp = chop_down_block_;
     chop_down_block_ = true;
     visitBlock(ctx->block());
@@ -1245,6 +1246,7 @@ antlrcpp::Any FormatVisitor::visitFuncbody(LuaParser::FuncbodyContext* ctx) {
     cur_writer() << ctx->RP()->getText();
     visitBlockAndComment(ctx->RP(), ctx->block());
     cur_writer() << ctx->END()->getText();
+    cur_writer() << "\n";
     LOG_FUNCTION_END("visitFuncbody");
     return nullptr;
 }
@@ -1397,7 +1399,11 @@ antlrcpp::Any FormatVisitor::visitFieldlist(LuaParser::FieldlistContext* ctx) {
             if (config_.align_table_field()) {
                 cur_writer() << commentAfterNewLine(ctx->fieldsep()[i - 1], NONE_INDENT);
                 for (int i = 0; i < firstTableFieldColumn_.back(); i++) {
-                    cur_writer() << " ";
+                    if (config_.use_tab()){
+                        cur_writer() << "\t";
+                    }else{
+                        cur_writer() << " ";
+                    }
                 }
             } else {
                 if (hasIncIndent) {
@@ -1666,3 +1672,4 @@ void FormatVisitor::decIndentForAlign(int indent) {
     indentForAlign_ -= indent;
     LOG_FUNCTION_END("decIndentForAlign");
 }
+
