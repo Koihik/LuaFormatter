@@ -537,6 +537,7 @@ antlrcpp::Any FormatVisitor::visitFuncStat(LuaParser::FuncStatContext* ctx) {
     visitFuncname(ctx->funcname());
     cur_writer() << commentAfter(ctx->funcname(), "");
     visitFuncbody(ctx->funcbody());
+    cur_writer()<<"\n";
     LOG_FUNCTION_END("visitFuncStat");
     return nullptr;
 }
@@ -1246,7 +1247,6 @@ antlrcpp::Any FormatVisitor::visitFuncbody(LuaParser::FuncbodyContext* ctx) {
     cur_writer() << ctx->RP()->getText();
     visitBlockAndComment(ctx->RP(), ctx->block());
     cur_writer() << ctx->END()->getText();
-    cur_writer() << "\n";
     LOG_FUNCTION_END("visitFuncbody");
     return nullptr;
 }
