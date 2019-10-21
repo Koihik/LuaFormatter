@@ -164,6 +164,24 @@ function xxx(aaa, bbb
     ccc, ddd)
 ```
 
+### chop_down_parameter
+
+type: bool, default: false
+
+Chop down all parameters if the function declaration doesn’t fit on a line.
+
+```lua
+-- chop_down_parameter: true
+function xxx(aaa, 
+             bbb,
+             ccc,
+             ddd)
+
+-- chop_down_parameter: false
+function xxx(aaa, bbb
+             ccc, ddd)
+```
+
 ### break_after_functiondef_lp
 
 type: bool, default: false

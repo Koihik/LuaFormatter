@@ -114,6 +114,9 @@ TEST_CASE("functiondef", "config") {
     config.break_after_functiondef_lp(false);
     config.break_before_functiondef_rp(false);
     REQUIRE("function xxx(xxx,\n    xxxxx) print(1) end\n" == lua_format("function xxx(xxx,xxxxx)\n  print(1)\nend\n", config));
+
+    config.chop_down_parameter(true);
+    REQUIRE("function xxx(xxx,\n    yyy,\n    zzz) print(1) end\n" == lua_format("function xxx(xxx,yyy,zzz)\n  print(1)\nend\n", config));
 }
 
 TEST_CASE("table", "config") {

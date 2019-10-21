@@ -637,17 +637,21 @@ antlrcpp::Any FormatVisitor::visitNamelist(LuaParser::NamelistContext* ctx) {
     if (n > 0) {
         cur_writer() << commentAfter(ctx->NAME().front(), "");
     }
+    bool chopDownParameter = config_.chop_down_parameter() && fastTestColumnLimit(ctx);
     for (int i = 0; i < n; i++) {
         cur_writer() << ctx->COMMA()[i]->getText();
         bool beyondLimit = false;
-        pushWriter();
-        cur_writer() << commentAfter(ctx->COMMA()[i], " ");
-        cur_writer() << ctx->NAME()[i + 1]->getText();
-        int length = cur_writer().firstLineColumn();
-        popWriter();
-        if (i != n - 1) length++;  // calc a ',' if exp > 1
-        beyondLimit = cur_columns() + length > config_.column_limit();
-
+        if (chopDownParameter) {
+            beyondLimit = true;
+        } else {
+            pushWriter();
+            cur_writer() << commentAfter(ctx->COMMA()[i], " ");
+            cur_writer() << ctx->NAME()[i + 1]->getText();
+            int length = cur_writer().firstLineColumn();
+            popWriter();
+            if (i != n - 1) length++;  // calc a ',' if exp > 1
+            beyondLimit = cur_columns() + length > config_.column_limit();
+        }
         if (beyondLimit) {
             if (hasIncIndent) {
                 cur_writer() << commentAfterNewLine(ctx->COMMA()[i], NONE_INDENT);

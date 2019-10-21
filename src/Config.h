@@ -36,6 +36,7 @@ class Config {
     BIND_BOOL(break_before_functioncall_rp);
 
     BIND_BOOL(align_parameter);
+    BIND_BOOL(chop_down_parameter);
     BIND_BOOL(break_after_functiondef_lp);
     BIND_BOOL(break_before_functiondef_rp);
 

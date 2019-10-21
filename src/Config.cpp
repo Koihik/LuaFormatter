@@ -22,6 +22,7 @@ Config::Config() {
     map_["break_before_functioncall_rp"] = "false";
 
     map_["align_parameter"] = "true";
+    map_["chop_down_parameter"] = "false";
     map_["break_after_functiondef_lp"] = "false";
     map_["break_before_functiondef_rp"] = "false";
 
