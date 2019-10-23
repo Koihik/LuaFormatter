@@ -44,6 +44,9 @@ void Config::readFromFile(const string& file) {
         if (idx != string::npos) {
             string key = line.substr(0, idx);
             string value = line.substr(idx + 1, line.size());
+            if (key.size() >= 2 && key[0] == '-' && key[1] == '-') {
+                continue;
+            }
             trim(key);
             trim(value);
             if (key.size() > 0 && key[0] != '#') {

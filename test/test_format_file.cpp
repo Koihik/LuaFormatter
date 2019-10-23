@@ -1,3 +1,4 @@
+#include <sys/stat.h>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -15,9 +16,17 @@ using namespace std;
         ifstream input;                                                                                     \
         input.open(filename);                                                                               \
         Config config;                                                                                      \
-        string actul = lua_format(input, config);                                                           \
         int idx = filename.find_last_of('/');                                                               \
         string expectFileName = filename.substr(0, idx) + "/_" + filename.substr(idx + 1, filename.size()); \
+        idx = filename.find_last_of('.');                                                                   \
+        string configFileName = filename.substr(0, idx) + ".config";                                        \
+        struct stat s;                                                                                      \
+        if (stat(configFileName.c_str(), &s) == 0) {                                                        \
+            std::cout << configFileName << " exist" << endl;                                                \
+            config.readFromFile(configFileName);                                                            \
+            std::cout << config.chop_down_parameter() << " dd" << endl;                                     \
+        }                                                                                                   \
+        string actul = lua_format(input, config);                                                           \
         ifstream expectFile(expectFileName);                                                                \
         stringstream ss;                                                                                    \
         ss << expectFile.rdbuf();                                                                           \
@@ -55,3 +64,4 @@ TEST_FILE("../test/testdata/statement/table.lua");
 TEST_FILE("../test/testdata/issues/issue-1.lua");
 TEST_FILE("../test/testdata/issues/issue-18.lua");
 TEST_FILE("../test/testdata/issues/issue-19.lua");
+TEST_FILE("../test/testdata/issues/issue-36.lua");

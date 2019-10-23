@@ -637,7 +637,26 @@ antlrcpp::Any FormatVisitor::visitNamelist(LuaParser::NamelistContext* ctx) {
     if (n > 0) {
         cur_writer() << commentAfter(ctx->NAME().front(), "");
     }
-    bool chopDownParameter = config_.chop_down_parameter() && fastTestColumnLimit(ctx);
+    bool chopDownParameter = false;
+    if (config_.chop_down_parameter()) {
+        if (fastTestColumnLimit(ctx)) {
+            chopDownParameter = true;
+        } else {
+            pushWriter();
+            for (int i = 0; i < n; i++) {
+                cur_writer() << ctx->COMMA()[i]->getText();
+                cur_writer() << commentAfter(ctx->COMMA()[i], " ");
+                cur_writer() << ctx->NAME()[i + 1]->getText();
+                if (i != n - 1) {
+                    cur_writer() << commentAfter(ctx->NAME()[i + 1], "");
+                }
+            }
+            int length = cur_writer().firstLineColumn();
+            int lines = cur_writer().lines();
+            popWriter();
+            chopDownParameter = lines > 1 || cur_columns() + length > config_.column_limit();
+        }
+    }
     for (int i = 0; i < n; i++) {
         cur_writer() << ctx->COMMA()[i]->getText();
         bool beyondLimit = false;
@@ -1218,8 +1237,9 @@ antlrcpp::Any FormatVisitor::visitFuncbody(LuaParser::FuncbodyContext* ctx) {
         cur_writer() << commentAfter(ctx->parlist(), "");
         cur_writer() << ctx->RP()->getText();
         int length = cur_writer().firstLineColumn();
+        int lines = cur_writer().lines();
         popWriter();
-        beyondLimit = cur_columns() + length > config_.column_limit();
+        beyondLimit = lines > 1 || cur_columns() + length > config_.column_limit();
         if (beyondLimit) {
             breakAfterLp = config_.break_after_functiondef_lp();
         }
