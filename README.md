@@ -37,7 +37,7 @@ or use default style:
 
 ### Style configure file
 
-See [Wiki Page](https://github.com/Koihik/LuaFormatter/wiki/Style-Config)
+See [this file](https://github.com/Koihik/LuaFormatter/blob/master/docs/Style-Config.md)
 
 ## Limitations
 
