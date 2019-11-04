@@ -95,6 +95,14 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitAttnamelist(LuaParser::AttnamelistContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitAttrib(LuaParser::AttribContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitExplist(LuaParser::ExplistContext *ctx) override {
     return visitChildren(ctx);
   }

@@ -52,6 +52,7 @@ TEST_FILE("../test/testdata/comment/function.lua");
 TEST_FILE("../test/testdata/comment/space.lua");
 TEST_FILE("../test/testdata/comment/table.lua");
 TEST_FILE("../test/testdata/comment/varlist.lua");
+TEST_FILE("../test/testdata/comment/attrib.lua");
 
 TEST_FILE("../test/testdata/statement/function_call.lua");
 TEST_FILE("../test/testdata/statement/function.lua");
@@ -61,7 +62,10 @@ TEST_FILE("../test/testdata/statement/shebang.lua");
 TEST_FILE("../test/testdata/statement/statements.lua");
 TEST_FILE("../test/testdata/statement/table.lua");
 
+TEST_FILE("../test/testdata/syntax/lua54.lua");
+
 TEST_FILE("../test/testdata/issues/issue-1.lua");
 TEST_FILE("../test/testdata/issues/issue-18.lua");
 TEST_FILE("../test/testdata/issues/issue-19.lua");
 TEST_FILE("../test/testdata/issues/issue-36.lua");
+
