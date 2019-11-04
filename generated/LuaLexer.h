@@ -15,12 +15,12 @@ public:
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
-    T__20 = 21, T__21 = 22, T__22 = 23, FUNCTION = 24, RETURN = 25, LOCAL = 26, 
-    TRUE = 27, FALSE = 28, NIL = 29, BREAK = 30, DO = 31, END = 32, GOTO = 33, 
-    WHILE = 34, REPEAT = 35, UNTIL = 36, FOR = 37, IF = 38, THEN = 39, ELSE = 40, 
-    ELSEIF = 41, IN = 42, SEMI = 43, COMMA = 44, DOT = 45, EQL = 46, COLON = 47, 
-    DCOLON = 48, ELLIPSIS = 49, LP = 50, RP = 51, LB = 52, RB = 53, LSB = 54, 
-    RSB = 55, NAME = 56, NORMALSTRING = 57, CHARSTRING = 58, LONGSTRING = 59, 
+    T__20 = 21, FUNCTION = 22, RETURN = 23, LOCAL = 24, TRUE = 25, FALSE = 26, 
+    NIL = 27, BREAK = 28, DO = 29, END = 30, GOTO = 31, WHILE = 32, REPEAT = 33, 
+    UNTIL = 34, FOR = 35, IF = 36, THEN = 37, ELSE = 38, ELSEIF = 39, IN = 40, 
+    SEMI = 41, COMMA = 42, DOT = 43, EQL = 44, COLON = 45, DCOLON = 46, 
+    ELLIPSIS = 47, LT = 48, GT = 49, LP = 50, RP = 51, LB = 52, RB = 53, 
+    LSB = 54, RSB = 55, NAME = 56, NORMALSTRING = 57, CHARSTRING = 58, LONGSTRING = 59, 
     INT = 60, HEX = 61, FLOAT = 62, HEX_FLOAT = 63, COMMENT = 64, LINE_COMMENT = 65, 
     WS = 66, SHEBANG = 67
   };

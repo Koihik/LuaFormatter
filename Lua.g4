@@ -84,7 +84,7 @@ funcStat: FUNCTION funcname funcbody;
 
 localFuncStat: LOCAL FUNCTION NAME funcbody;
 
-localVarDecl: LOCAL namelist (EQL explist)? SEMI?;
+localVarDecl: LOCAL attnamelist (EQL explist)? SEMI?;
 
 retstat: RETURN explist? SEMI?;
 
@@ -95,6 +95,10 @@ funcname: NAME (DOT NAME)* (COLON NAME)?;
 varlist: var (COMMA var)*;
 
 namelist: NAME (COMMA NAME)*;
+
+attnamelist: NAME attrib (COMMA NAME attrib)*;
+
+attrib: (LT NAME GT)?;
 
 explist: exp (COMMA exp)*;
 
@@ -196,6 +200,8 @@ EQL: '=';
 COLON: ':';
 DCOLON: '::';
 ELLIPSIS: '...';
+LT: '<';
+GT: '>';
 LP: '(';
 RP: ')';
 LB: '{';

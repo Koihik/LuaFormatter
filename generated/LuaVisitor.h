@@ -59,6 +59,10 @@ public:
 
     virtual antlrcpp::Any visitNamelist(LuaParser::NamelistContext *context) = 0;
 
+    virtual antlrcpp::Any visitAttnamelist(LuaParser::AttnamelistContext *context) = 0;
+
+    virtual antlrcpp::Any visitAttrib(LuaParser::AttribContext *context) = 0;
+
     virtual antlrcpp::Any visitExplist(LuaParser::ExplistContext *context) = 0;
 
     virtual antlrcpp::Any visitExp(LuaParser::ExpContext *context) = 0;
