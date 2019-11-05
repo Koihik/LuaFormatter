@@ -368,3 +368,6 @@ CTestTestfile.cmake
 # Project-specific
 .vscode/
 .DS_Store
+
+# Lua rocks
+build.luarocks
