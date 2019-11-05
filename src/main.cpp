@@ -60,7 +60,7 @@ int main(int argc, const char* argv[]) {
     } else {
         vector<string> files = parser.getValues();
         if (files.size() == 0) {
-            cerr << "No input file specified.";
+            cerr << "No input file specified." << endl;
         }
         for (string fileName : files) {
             if (verbose) {
