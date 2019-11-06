@@ -13,6 +13,7 @@ environment:
 
 
 before_build:
+  - git submodule update --init
   - cmake . -G "Visual Studio 14"
 
 build_script:
