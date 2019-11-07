@@ -1,29 +1,35 @@
 #include <sys/stat.h>
+#include <args/args.hxx>
 #include <fstream>
 #include <iterator>
 #include "Config.h"
-#include "FlagParser.h"
 #include "lua-format.h"
 
 int main(int argc, const char* argv[]) {
-    FlagParser parser;
-    parser.define("-c", 1);
-    parser.define("-v", 0);
-    parser.define("-si", 0);
-    parser.define("-so", 0);
+    args::ArgumentParser parser("Reformats your Lua source code.", "");
+    args::HelpFlag help(parser, "help", "Display this help menu", {'h', "help"});
+    args::Group group(parser, "", args::Group::Validators::DontCare);
+    args::Flag verbose(group, "verbose", "Turn on verbose mode", {'v', "verbose"});
+    args::Flag inplace(group, "in-place", "Reformats in-place", {'i'});
+    args::ValueFlag<string> cFile(parser, "file", "Style config file", {'c', "config"});
+    args::PositionalList<string> files(parser, "Lua scripts", "Lua scripts to format");
 
-    parser.parse(argc, argv);
-
-    bool verbose = parser.hasOption("-v");
-    bool stdIn = parser.hasOption("-si");
-    bool stdOut = parser.hasOption("-so") || stdIn;
-
-    string configFileName;
-
-    if (parser.hasOption("-c")) {
-        configFileName = parser.getOption("-c");
+    try {
+        parser.ParseCLI(argc, argv);
+    } catch (args::Help) {
+        cout << parser;
+        return 0;
+    } catch (args::ParseError e) {
+        cerr << e.what() << std::endl;
+        cerr << parser;
+        return 1;
+    } catch (args::ValidationError e) {
+        cerr << e.what() << std::endl;
+        cerr << parser;
+        return 1;
     }
 
+    string configFileName = args::get(cFile);
     Config config;
     struct stat s;
     if (configFileName != "") {
@@ -43,6 +49,7 @@ int main(int argc, const char* argv[]) {
         config.readFromFile(configFileName);
     }
 
+    bool stdIn = args::get(files).size() == 0;
     if (stdIn) {
         cin >> noskipws;
 
@@ -58,11 +65,7 @@ int main(int argc, const char* argv[]) {
             cerr << e.what() << endl;
         }
     } else {
-        vector<string> files = parser.getValues();
-        if (files.size() == 0) {
-            cerr << "No input file specified." << endl;
-        }
-        for (string fileName : files) {
+        for (const auto fileName : args::get(files)) {
             if (verbose) {
                 cerr << "formatting: " << fileName << endl;
             }
@@ -75,7 +78,7 @@ int main(int argc, const char* argv[]) {
                     cerr << fileName << ": No access to read." << endl;
                     continue;
                 }
-                if (!stdOut && !(s.st_mode & S_IWRITE)) {
+                if (inplace && !(s.st_mode & S_IWRITE)) {
                     cerr << fileName << ": No access to write." << endl;
                     continue;
                 }
@@ -90,7 +93,7 @@ int main(int argc, const char* argv[]) {
             try {
                 string out = lua_format(ifs, config);
 
-                if (stdOut) {
+                if (!inplace) {
                     cout << out;
                 } else {
                     ofstream fout(fileName);

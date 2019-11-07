@@ -29,11 +29,21 @@ Build from source.
 ```
 
 ## Usage
-`lua-format -c {your_style_file} {your_lua_file}`
+```
+  ./lua-format [Lua scripts...] {OPTIONS}
 
-or use default style:
+    Reformats your Lua source code.
 
-`lua-format {your_lua_file}`
+  OPTIONS:
+
+      -h, --help                        Display this help menu
+      -v, --verbose                     Turn on verbose mode
+      -i                                Reformats in-place
+      -c[file], --config=[file]         Style config file
+      Lua scripts...                    Lua scripts to format
+      "--" can be used to terminate flag options and force all following
+      arguments to be treated as positional options
+```
 
 ### Style configure file
 
