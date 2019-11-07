@@ -21,7 +21,7 @@ Build from source.
 
 ### Steps
 ```bash
-    git clone https://github.com/Koihik/LuaFormatter.git
+    git clone --recurse-submodules https://github.com/Koihik/LuaFormatter.git
     cd LuaFormatter
     cmake .
     make
