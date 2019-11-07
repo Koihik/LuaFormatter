@@ -69,6 +69,7 @@ addons:
 
 before_install:
   - export CXX=${COMPILER}
+  - git submodule update --init
 
 install:
   - cmake . -BRelease -DCMAKE_BUILD_TYPE=Release

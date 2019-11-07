@@ -24,7 +24,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 include_directories(
   ${PROJECT_SOURCE_DIR}/generated/
   ${PROJECT_SOURCE_DIR}/third_party/
-  ${PROJECT_SOURCE_DIR}/third_party/antlr4-cpp-runtime/
+  ${PROJECT_SOURCE_DIR}/third_party/antlr4/runtime/Cpp/runtime/src
   ${PROJECT_SOURCE_DIR}/src/
   )
 
@@ -38,15 +38,8 @@ set(src_dir
   ${PROJECT_SOURCE_DIR}/generated/LuaBaseVisitor.cpp
 )
 
-file(GLOB antlr4-cpp-src 
-  ${PROJECT_SOURCE_DIR}/third_party/antlr4-cpp-runtime/*.cpp
-  ${PROJECT_SOURCE_DIR}/third_party/antlr4-cpp-runtime/atn/*.cpp
-  ${PROJECT_SOURCE_DIR}/third_party/antlr4-cpp-runtime/dfa/*.cpp
-  ${PROJECT_SOURCE_DIR}/third_party/antlr4-cpp-runtime/misc/*.cpp
-  ${PROJECT_SOURCE_DIR}/third_party/antlr4-cpp-runtime/support/*.cpp
-  ${PROJECT_SOURCE_DIR}/third_party/antlr4-cpp-runtime/tree/*.cpp
-  ${PROJECT_SOURCE_DIR}/third_party/antlr4-cpp-runtime/tree/pattern/*.cpp
-  ${PROJECT_SOURCE_DIR}/third_party/antlr4-cpp-runtime/tree/xpath/*.cpp
+file(GLOB_RECURSE antlr4-cpp-src 
+   ${PROJECT_SOURCE_DIR}/third_party/antlr4/runtime/Cpp/runtime/src/*.cpp
 )
 
 add_library (antlr4-cpp-runtime ${antlr4-cpp-src})
