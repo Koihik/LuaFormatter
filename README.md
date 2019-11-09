@@ -13,13 +13,22 @@ Reformats your Lua source code.
 * Vim:     https://github.com/andrejlevkovitch/vim-lua-format
 
 ## Install
-Build from source.
 
-### Requirements
+### LuaRocks
+
+The easiest way is to install is to use [LuaRocks](https://github.com/luarocks/luarocks).
+
+```bash
+luarocks install --server=https://luarocks.org/dev luaformatter
+```
+
+### Build from source
+
+#### Requirements
 * cmake 3.0+
 * c++ 11 compiler
 
-### Steps
+#### Steps
 ```bash
     git clone --recurse-submodules https://github.com/Koihik/LuaFormatter.git
     cd LuaFormatter
