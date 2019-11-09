@@ -1,16 +1,19 @@
 #include <sys/stat.h>
+
 #include <args/args.hxx>
 #include <fstream>
 #include <iterator>
+
 #include "Config.h"
 #include "lua-format.h"
 
 int main(int argc, const char* argv[]) {
     args::ArgumentParser parser("Reformats your Lua source code.", "");
     args::HelpFlag help(parser, "help", "Display this help menu", {'h', "help"});
-    args::Group group(parser, "", args::Group::Validators::DontCare);
-    args::Flag verbose(group, "verbose", "Turn on verbose mode", {'v', "verbose"});
-    args::Flag inplace(group, "in-place", "Reformats in-place", {'i'});
+    args::Group dc(parser, "", args::Group::Validators::DontCare);
+    args::Flag verbose(dc, "verbose", "Turn on verbose mode", {'v', "verbose"});
+    args::Flag inplace(dc, "in-place", "Reformats in-place", {'i'});
+    args::Flag dumpcfg(dc, "dump current style", "Dumps the default style used to stdout", {"dump-config"});
     args::ValueFlag<string> cFile(parser, "file", "Style config file", {'c', "config"});
     args::PositionalList<string> files(parser, "Lua scripts", "Lua scripts to format");
 
@@ -32,6 +35,10 @@ int main(int argc, const char* argv[]) {
     string configFileName = args::get(cFile);
     Config config;
     struct stat s;
+    if (dumpcfg) {
+        config.dumpCurrent(cout);
+        return 0;
+    }
     if (configFileName != "") {
         if (stat(configFileName.c_str(), &s) == 0) {
             if (!(s.st_mode & S_IFREG)) {
