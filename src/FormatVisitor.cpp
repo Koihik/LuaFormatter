@@ -245,17 +245,9 @@ antlrcpp::Any FormatVisitor::visitChunk(LuaParser::ChunkContext* ctx) {
     string comment = commentAfterNewLine(ctx->block(), NONE_INDENT);
 
     cur_writer() << comment;
-    // If there is no line break at the end of the file, add one
-    for (int i = comment.size() - 1; i >= 0; i--) {
-        if (isBlankChar(comment[i])) {
-            continue;
-        }
-        if (comment[i] != '\n') {
-            cur_writer() << "\n";
-        }
-        break;
-    }
     string ret = cur_writer().str();
+    if (*ret.rbegin() != '\n')
+       ret += '\n';
     popWriter();
     LOG_FUNCTION_END("visitChunk");
     return ret;
