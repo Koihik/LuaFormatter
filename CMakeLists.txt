@@ -24,6 +24,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 include_directories(
   ${PROJECT_SOURCE_DIR}/generated/
   ${PROJECT_SOURCE_DIR}/third_party/
+  ${PROJECT_SOURCE_DIR}/third_party/yaml-cpp/include
   ${PROJECT_SOURCE_DIR}/third_party/antlr4/runtime/Cpp/runtime/src
   ${PROJECT_SOURCE_DIR}/src/
   )
@@ -42,17 +43,23 @@ file(GLOB_RECURSE antlr4-cpp-src
    ${PROJECT_SOURCE_DIR}/third_party/antlr4/runtime/Cpp/runtime/src/*.cpp
 )
 
+file(GLOB_RECURSE yaml-cpp-src 
+   ${PROJECT_SOURCE_DIR}/third_party/yaml-cpp/src/*.cpp
+)
+
 add_library (antlr4-cpp-runtime ${antlr4-cpp-src})
+add_library (yaml-cpp ${yaml-cpp-src})
 
 add_executable(lua-format ${src_dir} src/main.cpp)
 
 if(WIN32)
   target_compile_definitions(antlr4-cpp-runtime PRIVATE ANTLR4CPP_EXPORTS)
+  target_compile_definitions(yaml-cpp PRIVATE YAMLCPP_EXPORTS)
 endif()
 
 set_target_properties(lua-format PROPERTIES LINKER_LANGUAGE CXX)
 
-target_link_libraries(lua-format antlr4-cpp-runtime)
+target_link_libraries(lua-format yaml-cpp antlr4-cpp-runtime)
 
 install(TARGETS lua-format
   RUNTIME DESTINATION bin
@@ -78,7 +85,7 @@ if(BUILD_TESTS)
       )
   endif()
 
-  target_link_libraries(lua-format-test antlr4-cpp-runtime)
+  target_link_libraries(lua-format-test yaml-cpp antlr4-cpp-runtime)
 
   add_test(all_tests lua-format-test)
 endif()

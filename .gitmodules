@@ -4,3 +4,6 @@
 [submodule "third_party/args"]
 	path = third_party/args
 	url = https://github.com/Taywee/args.git
+[submodule "third_party/yaml-cpp"]
+	path = third_party/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp.git

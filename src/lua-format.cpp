@@ -6,7 +6,7 @@
 using namespace std;
 using namespace antlr4;
 
-string __foramt(ANTLRInputStream& input, const Config& config) {
+string __format(ANTLRInputStream& input, const Config& config) {
     LuaLexer lexer(&input);
     CommonTokenStream tokens(&lexer);
     LuaParser parser(&tokens);
@@ -28,10 +28,10 @@ string __foramt(ANTLRInputStream& input, const Config& config) {
 
 string lua_format(istream& is, const Config& config) {
     ANTLRInputStream input(is);
-    return __foramt(input, config);
+    return __format(input, config);
 }
 
 string lua_format(const string& str, const Config& config) {
     ANTLRInputStream input(str);
-    return __foramt(input, config);
+    return __format(input, config);
 }

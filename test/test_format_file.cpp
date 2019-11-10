@@ -1,4 +1,5 @@
 #include <sys/stat.h>
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -24,7 +25,7 @@ using namespace std;
         if (stat(configFileName.c_str(), &s) == 0) {                                                        \
             std::cout << configFileName << " exist" << endl;                                                \
             config.readFromFile(configFileName);                                                            \
-            std::cout << config.chop_down_parameter() << " dd" << endl;                                     \
+            std::cout << config.get<bool>("chop_down_parameter") << " dd" << endl;                          \
         }                                                                                                   \
         string actul = lua_format(input, config);                                                           \
         ifstream expectFile(expectFileName);                                                                \
@@ -68,4 +69,3 @@ TEST_FILE("../test/testdata/issues/issue-1.lua");
 TEST_FILE("../test/testdata/issues/issue-18.lua");
 TEST_FILE("../test/testdata/issues/issue-19.lua");
 TEST_FILE("../test/testdata/issues/issue-36.lua");
-

@@ -48,6 +48,7 @@ luarocks install --server=https://luarocks.org/dev luaformatter
       -h, --help                        Display this help menu
       -v, --verbose                     Turn on verbose mode
       -i                                Reformats in-place
+      --dump-config                     Dumps the default style used to stdout
       -c[file], --config=[file]         Style config file
       Lua scripts...                    Lua scripts to format
       "--" can be used to terminate flag options and force all following
