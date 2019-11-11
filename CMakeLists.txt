@@ -6,9 +6,9 @@ option(BUILD_TESTS "set ON to build tests" ON)
 option(COVERAGE "set ON to enable coverage" ON)
 
 if(CMAKE_VERSION VERSION_LESS "3.1")
-  add_definitions(-std=c++11)
+  add_definitions(-std=c++17)
 else()
-  set(CMAKE_CXX_STANDARD 11)
+  set(CMAKE_CXX_STANDARD 17)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
   set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
@@ -20,6 +20,21 @@ endif()
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+
+cmake_policy(SET CMP0067 NEW)
+
+try_run(TEST_RUN_RESULT
+   TEST_COMPILE_RESULT
+   ${CMAKE_CURRENT_BINARY_DIR}/
+   ${PROJECT_SOURCE_DIR}/test/cpp17/fs.cpp
+   OUTPUT_VARIABLE var)
+
+message("${var}")
+
+if(NOT "${TEST_COMPILE_RESULT}" OR (NOT "${TEST_RUN_RESULT}" EQUAL 0))
+   message(FATAL_ERROR "Your compiler does not fully support the C++17 standard")
+endif()
+
 
 include_directories(
   ${PROJECT_SOURCE_DIR}/generated/

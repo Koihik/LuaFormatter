@@ -1,11 +1,12 @@
-#include <sys/stat.h>
-
 #include <args/args.hxx>
+#include <filesystem>
 #include <fstream>
 #include <iterator>
 
 #include "Config.h"
 #include "lua-format.h"
+
+namespace fs = filesystem;
 
 int main(int argc, const char* argv[]) {
     args::ArgumentParser parser("Reformats your Lua source code.", "");
@@ -16,6 +17,7 @@ int main(int argc, const char* argv[]) {
     args::Flag dumpcfg(dc, "dump current style", "Dumps the default style used to stdout", {"dump-config"});
     args::ValueFlag<string> cFile(parser, "file", "Style config file", {'c', "config"});
     args::PositionalList<string> files(parser, "Lua scripts", "Lua scripts to format");
+    Config config;
 
     try {
         parser.ParseCLI(argc, argv);
@@ -32,29 +34,49 @@ int main(int argc, const char* argv[]) {
         return 1;
     }
 
-    string configFileName = args::get(cFile);
-    Config config;
-    struct stat s;
     if (dumpcfg) {
         config.dumpCurrent(cout);
         return 0;
     }
-    if (configFileName != "") {
-        if (stat(configFileName.c_str(), &s) == 0) {
-            if (!(s.st_mode & S_IFREG)) {
-                cerr << configFileName << ": Not a file." << endl;
-                return -1;
-            }
-            if (!(s.st_mode & S_IREAD)) {
-                cerr << configFileName << ": No access to read." << endl;
-                return -1;
-            }
-        } else {
-            cerr << configFileName << ": No such file." << endl;
+
+    string configFileName = args::get(cFile);
+
+    // Automatically look for a .lua-format on the current directory
+    if (configFileName.empty()) {
+        fs::path current = ".";
+        for (auto& entry : fs::directory_iterator(current)) {
+            fs::path candidate = entry.path();
+            if (candidate.filename() == ".lua-format") configFileName = candidate.string();
+        }
+    }
+
+    if (configFileName.empty()) {
+        if (verbose) cerr << "using default configuration" << endl;
+        goto use_default;
+    }
+
+    if (fs::exists(configFileName)) {
+        fs::file_status status = fs::status(configFileName);
+        fs::perms perm = status.permissions();
+
+        if (!fs::is_regular_file(status)) {
+            cerr << configFileName << ": Not a file." << endl;
             return -1;
         }
+
+        if ((perm & fs::perms::owner_read) == fs::perms::none) {
+            cerr << configFileName << ": No access to read." << endl;
+            return -1;
+        }
+
+        // Keeps the default values in case the yaml is missing a field
         config.readFromFile(configFileName);
+    } else {
+        cerr << configFileName << ": No such file." << endl;
+        return -1;
     }
+
+use_default:
 
     bool stdIn = args::get(files).size() == 0;
     if (stdIn) {
@@ -76,16 +98,21 @@ int main(int argc, const char* argv[]) {
             if (verbose) {
                 cerr << "formatting: " << fileName << endl;
             }
-            if (stat(fileName.c_str(), &s) == 0) {
-                if (!(s.st_mode & S_IFREG)) {
+            if (fs::exists(fileName)) {
+                fs::file_status status = fs::status(fileName);
+                fs::perms perm = status.permissions();
+
+                if (!fs::is_regular_file(status)) {
                     cerr << fileName << ": Not a file." << endl;
                     continue;
                 }
-                if (!(s.st_mode & S_IREAD)) {
+
+                if ((perm & fs::perms::owner_read) == fs::perms::none) {
                     cerr << fileName << ": No access to read." << endl;
                     continue;
                 }
-                if (inplace && !(s.st_mode & S_IWRITE)) {
+
+                if (inplace && (perm & fs::perms::owner_write) == fs::perms::none) {
                     cerr << fileName << ": No access to write." << endl;
                     continue;
                 }
