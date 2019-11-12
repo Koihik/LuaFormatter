@@ -26,7 +26,7 @@ luarocks install --server=https://luarocks.org/dev luaformatter
 
 #### Requirements
 * cmake 3.0+
-* c++ 11 compiler
+* c++ 17 compiler
 
 #### Steps
 ```bash

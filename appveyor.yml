@@ -1,23 +1,21 @@
 environment:
   matrix:
-    - VisualStudioVersion: 14.0
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       platform: "Win32"
       configuration: "Release"
       vcvarsall_platform: "x86"
-      PlatformToolset: "v140"
-    - VisualStudioVersion: 14.0
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       platform: "Win32"
       configuration: "Debug"
       vcvarsall_platform: "x86"
-      PlatformToolset: "v140"
 
 
 before_build:
   - git submodule update --init
-  - cmake . -G "Visual Studio 14"
+  - cmake . -G "Visual Studio 15 2017"
 
 build_script:
-  - msbuild "lua-formatter.sln" /clp:ErrorsOnly /target:Build /property:Configuration="%configuration%";Platform=%platform% /p:PlatformToolset=%PlatformToolset% /m"
+  - msbuild "lua-formatter.sln" /clp:ErrorsOnly /target:Build /property:Configuration="%configuration%";Platform=%platform% /m"
 
 test_script:
   - cd %APPVEYOR_BUILD_FOLDER%\%configuration%

@@ -11,48 +11,13 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - ['g++-5']
+            - ['g++-9']
       env:
-         - COMPILER='g++-5'
-
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - ['g++-6']
-      env:
-        - COMPILER='g++-6'
-
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - ['g++-7']
-      env:
-        - COMPILER='g++-7'
+         - COMPILER='g++-9'
 
     # os X
     - os: osx
-      osx_image: xcode7.3
-      compiler: clang
-      env: COMPILER='clang++'
-
-    - os: osx
-      osx_image: xcode8
-      compiler: clang
-      env: COMPILER='clang++'
-
-    - os: osx
-      osx_image: xcode9
-      compiler: clang
-      env: COMPILER='clang++'
-
-    - os: osx
-      osx_image: xcode10
+      osx_image: xcode11.2
       compiler: clang
       env: COMPILER='clang++'
 
@@ -93,11 +58,11 @@ after_success:
     fi
 
 before_deploy:
-  - if [[ $TRAVIS_OS_NAME == "linux" && $COMPILER == "g++-7" ]]; then
+  - if [[ $TRAVIS_OS_NAME == "linux" && $COMPILER == "g++-9" ]]; then
       mkdir ${TRAVIS_BUILD_DIR}/bin;
       cp ${TRAVIS_BUILD_DIR}/Release/lua-format ${TRAVIS_BUILD_DIR}/bin/lua-format-linux;
     fi
-  - if [[ $TRAVIS_OS_NAME == "osx" && $TRAVIS_OSX_IMAGE == "xcode10" ]]; then
+  - if [[ $TRAVIS_OS_NAME == "osx" && $TRAVIS_OSX_IMAGE == "xcode11.2" ]]; then
       mkdir ${TRAVIS_BUILD_DIR}/bin;
       cp ${TRAVIS_BUILD_DIR}/Release/lua-format ${TRAVIS_BUILD_DIR}/bin/lua-format-darwin;
     fi
@@ -112,4 +77,4 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
-    condition: $COMPILER == g++-7 || $TRAVIS_OSX_IMAGE == xcode10
+    condition: $COMPILER == g++-9 || $TRAVIS_OSX_IMAGE == xcode11.2
