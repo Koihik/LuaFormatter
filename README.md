@@ -88,6 +88,8 @@ chop_down_kv_table: true
 table_sep: ","
 extra_sep_at_table_end: false
 break_after_operator: true
+double_quote_to_single_quote: false
+single_quote_to_double_quote: false
 ```
 ## Limitations
 

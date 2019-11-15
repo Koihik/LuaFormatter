@@ -1,5 +1,4 @@
-#include <sys/stat.h>
-
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -10,6 +9,7 @@
 #include "lua-format.h"
 
 using namespace std;
+namespace fs = filesystem;
 
 #define TEST_FILE(file)                                                                                     \
     TEST_CASE("format file " + string(file) + " works well", "format_file") {                               \
@@ -21,19 +21,18 @@ using namespace std;
         string expectFileName = filename.substr(0, idx) + "/_" + filename.substr(idx + 1, filename.size()); \
         idx = filename.find_last_of('.');                                                                   \
         string configFileName = filename.substr(0, idx) + ".config";                                        \
-        struct stat s;                                                                                      \
-        if (stat(configFileName.c_str(), &s) == 0) {                                                        \
+        if (fs::exists(configFileName)) {                                                                   \
             std::cout << configFileName << " exist" << endl;                                                \
             config.readFromFile(configFileName);                                                            \
             std::cout << config.get<bool>("chop_down_parameter") << " dd" << endl;                          \
         }                                                                                                   \
-        string actul = lua_format(input, config);                                                           \
+        string actual = lua_format(input, config);                                                          \
         ifstream expectFile(expectFileName);                                                                \
         stringstream ss;                                                                                    \
         ss << expectFile.rdbuf();                                                                           \
         string expect = ss.str();                                                                           \
-        REQUIRE(expect == actul);                                                                           \
-        string formatTwice = lua_format(actul, config);                                                     \
+        REQUIRE(expect == actual);                                                                          \
+        string formatTwice = lua_format(actual, config);                                                    \
         REQUIRE(expect == formatTwice);                                                                     \
     }
 
@@ -62,6 +61,9 @@ TEST_FILE("../test/testdata/statement/semi.lua");
 TEST_FILE("../test/testdata/statement/shebang.lua");
 TEST_FILE("../test/testdata/statement/statements.lua");
 TEST_FILE("../test/testdata/statement/table.lua");
+
+TEST_FILE("../test/testdata/literals/doublequote.lua");
+TEST_FILE("../test/testdata/literals/singlequote.lua");
 
 TEST_FILE("../test/testdata/syntax/lua54.lua");
 

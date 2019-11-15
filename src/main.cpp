@@ -56,19 +56,6 @@ int main(int argc, const char* argv[]) {
     }
 
     if (fs::exists(configFileName)) {
-        fs::file_status status = fs::status(configFileName);
-        fs::perms perm = status.permissions();
-
-        if (!fs::is_regular_file(status)) {
-            cerr << configFileName << ": Not a file." << endl;
-            return -1;
-        }
-
-        if ((perm & fs::perms::owner_read) == fs::perms::none) {
-            cerr << configFileName << ": No access to read." << endl;
-            return -1;
-        }
-
         // Keeps the default values in case the yaml is missing a field
         config.readFromFile(configFileName);
     } else {

@@ -1,6 +1,7 @@
 #include "FormatVisitor.h"
 
 #include <iostream>
+#include <regex>
 
 #include "LuaLexer.h"
 
@@ -993,11 +994,59 @@ antlrcpp::Any FormatVisitor::visitExp(LuaParser::ExpContext* ctx) {
         visitFunctiondef(ctx->functiondef());
     } else if (ctx->tableconstructor() != NULL) {
         visitTableconstructor(ctx->tableconstructor());
+    } else if (ctx->string() != NULL) {
+        visitString(ctx->string());
     } else {
         cur_writer() << ctx->getText();
     }
     LOG_FUNCTION_END("visitExp");
     return nullptr;
+}
+
+antlrcpp::Any FormatVisitor::visitString(LuaParser::StringContext *ctx) {
+   if (ctx->NORMALSTRING() || ctx->CHARSTRING()) {
+      char quote = ctx->NORMALSTRING() ? '\'' : '\"';
+      tree::TerminalNode *tn;
+
+      switch (quote) {
+         case '\"':
+            if (!config_.get<bool>("single_quote_to_double_quote")) goto out;
+            tn = ctx->CHARSTRING();
+            break;
+         case '\'':
+            if (!config_.get<bool>("double_quote_to_single_quote")) goto out;
+            tn = ctx->NORMALSTRING();
+            break;
+         default:
+            goto out;
+      }
+
+      string newstr = tn->getSymbol()->getText();
+
+      regex re_single("'", regex_constants::extended);
+      regex re_double("\"", regex_constants::extended);
+      regex re_escapedsingle("\\\\'", regex_constants::extended);
+      regex re_escapeddouble("\\\\\"", regex_constants::extended);
+
+      if (quote == '\"') {
+         newstr = regex_replace(newstr, re_escapedsingle, "'");
+         newstr = regex_replace(newstr, re_double, "\\\"");
+      } else {
+         newstr = regex_replace(newstr, re_single, "\\'");
+         newstr = regex_replace(newstr, re_escapeddouble, "\"");
+      }
+
+      // switch the beginning and end to the new format
+      *newstr.begin() = quote;
+      *newstr.rbegin() = quote;
+
+      cur_writer() << newstr;
+      return nullptr;
+   }
+
+out:
+   cur_writer() << ctx->getText();
+   return nullptr;
 }
 
 // varOrExp nameAndArgs*;

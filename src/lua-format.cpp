@@ -6,10 +6,10 @@
 using namespace std;
 using namespace antlr4;
 
-string __format(ANTLRInputStream& input, const Config& config) {
+static string __format(ANTLRInputStream& input, const Config& config) {
     LuaLexer lexer(&input);
-    CommonTokenStream tokens(&lexer);
-    LuaParser parser(&tokens);
+    CommonTokenStream tokenstream(&lexer);
+    LuaParser parser(&tokenstream);
 
     LuaParser::ChunkContext* chunk = parser.chunk();
 
@@ -18,7 +18,7 @@ string __format(ANTLRInputStream& input, const Config& config) {
     }
 
     vector<antlr4::Token*> tokenVector;
-    for (auto t : tokens.getTokens()) {
+    for (auto t : tokenstream.getTokens()) {
         tokenVector.emplace_back(t);
     }
 
