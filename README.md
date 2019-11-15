@@ -25,7 +25,7 @@ luarocks install --server=https://luarocks.org/dev luaformatter
 ### Build from source
 
 #### Requirements
-* cmake 3.0+
+* cmake 3.8+
 * c++ 17 compiler
 
 #### Steps
@@ -38,6 +38,7 @@ luarocks install --server=https://luarocks.org/dev luaformatter
 ```
 
 ## Usage
+
 ```
   ./lua-format [Lua scripts...] {OPTIONS}
 
@@ -55,10 +56,39 @@ luarocks install --server=https://luarocks.org/dev luaformatter
       arguments to be treated as positional options
 ```
 
+The program will attempt to automatically use the current directory's `.lua-format` file if no config file is passed in the command line.
+In case there's no file, it will fallback to the default configuration.
+
 ### Style configure file
+
+Configuration parameters not specified fallback to their default values.
 
 See [this file](https://github.com/Koihik/LuaFormatter/blob/master/docs/Style-Config.md)
 
+### Default configuration
+
+```
+column_limit: 80
+indent_width: 4
+use_tab: false
+tab_width: 4
+continuation_indent_width: 4
+keep_simple_block_one_line: true
+align_args: true
+break_after_functioncall_lp: false
+break_before_functioncall_rp: false
+align_parameter: true
+chop_down_parameter: false
+break_after_functiondef_lp: false
+break_before_functiondef_rp: false
+align_table_field: true
+break_after_table_lb: true
+break_before_table_rb: true
+chop_down_kv_table: true
+table_sep: ","
+extra_sep_at_table_end: false
+break_after_operator: true
+```
 ## Limitations
 
 * Do not work when source file contains syntax error
