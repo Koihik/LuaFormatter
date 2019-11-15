@@ -1,17 +1,13 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.8)
 
-project("lua-formatter" VERSION 1.0.0 LANGUAGES CXX)
+project("lua-formatter" VERSION 1.3.0 LANGUAGES CXX)
 
 option(BUILD_TESTS "set ON to build tests" ON)
 option(COVERAGE "set ON to enable coverage" ON)
 
-if(CMAKE_VERSION VERSION_LESS "3.1")
-  add_definitions(-std=c++17)
-else()
-  set(CMAKE_CXX_STANDARD 17)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
-  set(CMAKE_CXX_EXTENSIONS OFF)
-endif()
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(NOT CMAKE_BUILD_TYPE)
   message("set build type to Release.")
