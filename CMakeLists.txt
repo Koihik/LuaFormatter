@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.9)
 
 project("lua-formatter" VERSION 1.3.0 LANGUAGES CXX)
 
@@ -9,6 +9,16 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+include(CheckIPOSupported)
+check_ipo_supported(RESULT lto OUTPUT error)
+
+if(lto)
+   message(STATUS "IPO / LTO enabled")
+   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+else()
+   message(STATUS "IPO / LTO not supported: <${error}>")
+endif()
+
 if(NOT CMAKE_BUILD_TYPE)
   message("set build type to Release.")
   set(CMAKE_BUILD_TYPE Release)
@@ -16,8 +26,6 @@ endif()
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-
-cmake_policy(SET CMP0067 NEW)
 
 try_run(TEST_RUN_RESULT
    TEST_COMPILE_RESULT
