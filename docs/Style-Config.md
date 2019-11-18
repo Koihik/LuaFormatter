@@ -356,4 +356,46 @@ x = 11111 + 11111
     + 11111
 ```
 
+### single_quote_to_double_quote
 
+type: bool, default: false
+
+Transform string literals to use double quote.
+
+```lua
+-- original
+local foo = 'a'
+local foo = '"'
+local bar = 'don\'t'
+local foo = '\''
+local foobar = '\\\\\''
+
+-- transformed
+local foo = "a"
+local foo = "\""
+local bar = "don't"
+local foo = "'"
+local foo = "\\\\'"
+```
+
+### double_quote_to_single_quote
+
+type: bool, default: false
+
+Transform string literals to use single quote.
+
+```lua
+-- original
+local foo = "a"
+local foo = "'"
+local bar = "don't"
+local bar = "\""
+local foobar = "\\\\\""
+
+-- transformed
+local foo = 'a'
+local foo = '\''
+local bar = 'don\'t'
+local bar = '"'
+local foobar = '\\\\"'
+```

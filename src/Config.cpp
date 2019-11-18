@@ -1,6 +1,11 @@
 #include "Config.h"
 
 #include <fstream>
+#include <iostream>
+#include <filesystem>
+#include <cstdlib>
+
+namespace fs = filesystem;
 
 Config::Config() {
     // Defaul configuration
@@ -29,9 +34,25 @@ Config::Config() {
     node_["extra_sep_at_table_end"] = false;
 
     node_["break_after_operator"] = true;
+
+    node_["double_quote_to_single_quote"] = false;
+    node_["single_quote_to_double_quote"] = false;
 }
 
 void Config::readFromFile(const string& file) {
+   fs::file_status status = fs::status(file);
+   fs::perms perm = status.permissions();
+
+   if (!fs::is_regular_file(status)) {
+      cerr << file << ": Not a file." << endl;
+      exit(-1);
+   }
+
+   if ((perm & fs::perms::owner_read) == fs::perms::none) {
+      cerr << file << ": No access to read." << endl;
+      exit(-1);
+   }
+
     YAML::Node n = YAML::LoadFile(file);
 
     // Keys are always strings
@@ -43,6 +64,6 @@ void Config::readFromFile(const string& file) {
     }
 }
 
-void Config::dumpCurrent(ofstream& fout) { fout << node_; }
+void Config::dumpCurrent(ofstream& fout) { fout << node_ << endl; }
 
-void Config::dumpCurrent(ostream& out) { out << node_; }
+void Config::dumpCurrent(ostream& out) { out << node_ << endl; }

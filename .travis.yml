@@ -1,44 +1,48 @@
 language: cpp
-sudo: false
 
 matrix:
   include:
 
     # linux gcc
     - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - ['g++-9']
       env:
          - COMPILER='g++-9'
 
     # os X
     - os: osx
-      osx_image: xcode11.2
+      osx_image: xcode11
       compiler: clang
-      env: COMPILER='clang++'
+      env:
+         - COMPILER='clang++'
+         - MYLDFLAGS='-L/usr/local/opt/llvm/lib'
+         - MYCXXFLAGS='-I/usr/local/opt/llvm/include'
+         - MYPATH='/usr/local/opt/llvm/bin'
 
 
 addons:
   homebrew:
     packages:
     - lcov
+    - llvm
     update: true
   apt:
+    sources:
+    - sourceline: 'ppa:ubuntu-toolchain-r/test'
     packages:
     - lcov
+    - g++-9
     update: true
 
 before_install:
+  - export PATH="${MYPATH}:$PATH"
   - export CXX=${COMPILER}
+  - export LDFLAGS=${MYLDFLAGS}
+  - export CXXFLAGS=${MYCXXFLAGS}
   - git submodule update --init
 
 install:
-  - cmake . -BRelease -DCMAKE_BUILD_TYPE=Release
-  - cmake . -BDebug -DCMAKE_BUILD_TYPE=Debug
+  - cmake -E env LDFLAGS="$LDFLAGS" CXXFLAGS="$CXXFLAGS" cmake . -BRelease -DCMAKE_BUILD_TYPE=Release
+  - cmake -E env LDFLAGS="$LDFLAGS" CXXFLAGS="$CXXFLAGS" cmake . -BDebug -DCMAKE_BUILD_TYPE=Debug
 
 script:
   - cd Debug

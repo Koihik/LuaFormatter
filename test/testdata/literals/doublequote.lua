@@ -1,0 +1,5 @@
+local foo = "a"
+local foo = "'"
+local bar = "don't"
+local bar = "\""
+local foobar = "\\\\\""
