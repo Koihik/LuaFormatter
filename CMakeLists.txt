@@ -44,6 +44,7 @@ endif()
 include_directories(
   ${PROJECT_SOURCE_DIR}/generated/
   ${PROJECT_SOURCE_DIR}/third_party/
+  ${PROJECT_SOURCE_DIR}/third_party/Catch2/single_include
   ${PROJECT_SOURCE_DIR}/third_party/yaml-cpp/include
   ${PROJECT_SOURCE_DIR}/third_party/antlr4/runtime/Cpp/runtime/src
   ${PROJECT_SOURCE_DIR}/src/
