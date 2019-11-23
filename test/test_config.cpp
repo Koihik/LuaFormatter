@@ -1,4 +1,4 @@
-#include "catch2/catch.hpp"
+#include <catch2/catch.hpp>
 #include "lua-format.h"
 
 TEST_CASE("indent", "config") {

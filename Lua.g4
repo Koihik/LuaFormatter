@@ -40,7 +40,7 @@
 
 grammar Lua;
 
-chunk: block EOF;
+chunk: SHEBANG? block EOF;
 
 block: stat* retstat?;
 
@@ -264,4 +264,4 @@ LINE_COMMENT:
 	) ('\r\n' | '\r' | '\n' | EOF) -> channel(1);
 
 WS: [ \t\u000C\r\n]+ -> channel(1);
-SHEBANG: '#' '!' ~('\n' | '\r')* -> channel(1);
+SHEBANG: '#' '!' ~('\n' | '\r')*;
