@@ -1,5 +1,5 @@
 
-// Generated from Lua.g4 by ANTLR 4.7.1
+// Generated from Lua.g4 by ANTLR 4.7.2
 
 #pragma once
 
@@ -96,6 +96,7 @@ public:
     virtual size_t getRuleIndex() const override;
     BlockContext *block();
     antlr4::tree::TerminalNode *EOF();
+    antlr4::tree::TerminalNode *SHEBANG();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    
@@ -682,6 +683,8 @@ public:
   public:
     LinkOperatorContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *LT();
+    antlr4::tree::TerminalNode *GT();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    
