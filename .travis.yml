@@ -66,7 +66,7 @@ before_deploy:
       mkdir ${TRAVIS_BUILD_DIR}/bin;
       cp ${TRAVIS_BUILD_DIR}/Release/lua-format ${TRAVIS_BUILD_DIR}/bin/lua-format-linux;
     fi
-  - if [[ $TRAVIS_OS_NAME == "osx" && $TRAVIS_OSX_IMAGE == "xcode11.2" ]]; then
+  - if [[ $TRAVIS_OS_NAME == "osx" && $TRAVIS_OSX_IMAGE == "xcode11" ]]; then
       mkdir ${TRAVIS_BUILD_DIR}/bin;
       cp ${TRAVIS_BUILD_DIR}/Release/lua-format ${TRAVIS_BUILD_DIR}/bin/lua-format-darwin;
     fi
@@ -81,4 +81,4 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
-    condition: $COMPILER == g++-9 || $TRAVIS_OSX_IMAGE == xcode11.2
+    condition: $COMPILER == g++-9 || $TRAVIS_OSX_IMAGE == xcode11
