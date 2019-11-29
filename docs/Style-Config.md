@@ -271,6 +271,28 @@ x = {
   333, 444}
 ```
 
+### chop_down_table
+
+type: bool, default: false
+
+Chop down any table.
+
+```lua
+-- chop_down_table: true
+x = {
+    v1,
+    v2,
+    v3,
+    v4
+}
+
+-- chop_down_table: false
+x = {
+    v1, v2,
+    v3, v4
+}
+```
+
 ### chop_down_kv_table
 
 type: bool, default: true

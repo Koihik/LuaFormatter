@@ -1462,7 +1462,8 @@ antlrcpp::Any FormatVisitor::visitTableconstructor(LuaParser::TableconstructorCo
         bool breakAfterLb = false;
         if (beyondLimit) {
             breakAfterLb = config_.get<bool>("break_after_table_lb");
-            chopDown = config_.get<bool>("chop_down_kv_table") && containsKv;
+            chopDown = config_.get<bool>("chop_down_table") ||
+				config_.get<bool>("chop_down_kv_table") && containsKv;
         }
         if (chopDown) {
             cur_writer() << commentAfterNewLine(ctx->LB(), INC_INDENT);

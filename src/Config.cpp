@@ -29,6 +29,7 @@ Config::Config() {
     node_["align_table_field"] = true;
     node_["break_after_table_lb"] = true;
     node_["break_before_table_rb"] = true;
+    node_["chop_down_table"] = false;
     node_["chop_down_kv_table"] = true;
     node_["table_sep"] = ",";
     node_["extra_sep_at_table_end"] = false;
