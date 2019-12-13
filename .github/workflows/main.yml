@@ -1,0 +1,31 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        repository: luarocks/luarocks.git
+        ref: master
+    - name: Install Lua 5.3
+      run: sudo apt install lua5.3 liblua5.3-dev
+    - name: Install LuaRocks
+      run: |
+       ./configure
+       make build
+       sudo make install
+       cd ~
+    - name: Add g++-9 ppa
+      run: |
+       sudo add-apt-repository 'ppa:ubuntu-toolchain-r/test'
+       sudo apt update
+    - name: Install g++-9
+      run: |
+         sudo apt install g++-9
+    - name: Install LuaFormatter
+      run: CXX='g++-9' sudo -E bash -c 'luarocks install --server=https://luarocks.org/dev luaformatter'
