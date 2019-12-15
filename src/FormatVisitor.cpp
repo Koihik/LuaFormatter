@@ -72,7 +72,7 @@ string FormatVisitor::commentAfter(tree::ParseTree* node, const string& expect) 
     stringstream ss;
     // No space on left of first comment
     bool lastComment = node != NULL;
-    for (int i = l + 1; i < tokens_.size(); i++) {
+    for (unsigned int i = l + 1; i < tokens_.size(); i++) {
         auto token = tokens_[i];
         if (token->getType() == LuaLexer::COMMENT) {
             if (lastComment) {
@@ -129,7 +129,7 @@ string FormatVisitor::commentAfterNewLine(tree::ParseTree* node, NewLineIndent n
     bool customNewLine = false;
     bool lastComment = true;
     bool lastestNewLine = false;
-    for (int i = l + 1; i < tokens_.size(); i++) {
+    for (unsigned int i = l + 1; i < tokens_.size(); i++) {
         auto token = tokens_[i];
         if (token->getType() == LuaLexer::COMMENT) {
             if (lastestNewLine) {
@@ -151,8 +151,8 @@ string FormatVisitor::commentAfterNewLine(tree::ParseTree* node, NewLineIndent n
             lastComment = false;
             lastestNewLine = true;
         } else if (token->getType() == LuaLexer::WS) {
-            int ln = token->getText().find("\n");
-            int rn = token->getText().rfind("\n");
+            auto ln = token->getText().find("\n");
+            auto rn = token->getText().rfind("\n");
             if (ln != string::npos) {
                 if (ln != rn && !lastestNewLine) {
                     ss << "\n\n";
@@ -863,7 +863,7 @@ antlrcpp::Any FormatVisitor::visitExplist(LuaParser::ExplistContext* ctx) {
             // The first break (before 'function()') doesn't seem to make sense.
             // So determine if this expression is still beyond column limit after break.
             // If true, determine the column again with current columns.
-            if (indentWithAlign().size() + expLength + firstArgsIndent > config_.get<int>("column_limit")) {
+            if (indentWithAlign().size() + expLength + firstArgsIndent > config_.get<unsigned int>("column_limit")) {
                 pushWriterWithColumn();
                 cur_writer() << commentAfter(ctx->COMMA()[i], " ");
                 visitExp(ctx->exp()[i + 1]);
@@ -1205,7 +1205,7 @@ void FormatVisitor::visitNextNameAndArgs(LuaParser::VarSuffixContext* ctx) {
     // find args of NAME
     LuaParser::VarContext* varCtx = dynamic_cast<LuaParser::VarContext*>(ctx->parent);
     const vector<LuaParser::VarSuffixContext*>& arr = varCtx->varSuffix();
-    int index = find(arr.begin(), arr.end(), ctx) - arr.begin();
+    unsigned int index = find(arr.begin(), arr.end(), ctx) - arr.begin();
     if (index + 1 < arr.size()) {
         for (auto na : arr[index + 1]->nameAndArgs()) {
             // if next NameAndArgs's COLON is not null
@@ -1463,7 +1463,7 @@ antlrcpp::Any FormatVisitor::visitTableconstructor(LuaParser::TableconstructorCo
         if (beyondLimit) {
             breakAfterLb = config_.get<bool>("break_after_table_lb");
             chopDown = config_.get<bool>("chop_down_table") ||
-				config_.get<bool>("chop_down_kv_table") && containsKv;
+				(config_.get<bool>("chop_down_kv_table") && containsKv);
         }
         if (chopDown) {
             cur_writer() << commentAfterNewLine(ctx->LB(), INC_INDENT);
@@ -1522,8 +1522,8 @@ antlrcpp::Any FormatVisitor::visitTableconstructor(LuaParser::TableconstructorCo
 // field (fieldsep field)* fieldsep?;
 antlrcpp::Any FormatVisitor::visitFieldlist(LuaParser::FieldlistContext* ctx) {
     LOG_FUNCTION_BEGIN("visitFieldlist");
-    int n = ctx->field().size();
-    int sn = ctx->fieldsep().size();
+    auto n = ctx->field().size();
+    auto sn = ctx->fieldsep().size();
     if (config_.get<bool>("align_table_field")) {
         firstTableFieldColumn_.push_back(cur_columns());
     }
@@ -1533,7 +1533,7 @@ antlrcpp::Any FormatVisitor::visitFieldlist(LuaParser::FieldlistContext* ctx) {
     if (n > 1 || sn > 0) {
         cur_writer() << commentAfter(ctx->field().front(), "");
     }
-    for (int i = 1; i < n; i++) {
+    for (unsigned int i = 1; i < n; i++) {
         if (chop_down_table_) {
             visitFieldsep(ctx->fieldsep()[i - 1]);
             cur_writer() << commentAfterNewLine(ctx->fieldsep()[i - 1], NONE_INDENT);
@@ -1680,7 +1680,7 @@ bool FormatVisitor::shouldKeepSemicolon(ParserRuleContext* ctx, tree::TerminalNo
 
     int idx = node->getSymbol()->getTokenIndex();
     bool startWithLP = false;
-    for (int i = idx + 1; i < tokens_.size(); i++) {
+    for (unsigned int i = idx + 1; i < tokens_.size(); i++) {
         size_t type = tokens_[i]->getType();
         // ignore comments and white space
         if (type == LuaLexer::COMMENT ||       //
