@@ -67,6 +67,9 @@ TEST_FILE("../test/testdata/literals/singlequote.lua");
 
 TEST_FILE("../test/testdata/syntax/lua54.lua");
 
+TEST_FILE("../test/testdata/expression/function_1.lua");
+TEST_FILE("../test/testdata/expression/function_2.lua");
+
 TEST_FILE("../test/testdata/issues/issue-1.lua");
 TEST_FILE("../test/testdata/issues/issue-18.lua");
 TEST_FILE("../test/testdata/issues/issue-19.lua");

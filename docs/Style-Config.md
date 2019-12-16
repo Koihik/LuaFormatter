@@ -421,3 +421,19 @@ local bar = 'don\'t'
 local bar = '"'
 local foobar = '\\\\"'
 ```
+
+### spaces_before_call
+
+type: int, default: 1
+
+Inserts a space on function calls with parantheses omitted.
+
+```lua
+-- spaces_before_call: 1
+require "foo"
+f "a" "b"
+
+-- spaces_before_call: 0
+require"foo"
+f"a" "b"
+```

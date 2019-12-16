@@ -21,14 +21,14 @@ int main(int argc, const char* argv[]) {
 
     try {
         parser.ParseCLI(argc, argv);
-    } catch (args::Help &e) {
+    } catch (args::Help& e) {
         cout << parser;
         return 0;
-    } catch (args::ParseError &e) {
+    } catch (args::ParseError& e) {
         cerr << e.what() << std::endl;
         cerr << parser;
         return 1;
-    } catch (args::ValidationError &e) {
+    } catch (args::ValidationError& e) {
         cerr << e.what() << std::endl;
         cerr << parser;
         return 1;

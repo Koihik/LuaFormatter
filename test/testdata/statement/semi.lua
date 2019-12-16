@@ -1,6 +1,6 @@
 function func1()
     -- do nothing
-    return 1; -- delete
+    return 1; -- keep
 end
     
 x, y = 1, func1; -- keep
@@ -9,11 +9,11 @@ x, y = 1, func1; -- keep
 local x, y = 1, func1; -- keep
 (function() print("123");  end)()
 
-local x, y = 1, func1; -- delete
+local x, y = 1, func1; -- keep
 print("123")
 
 print(1, 2, 3); -- keep
-(function() print("123");  end)(); -- delete
+(function() print("123");  end)(); -- keep
 print("123")
 
 
@@ -23,7 +23,7 @@ until y; -- keep
 (function() print("123");  end)()
 repeat
     -- empty
-until y; -- delete
+until y; -- keep
 repeat 
     -- empty
 until x == y; -- keep
