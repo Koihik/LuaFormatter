@@ -74,3 +74,4 @@ TEST_FILE("../test/testdata/issues/issue-36.lua");
 TEST_FILE("../test/testdata/issues/issue-62_1.lua");
 TEST_FILE("../test/testdata/issues/issue-62_2.lua");
 TEST_FILE("../test/testdata/issues/issue-62_3.lua");
+TEST_FILE("../test/testdata/issues/issue-70.lua");
