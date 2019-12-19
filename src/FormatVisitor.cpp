@@ -1140,6 +1140,8 @@ antlrcpp::Any FormatVisitor::visitVar(LuaParser::VarContext* ctx) {
 // nameAndArgs* (LSB exp RSB | DOT NAME);
 antlrcpp::Any FormatVisitor::visitVarSuffix(LuaParser::VarSuffixContext* ctx) {
     LOG_FUNCTION_BEGIN("visitVarSuffix");
+    chainedMethodCallIsFirst_.push_back(false);
+    chainedMethodCallHasIncIndent_.push_back(false);
     for (auto na : ctx->nameAndArgs()) {
         visitNameAndArgs(na);
         cur_writer() << commentAfter(na, "");
@@ -1196,6 +1198,11 @@ antlrcpp::Any FormatVisitor::visitVarSuffix(LuaParser::VarSuffixContext* ctx) {
         cur_writer() << commentAfter(ctx->DOT(), "");
         cur_writer() << ctx->NAME()->getText();
     }
+    if (chainedMethodCallHasIncIndent_.back()) {
+        decContinuationIndent();
+    }
+    chainedMethodCallHasIncIndent_.pop_back();
+    chainedMethodCallIsFirst_.pop_back();
     LOG_FUNCTION_END("visitVarSuffix");
     return nullptr;
 }
