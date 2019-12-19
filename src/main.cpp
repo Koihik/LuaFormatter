@@ -60,7 +60,7 @@ int main(int argc, const char* argv[]) {
         config.readFromFile(configFileName);
     } else {
         cerr << configFileName << ": No such file." << endl;
-        return -1;
+        return 1;
     }
 
 use_default:
@@ -79,6 +79,7 @@ use_default:
             cout << out;
         } catch (const std::invalid_argument& e) {
             cerr << e.what() << endl;
+            return 1;
         }
     } else {
         for (const auto fileName : args::get(files)) {
@@ -128,6 +129,7 @@ use_default:
 
             } catch (const std::invalid_argument& e) {
                 cerr << e.what() << endl;
+                return 1;
             }
         }
     }
