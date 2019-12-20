@@ -247,8 +247,7 @@ antlrcpp::Any FormatVisitor::visitChunk(LuaParser::ChunkContext* ctx) {
 
     cur_writer() << comment;
     string ret = cur_writer().str();
-    if (*ret.rbegin() != '\n')
-       ret += '\n';
+    if (*ret.rbegin() != '\n') ret += '\n';
     popWriter();
     LOG_FUNCTION_END("visitChunk");
     return ret;
@@ -318,12 +317,54 @@ antlrcpp::Any FormatVisitor::visitVarDecl(LuaParser::VarDeclContext* ctx) {
     visitExplist(ctx->explist());
     if (ctx->SEMI() != NULL) {
         cur_writer() << commentAfter(ctx->explist(), "");
-        if (shouldKeepSemicolon(ctx->explist(), ctx->SEMI())) {
-            cur_writer() << ctx->SEMI()->getText();
-        }
+        cur_writer() << ctx->SEMI()->getText();
     }
     LOG_FUNCTION_END("visitVarDecl");
     return nullptr;
+}
+
+// Builds first argument whitespace in spaces.
+// local a = f<WS>{1, 2, 3} or f<WS>"a"
+string FormatVisitor::buildFirstArgumentWs(vector<LuaParser::NameAndArgsContext*> v) {
+    bool needWhiteSpace = false;
+
+    if (v.size() > 0) {
+        LuaParser::NameAndArgsContext* ctx = v.front();
+        if (ctx->COLON() == NULL && ctx->args()->LP() == NULL) {
+            needWhiteSpace = true;
+        }
+    }
+
+    // Build whitespace
+    string ws = "";
+    if (needWhiteSpace) {
+        int sz = config_.get<int>("spaces_before_call");
+        while (sz--) {
+            ws.append(" ");
+        }
+    }
+
+    return ws;
+}
+
+// Builds arguments whitespaces in spaces.
+// local a = f"a"<WS>"b"<WS>"c"...
+void FormatVisitor::buildArguments(vector<LuaParser::NameAndArgsContext*> v) {
+    for (size_t i = 0; i < v.size(); i++) {
+        auto ctx = v[i];
+        string ws = "";
+
+        // Write out the argument
+        visitNameAndArgs(ctx);
+
+        if (ctx == v.back())  // Last element, bail out
+            break;
+
+        auto nctx = v[i + 1];
+        if (nctx->COLON() == NULL && (nctx->args()->string() || nctx->args()->tableconstructor())) ws = " ";
+
+        cur_writer() << commentAfter(ctx, ws);
+    }
 }
 
 // varOrExp nameAndArgs+;
@@ -333,34 +374,14 @@ antlrcpp::Any FormatVisitor::visitFunctioncall(LuaParser::FunctioncallContext* c
     chainedMethodCallIsFirst_.push_back(false);
     visitVarOrExp(ctx->varOrExp());
 
-    bool needWhiteSpace = false;
-    if (ctx->nameAndArgs().size() > 0) {
-        LuaParser::NameAndArgsContext* naaCtx = ctx->nameAndArgs().front();
-        if (naaCtx->COLON() == NULL) {
-            LuaParser::StringContext* stringContext = naaCtx->args()->string();
-            needWhiteSpace = stringContext != NULL;
-        }
-    }
-    cur_writer() << commentAfter(ctx->varOrExp(), needWhiteSpace ? " " : "");
+    string ws = buildFirstArgumentWs(ctx->nameAndArgs());
+    cur_writer() << commentAfter(ctx->varOrExp(), ws);
 
-    int n = ctx->nameAndArgs().size();
-    for (int i = 0; i < n; i++) {
-        visitNameAndArgs(ctx->nameAndArgs()[i]);
-        if (i != n - 1) {
-            needWhiteSpace = false;
-            LuaParser::NameAndArgsContext* naaCtx = ctx->nameAndArgs()[i + 1];
-            if (naaCtx->COLON() == NULL) {
-                LuaParser::StringContext* stringContext = naaCtx->args()->string();
-                needWhiteSpace = stringContext != NULL;
-            }
-            cur_writer() << commentAfter(ctx->nameAndArgs()[i], needWhiteSpace ? " " : "");
-        }
-    }
+    buildArguments(ctx->nameAndArgs());
+
     if (ctx->SEMI() != NULL) {
         cur_writer() << commentAfter(ctx->nameAndArgs().back(), "");
-        if (shouldKeepSemicolon(ctx->nameAndArgs().back(), ctx->SEMI())) {
-            cur_writer() << ctx->SEMI()->getText();
-        }
+        cur_writer() << ctx->SEMI()->getText();
     }
     if (chainedMethodCallHasIncIndent_.back()) {
         decContinuationIndent();
@@ -415,9 +436,7 @@ antlrcpp::Any FormatVisitor::visitRepeatStat(LuaParser::RepeatStatContext* ctx) 
     visitExp(ctx->exp());
     if (ctx->SEMI() != NULL) {
         cur_writer() << commentAfter(ctx->exp(), "");
-        if (shouldKeepSemicolon(ctx->exp(), ctx->SEMI())) {
-            cur_writer() << ctx->SEMI()->getText();
-        }
+        cur_writer() << ctx->SEMI()->getText();
     }
     LOG_FUNCTION_END("visitRepeatStat");
     return nullptr;
@@ -566,9 +585,7 @@ antlrcpp::Any FormatVisitor::visitLocalVarDecl(LuaParser::LocalVarDeclContext* c
         } else {
             cur_writer() << commentAfter(ctx->explist(), "");
         }
-        if (shouldKeepSemicolon(ctx->explist(), ctx->SEMI())) {
-            cur_writer() << ctx->SEMI()->getText();
-        }
+        cur_writer() << ctx->SEMI()->getText();
     }
     LOG_FUNCTION_END("visitLocalVarDecl");
     return nullptr;
@@ -584,6 +601,9 @@ antlrcpp::Any FormatVisitor::visitRetstat(LuaParser::RetstatContext* ctx) {
     if (ctx->explist() != NULL) {
         cur_writer() << commentAfter(ctx->RETURN(), " ");
         visitExplist(ctx->explist());
+    }
+    if (ctx->SEMI() != NULL) {
+        cur_writer() << ctx->SEMI()->getText();
     }
     LOG_FUNCTION_END("visitRetstat");
     return nullptr;
@@ -1003,50 +1023,50 @@ antlrcpp::Any FormatVisitor::visitExp(LuaParser::ExpContext* ctx) {
     return nullptr;
 }
 
-antlrcpp::Any FormatVisitor::visitString(LuaParser::StringContext *ctx) {
-   if (ctx->NORMALSTRING() || ctx->CHARSTRING()) {
-      char quote = ctx->NORMALSTRING() ? '\'' : '\"';
-      tree::TerminalNode *tn;
+antlrcpp::Any FormatVisitor::visitString(LuaParser::StringContext* ctx) {
+    if (ctx->NORMALSTRING() || ctx->CHARSTRING()) {
+        char quote = ctx->NORMALSTRING() ? '\'' : '\"';
+        tree::TerminalNode* tn;
 
-      switch (quote) {
-         case '\"':
-            if (!config_.get<bool>("single_quote_to_double_quote")) goto out;
-            tn = ctx->CHARSTRING();
-            break;
-         case '\'':
-            if (!config_.get<bool>("double_quote_to_single_quote")) goto out;
-            tn = ctx->NORMALSTRING();
-            break;
-         default:
-            goto out;
-      }
+        switch (quote) {
+            case '\"':
+                if (!config_.get<bool>("single_quote_to_double_quote")) goto out;
+                tn = ctx->CHARSTRING();
+                break;
+            case '\'':
+                if (!config_.get<bool>("double_quote_to_single_quote")) goto out;
+                tn = ctx->NORMALSTRING();
+                break;
+            default:
+                goto out;
+        }
 
-      string newstr = tn->getSymbol()->getText();
+        string newstr = tn->getSymbol()->getText();
 
-      regex re_single("'", regex_constants::extended);
-      regex re_double("\"", regex_constants::extended);
-      regex re_escapedsingle("\\\\'", regex_constants::extended);
-      regex re_escapeddouble("\\\\\"", regex_constants::extended);
+        regex re_single("'", regex_constants::extended);
+        regex re_double("\"", regex_constants::extended);
+        regex re_escapedsingle("\\\\'", regex_constants::extended);
+        regex re_escapeddouble("\\\\\"", regex_constants::extended);
 
-      if (quote == '\"') {
-         newstr = regex_replace(newstr, re_escapedsingle, "'");
-         newstr = regex_replace(newstr, re_double, "\\\"");
-      } else {
-         newstr = regex_replace(newstr, re_single, "\\'");
-         newstr = regex_replace(newstr, re_escapeddouble, "\"");
-      }
+        if (quote == '\"') {
+            newstr = regex_replace(newstr, re_escapedsingle, "'");
+            newstr = regex_replace(newstr, re_double, "\\\"");
+        } else {
+            newstr = regex_replace(newstr, re_single, "\\'");
+            newstr = regex_replace(newstr, re_escapeddouble, "\"");
+        }
 
-      // switch the beginning and end to the new format
-      *newstr.begin() = quote;
-      *newstr.rbegin() = quote;
+        // switch the beginning and end to the new format
+        *newstr.begin() = quote;
+        *newstr.rbegin() = quote;
 
-      cur_writer() << newstr;
-      return nullptr;
-   }
+        cur_writer() << newstr;
+        return nullptr;
+    }
 
 out:
-   cur_writer() << ctx->getText();
-   return nullptr;
+    cur_writer() << ctx->getText();
+    return nullptr;
 }
 
 // varOrExp nameAndArgs*;
@@ -1055,28 +1075,12 @@ antlrcpp::Any FormatVisitor::visitPrefixexp(LuaParser::PrefixexpContext* ctx) {
     chainedMethodCallHasIncIndent_.push_back(false);
     chainedMethodCallIsFirst_.push_back(false);
     visitVarOrExp(ctx->varOrExp());
-    int n = ctx->nameAndArgs().size();
-    bool needWhiteSpace = false;
-    if (n > 0) {
-        LuaParser::NameAndArgsContext* naaCtx = ctx->nameAndArgs().front();
-        if (naaCtx->COLON() == NULL) {
-            LuaParser::StringContext* stringContext = naaCtx->args()->string();
-            needWhiteSpace = stringContext != NULL;
-        }
-        cur_writer() << commentAfter(ctx->varOrExp(), needWhiteSpace ? " " : "");
-    }
-    for (int i = 0; i < n; i++) {
-        visitNameAndArgs(ctx->nameAndArgs()[i]);
-        if (i != n - 1) {
-            needWhiteSpace = false;
-            LuaParser::NameAndArgsContext* naaCtx = ctx->nameAndArgs()[i + 1];
-            if (naaCtx->COLON() == NULL) {
-                LuaParser::StringContext* stringContext = naaCtx->args()->string();
-                needWhiteSpace = stringContext != NULL;
-            }
-            cur_writer() << commentAfter(ctx->nameAndArgs()[i], needWhiteSpace ? " " : "");
-        }
-    }
+
+    string ws = buildFirstArgumentWs(ctx->nameAndArgs());
+    cur_writer() << commentAfter(ctx->varOrExp(), ws);
+
+    buildArguments(ctx->nameAndArgs());
+
     if (chainedMethodCallHasIncIndent_.back()) {
         decContinuationIndent();
     }
@@ -1638,68 +1642,6 @@ antlrcpp::Any FormatVisitor::visitChildren(tree::ParseTree* node) {
 antlrcpp::Any FormatVisitor::visitTerminal(tree::TerminalNode* node) {
     cur_writer() << node->getText();
     return nullptr;
-}
-
-// If both of the following conditions are met, the custom semicolon should not be deleted:
-// 1. There is a variable token or function call token at end of previous statement
-//    e.g. 'local x = y' or 'y:func()'
-// 2. next statement is start with a '(', like '(function() end)()'
-bool FormatVisitor::shouldKeepSemicolon(ParserRuleContext* ctx, tree::TerminalNode* node) {
-    if (ctx == NULL) {
-        return false;
-    }
-
-    bool returnVar = false;
-
-    // varDecl or localVarDecl
-    // 'local x, y = 1, print;'
-    LuaParser::ExplistContext* explistCtx = dynamic_cast<LuaParser::ExplistContext*>(ctx);
-    if (explistCtx != NULL) {
-        LuaParser::ExpContext* lastExp = explistCtx->exp().back();
-        while (!lastExp->exp().empty()) {
-            lastExp = lastExp->exp().back();
-        }
-        returnVar = lastExp->prefixexp() != NULL;
-    }
-
-    // repeat statement
-    // repeat
-    //     print("123")
-    // until y;
-    LuaParser::ExpContext* expCtx = dynamic_cast<LuaParser::ExpContext*>(ctx);
-    if (expCtx != NULL) {
-        LuaParser::ExpContext* lastExp = expCtx;
-        while (!lastExp->exp().empty()) {
-            lastExp = lastExp->exp().back();
-        }
-        returnVar = lastExp->prefixexp() != NULL;
-    }
-
-    // function call
-    LuaParser::NameAndArgsContext* naCtx = dynamic_cast<LuaParser::NameAndArgsContext*>(ctx);
-    if (naCtx != NULL) {
-        returnVar = true;
-    }
-
-    if (!returnVar) {
-        return false;
-    }
-
-    int idx = node->getSymbol()->getTokenIndex();
-    bool startWithLP = false;
-    for (unsigned int i = idx + 1; i < tokens_.size(); i++) {
-        size_t type = tokens_[i]->getType();
-        // ignore comments and white space
-        if (type == LuaLexer::COMMENT ||       //
-            type == LuaLexer::LINE_COMMENT ||  //
-            type == LuaLexer::WS) {
-            continue;
-        }
-
-        startWithLP = type == LuaLexer::LP;
-        break;
-    }
-    return startWithLP;
 }
 
 bool FormatVisitor::needKeepBlockOneLine(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx) {

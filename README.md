@@ -73,6 +73,7 @@ indent_width: 4
 use_tab: false
 tab_width: 4
 continuation_indent_width: 4
+spaces_before_call: 1
 keep_simple_block_one_line: true
 align_args: true
 break_after_functioncall_lp: false

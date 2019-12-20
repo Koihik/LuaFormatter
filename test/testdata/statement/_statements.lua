@@ -1,5 +1,5 @@
 -- varDecl
-x, y = 1, 2
+x, y = 1, 2;
 
 -- label
 ::LBL_A::
@@ -8,7 +8,7 @@ x, y = 1, 2
 while 1 == 2 do goto LBL_A end
 
 -- doStat
-do print("something") end
+do print("something"); end
 
 -- repeatStat
 repeat x = 2 + 3 or 1 + 2 until y == 2
@@ -24,7 +24,7 @@ for i, v in ipairs(a) do print(i, v) end
 
 -- localVarDecl
 local q, w, e = 1, 2, 3
-local p, o
+local p, o;
 
 -- ifStat
 if x then

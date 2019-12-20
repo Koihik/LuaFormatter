@@ -1,9 +1,9 @@
 #include "Config.h"
 
+#include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <filesystem>
-#include <cstdlib>
 
 namespace fs = filesystem;
 
@@ -14,6 +14,7 @@ Config::Config() {
     node_["use_tab"] = false;
     node_["tab_width"] = 4;
     node_["continuation_indent_width"] = 4;
+    node_["spaces_before_call"] = 1;
 
     node_["keep_simple_block_one_line"] = true;
 
@@ -41,18 +42,18 @@ Config::Config() {
 }
 
 void Config::readFromFile(const string& file) {
-   fs::file_status status = fs::status(file);
-   fs::perms perm = status.permissions();
+    fs::file_status status = fs::status(file);
+    fs::perms perm = status.permissions();
 
-   if (!fs::is_regular_file(status)) {
-      cerr << file << ": Not a file." << endl;
-      exit(-1);
-   }
+    if (!fs::is_regular_file(status)) {
+        cerr << file << ": Not a file." << endl;
+        exit(-1);
+    }
 
-   if ((perm & fs::perms::owner_read) == fs::perms::none) {
-      cerr << file << ": No access to read." << endl;
-      exit(-1);
-   }
+    if ((perm & fs::perms::owner_read) == fs::perms::none) {
+        cerr << file << ": No access to read." << endl;
+        exit(-1);
+    }
 
     YAML::Node n = YAML::LoadFile(file);
 
