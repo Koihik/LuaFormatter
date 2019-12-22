@@ -22,14 +22,12 @@ matrix:
 addons:
   homebrew:
     packages:
-    - lcov
     - llvm
     update: true
   apt:
     sources:
     - sourceline: 'ppa:ubuntu-toolchain-r/test'
     packages:
-    - lcov
     - g++-9
     update: true
 
@@ -52,15 +50,6 @@ script:
   - make -j 2
   - CTEST_OUTPUT_ON_FAILURE=1 ctest -j 2
 
-after_success:
-  - if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-      cd ${TRAVIS_BUILD_DIR}/Debug;
-      lcov --directory . --capture --output-file coverage.info;
-      lcov --remove coverage.info '*/usr/*' '*/test/*' '*/generated/*' '*/third_party/*' --output-file coverage.info;
-      lcov --list coverage.info;
-      bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports";
-    fi
-
 before_deploy:
   - if [[ $TRAVIS_OS_NAME == "linux" && $COMPILER == "g++-9" ]]; then
       mkdir ${TRAVIS_BUILD_DIR}/bin;
@@ -74,7 +63,7 @@ before_deploy:
 deploy:
   provider: s3
   access_key_id: "${AWS_KEY_ID}"
-  secret_access_key: 
+  secret_access_key:
     secure: "${AWS_ACCESS_KEY}"
   bucket: "lua-formatter-release"
   local_dir: "${TRAVIS_BUILD_DIR}/bin"
