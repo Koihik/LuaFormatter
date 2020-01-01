@@ -107,6 +107,7 @@ if(BUILD_TESTS)
       )
   endif()
 
+  target_compile_definitions(lua-format-test PUBLIC PROJECT_PATH="${PROJECT_SOURCE_DIR}")
   target_link_libraries(lua-format-test yaml-cpp antlr4-cpp-runtime)
 
   add_test(all_tests lua-format-test)
