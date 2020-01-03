@@ -20,4 +20,4 @@ namespace fs = filesystem;
         REQUIRE_THROWS_WITH(lua_format(input, config), "Input contains syntax errors");                     \
     }
 
-TEST_FILE("../test/testdata/issues/issue-55.lua");
+TEST_FILE(PROJECT_PATH "/test/testdata/issues/issue-55.lua");

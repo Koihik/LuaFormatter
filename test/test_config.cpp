@@ -166,13 +166,13 @@ TEST_CASE("break_after_operator", "config") {
 
 TEST_CASE("read from file", "config") {
     Config config;
-    config.readFromFile("../test/testconfig/1.lua-format");
+    config.readFromFile(PROJECT_PATH "/test/testconfig/1.lua-format");
 
     REQUIRE(2 == config.get<int>("indent_width"));
     REQUIRE(";" == config.get<string>("table_sep"));
     REQUIRE(false == config.get<bool>("extra_sep_at_table_end"));
 
-    config.readFromFile("../test/testconfig/2.lua-format");
+    config.readFromFile(PROJECT_PATH "/test/testconfig/2.lua-format");
 
     REQUIRE(4 == config.get<int>("indent_width"));
     REQUIRE("," == config.get<string>("table_sep"));
