@@ -16,7 +16,8 @@ Config::Config() {
     node_["continuation_indent_width"] = 4;
     node_["spaces_before_call"] = 1;
 
-    node_["keep_simple_block_one_line"] = true;
+    node_["keep_simple_control_block_one_line"] = true;
+    node_["keep_simple_function_one_line"] = true;
 
     node_["align_args"] = true;
     node_["break_after_functioncall_lp"] = false;

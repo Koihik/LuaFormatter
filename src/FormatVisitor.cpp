@@ -406,7 +406,7 @@ antlrcpp::Any FormatVisitor::visitGotoStat(LuaParser::GotoStatContext* ctx) {
 antlrcpp::Any FormatVisitor::visitDoStat(LuaParser::DoStatContext* ctx) {
     LOG_FUNCTION_BEGIN("visitDoStat");
     cur_writer() << ctx->DO()->getText();
-    visitBlockAndComment(ctx->DO(), ctx->block());
+    visitBlockAndComment(ctx->DO(), ctx->block(), CONTROL_BLOCK);
     cur_writer() << ctx->END()->getText();
     LOG_FUNCTION_END("visitDoStat");
     return nullptr;
@@ -420,7 +420,7 @@ antlrcpp::Any FormatVisitor::visitWhileStat(LuaParser::WhileStatContext* ctx) {
     visitExp(ctx->exp());
     cur_writer() << commentAfter(ctx->exp(), " ");
     cur_writer() << ctx->DO()->getText();
-    visitBlockAndComment(ctx->DO(), ctx->block());
+    visitBlockAndComment(ctx->DO(), ctx->block(), CONTROL_BLOCK);
     cur_writer() << ctx->END()->getText();
     LOG_FUNCTION_END("visitWhileStat");
     return nullptr;
@@ -430,7 +430,7 @@ antlrcpp::Any FormatVisitor::visitWhileStat(LuaParser::WhileStatContext* ctx) {
 antlrcpp::Any FormatVisitor::visitRepeatStat(LuaParser::RepeatStatContext* ctx) {
     LOG_FUNCTION_BEGIN("visitRepeatStat");
     cur_writer() << ctx->REPEAT()->getText();
-    visitBlockAndComment(ctx->REPEAT(), ctx->block());
+    visitBlockAndComment(ctx->REPEAT(), ctx->block(), CONTROL_BLOCK);
     cur_writer() << ctx->UNTIL()->getText();
     cur_writer() << commentAfter(ctx->UNTIL(), " ");
     visitExp(ctx->exp());
@@ -452,7 +452,7 @@ antlrcpp::Any FormatVisitor::visitIfStat(LuaParser::IfStatContext* ctx) {
     cur_writer() << commentAfter(ctx->exp().front(), " ");
     cur_writer() << ctx->THEN().front()->getText();
     if (ctx->ELSEIF().size() == 0 && ctx->ELSE() == NULL) {
-        if (needKeepBlockOneLine(ctx->THEN().front(), ctx->block().front())) {
+        if (needKeepBlockOneLine(ctx->THEN().front(), ctx->block().front(), CONTROL_BLOCK)) {
             cur_writer() << commentAfter(ctx->THEN().front(), " ");
             bool temp = chop_down_block_;
             chop_down_block_ = false;
@@ -517,7 +517,7 @@ antlrcpp::Any FormatVisitor::visitForStat(LuaParser::ForStatContext* ctx) {
         cur_writer() << commentAfter(ctx->exp()[1], " ");
     }
     cur_writer() << ctx->DO()->getText();
-    visitBlockAndComment(ctx->DO(), ctx->block());
+    visitBlockAndComment(ctx->DO(), ctx->block(), CONTROL_BLOCK);
     cur_writer() << ctx->END()->getText();
     LOG_FUNCTION_END("visitForStat");
     return nullptr;
@@ -535,7 +535,7 @@ antlrcpp::Any FormatVisitor::visitForInStat(LuaParser::ForInStatContext* ctx) {
     visitExplist(ctx->explist());
     cur_writer() << commentAfter(ctx->explist(), " ");
     cur_writer() << ctx->DO()->getText();
-    visitBlockAndComment(ctx->DO(), ctx->block());
+    visitBlockAndComment(ctx->DO(), ctx->block(), CONTROL_BLOCK);
     cur_writer() << ctx->END()->getText();
     LOG_FUNCTION_END("visitForInStat");
     return nullptr;
@@ -1413,7 +1413,7 @@ antlrcpp::Any FormatVisitor::visitFuncbody(LuaParser::FuncbodyContext* ctx) {
         cur_writer() << commentAfter(ctx->LP(), "");
     }
     cur_writer() << ctx->RP()->getText();
-    visitBlockAndComment(ctx->RP(), ctx->block());
+    visitBlockAndComment(ctx->RP(), ctx->block(), FUNCTION_BLOCK);
     cur_writer() << ctx->END()->getText();
     LOG_FUNCTION_END("visitFuncbody");
     return nullptr;
@@ -1644,10 +1644,13 @@ antlrcpp::Any FormatVisitor::visitTerminal(tree::TerminalNode* node) {
     return nullptr;
 }
 
-bool FormatVisitor::needKeepBlockOneLine(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx) {
-    if (!config_.get<bool>("keep_simple_block_one_line")) {
+bool FormatVisitor::needKeepBlockOneLine(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx, BlockType blockType) {
+    if (blockType == CONTROL_BLOCK && !config_.get<bool>("keep_simple_control_block_one_line")){
+        return false;
+    } else if(blockType == FUNCTION_BLOCK && !config_.get<bool>("keep_simple_function_one_line")){
         return false;
     }
+
     int stats = 0;
     for (auto& s : ctx->stat()) {
         if (s->SEMI() == NULL) {
@@ -1687,9 +1690,9 @@ bool FormatVisitor::isBlockEmpty(LuaParser::BlockContext* ctx) {
     return ctx->stat().size() == 0 && ctx->retstat() == NULL;
 }
 
-void FormatVisitor::visitBlockAndComment(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx) {
+void FormatVisitor::visitBlockAndComment(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx, BlockType blockType) {
     LOG_FUNCTION_BEGIN("visitBlockAndComment");
-    bool oneline = needKeepBlockOneLine(previousNode, ctx);
+    bool oneline = needKeepBlockOneLine(previousNode, ctx, blockType);
     if (oneline) {
         cur_writer() << commentAfter(previousNode, " ");
         bool temp = chop_down_block_;

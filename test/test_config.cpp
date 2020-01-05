@@ -58,13 +58,13 @@ TEST_CASE("extra_sep_at_table_end", "config") {
     REQUIRE("x = {\n  1, -- line break\n  2, 3\n}\n" == lua_format("x = {1,-- line break\n2;3}", config));
 }
 
-TEST_CASE("keep_simple_block_one_line", "config") {
+TEST_CASE("keep_simple_function_one_line", "config") {
     Config config;
     config.set("indent_width", 2);
 
     REQUIRE("function x() print(1) end\n" == lua_format("function x() print(1) end", config));
 
-    config.set("keep_simple_block_one_line", false);
+    config.set("keep_simple_function_one_line", false);
     REQUIRE("function x()\n  print(1)\nend\n" == lua_format("function x() print(1) end", config));
 }
 
