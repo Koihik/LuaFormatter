@@ -8,6 +8,8 @@
 using namespace std;
 using namespace antlr4;
 
+
+enum BlockType { CONTROL_BLOCK, FUNCTION_BLOCK };
 enum NewLineIndent { NONE_INDENT, INC_INDENT, DEC_INDENT, INC_CONTINUATION_INDENT, DEC_CONTINUATION_INDENT };
 
 class FormatVisitor : public LuaBaseVisitor {
@@ -21,7 +23,7 @@ class FormatVisitor : public LuaBaseVisitor {
     antlrcpp::Any visitVarDecl(LuaParser::VarDeclContext* context) override;
     antlrcpp::Any visitGotoStat(LuaParser::GotoStatContext* context) override;
     antlrcpp::Any visitDoStat(LuaParser::DoStatContext* context) override;
-    antlrcpp::Any visitWhileStat(LuaParser::WhileStatContext* context) override;
+    antlrcpp::Any visitWhileStat(LuaParser::WhileStatContext* context) override; 
     antlrcpp::Any visitRepeatStat(LuaParser::RepeatStatContext* context) override;
     antlrcpp::Any visitIfStat(LuaParser::IfStatContext* context) override;
     antlrcpp::Any visitForStat(LuaParser::ForStatContext* context) override;
@@ -80,9 +82,9 @@ class FormatVisitor : public LuaBaseVisitor {
 
     string formatLineComment(Token* token);
 
-    bool needKeepBlockOneLine(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx);
+    bool needKeepBlockOneLine(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx, BlockType blockType);
     bool isBlockEmpty(LuaParser::BlockContext* ctx);
-    void visitBlockAndComment(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx);
+    void visitBlockAndComment(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx, BlockType blockType);
     void visitNextNameAndArgs(LuaParser::VarSuffixContext* ctx);
 
     void pushWriter();

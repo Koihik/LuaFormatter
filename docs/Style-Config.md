@@ -74,26 +74,37 @@ local xxx, yyy =
     111, 222
 ```
 
-### keep_simple_block_one_line
+### keep_simple_control_block_one_line
 
 type: bool, default: true
 
-Allow format simple block to one line.
+Allow format simple control block(e.g. if, while, for, ...) to one line.
 
 ```lua
 -- keep_simple_block_one_line: true
-function x() print(1) end
 if cond then xx() end
 
 -- keep_simple_block_one_line: false
-function x()
-    print(1)
-end
 if cond then
     xx()
 end
 ```
 
+### keep_simple_function_one_line
+
+type: bool, default: true
+
+Allow format simple function to one line.
+
+```lua
+-- keep_simple_block_one_line: true
+function x() print(1) end
+
+-- keep_simple_block_one_line: false
+function x()
+    print(1)
+end
+```
 ### align_args
 
 type: bool, default: true
