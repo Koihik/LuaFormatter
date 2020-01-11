@@ -1077,7 +1077,9 @@ antlrcpp::Any FormatVisitor::visitPrefixexp(LuaParser::PrefixexpContext* ctx) {
     visitVarOrExp(ctx->varOrExp());
 
     string ws = buildFirstArgumentWs(ctx->nameAndArgs());
-    cur_writer() << commentAfter(ctx->varOrExp(), ws);
+    if (ctx->nameAndArgs().size() > 0) {
+        cur_writer() << commentAfter(ctx->varOrExp(), ws);
+    }
 
     buildArguments(ctx->nameAndArgs());
 
