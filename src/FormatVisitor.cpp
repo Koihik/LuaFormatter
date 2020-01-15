@@ -1060,6 +1060,11 @@ antlrcpp::Any FormatVisitor::visitString(LuaParser::StringContext* ctx) {
         *newstr.begin() = quote;
         *newstr.rbegin() = quote;
 
+        // undo a transformation that invalidates strings in certain conditions
+        if (newstr.at(newstr.size() - 2) == '\\' &&
+              newstr.at(newstr.size() - 3) != '\\')
+           newstr.insert(newstr.size() - 2, "\\");
+
         cur_writer() << newstr;
         return nullptr;
     }
