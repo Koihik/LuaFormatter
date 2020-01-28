@@ -32,6 +32,7 @@ try_run(TEST_RUN_RESULT
    TEST_COMPILE_RESULT
    ${CMAKE_CURRENT_BINARY_DIR}/
    ${PROJECT_SOURCE_DIR}/test/cpp17/fs.cpp
+   LINK_LIBRARIES stdc++fs
    OUTPUT_VARIABLE var)
 
 message("${var}")
@@ -80,7 +81,7 @@ endif()
 
 set_target_properties(lua-format PROPERTIES LINKER_LANGUAGE CXX)
 
-target_link_libraries(lua-format yaml-cpp antlr4-cpp-runtime)
+target_link_libraries(lua-format stdc++fs yaml-cpp antlr4-cpp-runtime)
 
 install(TARGETS lua-format
   RUNTIME DESTINATION bin
@@ -108,7 +109,7 @@ if(BUILD_TESTS)
   endif()
 
   target_compile_definitions(lua-format-test PUBLIC PROJECT_PATH="${PROJECT_SOURCE_DIR}")
-  target_link_libraries(lua-format-test yaml-cpp antlr4-cpp-runtime)
+  target_link_libraries(lua-format-test stdc++fs yaml-cpp antlr4-cpp-runtime)
 
   add_test(all_tests lua-format-test)
 endif()
