@@ -14,10 +14,10 @@ include(CheckIPOSupported)
 check_ipo_supported(RESULT lto OUTPUT error)
 
 if(lto)
-   message(STATUS "IPO / LTO enabled")
-   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+  message(STATUS "IPO / LTO enabled")
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 else()
-   message(STATUS "IPO / LTO not supported: <${error}>")
+  message(STATUS "IPO / LTO not supported: <${error}>")
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -28,16 +28,23 @@ endif()
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set(extra-libs "stdc++fs")
+else()
+  set(extra-libs "")
+endif()
+
 try_run(TEST_RUN_RESULT
-   TEST_COMPILE_RESULT
-   ${CMAKE_CURRENT_BINARY_DIR}/
-   ${PROJECT_SOURCE_DIR}/test/cpp17/fs.cpp
-   OUTPUT_VARIABLE var)
+  TEST_COMPILE_RESULT
+  ${CMAKE_CURRENT_BINARY_DIR}/
+  ${PROJECT_SOURCE_DIR}/test/cpp17/fs.cpp
+  LINK_LIBRARIES ${extra-libs}
+  OUTPUT_VARIABLE var)
 
 message("${var}")
 
 if(NOT "${TEST_COMPILE_RESULT}" OR (NOT "${TEST_RUN_RESULT}" EQUAL 0))
-   message(FATAL_ERROR "Your compiler does not fully support the C++17 standard")
+  message(FATAL_ERROR "Your compiler does not fully support the C++17 standard and libraries")
 endif()
 
 
@@ -58,15 +65,15 @@ set(src_dir
   ${PROJECT_SOURCE_DIR}/generated/LuaParser.cpp
   ${PROJECT_SOURCE_DIR}/generated/LuaVisitor.cpp
   ${PROJECT_SOURCE_DIR}/generated/LuaBaseVisitor.cpp
-)
+  )
 
 file(GLOB_RECURSE antlr4-cpp-src
-   ${PROJECT_SOURCE_DIR}/third_party/antlr4/runtime/Cpp/runtime/src/*.cpp
-)
+  ${PROJECT_SOURCE_DIR}/third_party/antlr4/runtime/Cpp/runtime/src/*.cpp
+  )
 
 file(GLOB_RECURSE yaml-cpp-src
-   ${PROJECT_SOURCE_DIR}/third_party/yaml-cpp/src/*.cpp
-)
+  ${PROJECT_SOURCE_DIR}/third_party/yaml-cpp/src/*.cpp
+  )
 
 add_library (antlr4-cpp-runtime ${antlr4-cpp-src})
 add_library (yaml-cpp ${yaml-cpp-src})
@@ -80,11 +87,11 @@ endif()
 
 set_target_properties(lua-format PROPERTIES LINKER_LANGUAGE CXX)
 
-target_link_libraries(lua-format yaml-cpp antlr4-cpp-runtime)
+target_link_libraries(lua-format yaml-cpp antlr4-cpp-runtime ${extra-libs})
 
 install(TARGETS lua-format
   RUNTIME DESTINATION bin
-)
+  )
 
 if(BUILD_TESTS)
   message("BUILD_TESTS enabled.")
@@ -96,7 +103,7 @@ if(BUILD_TESTS)
     test/test_config.cpp
     test/test_format_file.cpp
     test/test_parser.cpp
-  )
+    )
   set_target_properties(lua-format-test PROPERTIES LINKER_LANGUAGE CXX)
 
   if(COVERAGE AND CMAKE_BUILD_TYPE MATCHES "Debug")
@@ -108,7 +115,7 @@ if(BUILD_TESTS)
   endif()
 
   target_compile_definitions(lua-format-test PUBLIC PROJECT_PATH="${PROJECT_SOURCE_DIR}")
-  target_link_libraries(lua-format-test yaml-cpp antlr4-cpp-runtime)
+  target_link_libraries(lua-format-test yaml-cpp antlr4-cpp-runtime ${extra-libs})
 
   add_test(all_tests lua-format-test)
 endif()
