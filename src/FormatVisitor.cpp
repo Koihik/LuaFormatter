@@ -697,9 +697,8 @@ antlrcpp::Any FormatVisitor::visitNamelist(LuaParser::NamelistContext* ctx) {
                     cur_writer() << indent();
                     indent_ -= firstParameterIndent;
                 } else {
-                    cur_writer() << commentAfterNewLine(ctx->COMMA()[i], INC_CONTINUATION_INDENT);
+                    cur_writer() << commentAfterNewLine(ctx->COMMA()[i], NONE_INDENT);
                     cur_writer() << indent();
-                    hasIncIndent = true;
                 }
             }
             cur_writer() << ctx->NAME()[i + 1]->getText();
@@ -906,9 +905,8 @@ antlrcpp::Any FormatVisitor::visitExplist(LuaParser::ExplistContext* ctx) {
                     cur_writer() << indentWithAlign();
                     hasIncIndentForAlign = true;
                 } else {
-                    cur_writer() << commentAfterNewLine(ctx->COMMA()[i], INC_CONTINUATION_INDENT);
+                    cur_writer() << commentAfterNewLine(ctx->COMMA()[i], NONE_INDENT);
                     cur_writer() << indentWithAlign();
-                    hasIncIndent = true;
                 }
             }
             visitExp(ctx->exp()[i + 1]);
@@ -1062,9 +1060,8 @@ antlrcpp::Any FormatVisitor::visitString(LuaParser::StringContext* ctx) {
         *newstr.rbegin() = quote;
 
         // undo a transformation that invalidates strings in certain conditions
-        if (newstr.at(newstr.size() - 2) == '\\' &&
-              newstr.at(newstr.size() - 3) != '\\')
-           newstr.insert(newstr.size() - 2, "\\");
+        if (newstr.at(newstr.size() - 2) == '\\' && newstr.at(newstr.size() - 3) != '\\')
+            newstr.insert(newstr.size() - 2, "\\");
 
         cur_writer() << newstr;
         return nullptr;
@@ -1481,8 +1478,7 @@ antlrcpp::Any FormatVisitor::visitTableconstructor(LuaParser::TableconstructorCo
         bool breakAfterLb = false;
         if (beyondLimit) {
             breakAfterLb = config_.get<bool>("break_after_table_lb");
-            chopDown = config_.get<bool>("chop_down_table") ||
-				(config_.get<bool>("chop_down_kv_table") && containsKv);
+            chopDown = config_.get<bool>("chop_down_table") || (config_.get<bool>("chop_down_kv_table") && containsKv);
         }
         if (chopDown) {
             cur_writer() << commentAfterNewLine(ctx->LB(), INC_INDENT);
@@ -1652,10 +1648,11 @@ antlrcpp::Any FormatVisitor::visitTerminal(tree::TerminalNode* node) {
     return nullptr;
 }
 
-bool FormatVisitor::needKeepBlockOneLine(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx, BlockType blockType) {
-    if (blockType == CONTROL_BLOCK && !config_.get<bool>("keep_simple_control_block_one_line")){
+bool FormatVisitor::needKeepBlockOneLine(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx,
+                                         BlockType blockType) {
+    if (blockType == CONTROL_BLOCK && !config_.get<bool>("keep_simple_control_block_one_line")) {
         return false;
-    } else if(blockType == FUNCTION_BLOCK && !config_.get<bool>("keep_simple_function_one_line")){
+    } else if (blockType == FUNCTION_BLOCK && !config_.get<bool>("keep_simple_function_one_line")) {
         return false;
     }
 
@@ -1698,7 +1695,8 @@ bool FormatVisitor::isBlockEmpty(LuaParser::BlockContext* ctx) {
     return ctx->stat().size() == 0 && ctx->retstat() == NULL;
 }
 
-void FormatVisitor::visitBlockAndComment(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx, BlockType blockType) {
+void FormatVisitor::visitBlockAndComment(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx,
+                                         BlockType blockType) {
     LOG_FUNCTION_BEGIN();
     bool oneline = needKeepBlockOneLine(previousNode, ctx, blockType);
     if (oneline) {
