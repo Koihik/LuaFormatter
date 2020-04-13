@@ -12,5 +12,8 @@ description = {
 }
 build = {
    type = "cmake",
+   variables = {
+      CMAKE_INSTALL_PREFIX = "$(PREFIX)"
+   },
    copy_directories = {"docs"}
 }
