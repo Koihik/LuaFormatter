@@ -34,6 +34,16 @@ TEST_CASE("column_limit", "config") {
             lua_format("function W() q(aaaa,bbbb) print(aaaa,bbbb) end", config));
 }
 
+TEST_CASE("spaces_before_call", "config") {
+    Config config;
+    config.set("indent_width", 4);
+    config.set("continuation_indent_width", 4);
+    config.set("column_limit", 40);
+    config.set("spaces_before_call", 0);
+    REQUIRE("function t() return function() end end\nlocal a = t{1, 2, 3, 4}\nlocal a = t{1}\nlocal a = t{8}\nlocal a = t{1, 9}\nlocal a = t(1, 2, 3)\nt{2, 3} {1, 5}\nt{2, 3, 4} {1}\n" ==
+            lua_format("function t() return function () end end local a = t{1, 2, 3, 4} local a = t        {1} local a = t{8} local a = t  {1,9} local a = t(1, 2, 3) t {2, 3}{1,5} t{2, 3, 4}{1}", config));
+}
+
 TEST_CASE("table_sep", "config") {
     Config config;
     config.set("indent_width", 2);
