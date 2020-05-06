@@ -8,7 +8,7 @@
 namespace fs = filesystem;
 
 Config::Config() {
-    // Defaul configuration
+    // Default configuration
     node_["column_limit"] = 80;
     node_["indent_width"] = 4;
     node_["use_tab"] = false;
@@ -42,7 +42,7 @@ Config::Config() {
     node_["single_quote_to_double_quote"] = false;
 }
 
-void Config::readFromFile(const string& file) {
+void Config::readFromFile(const string &file) {
     fs::file_status status = fs::status(file);
     fs::perms perm = status.permissions();
 
@@ -67,6 +67,6 @@ void Config::readFromFile(const string& file) {
     }
 }
 
-void Config::dumpCurrent(ofstream& fout) { fout << node_ << endl; }
+void Config::dumpCurrent(ofstream &fout) { fout << node_ << endl; }
 
-void Config::dumpCurrent(ostream& out) { out << node_ << endl; }
+void Config::dumpCurrent(ostream &out) { out << node_ << endl; }
