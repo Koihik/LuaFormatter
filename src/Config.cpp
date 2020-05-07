@@ -35,6 +35,7 @@ Config::Config() {
     node_["chop_down_kv_table"] = true;
     node_["table_sep"] = ",";
     node_["extra_sep_at_table_end"] = false;
+    node_["column_table_limit"] = node_["column_limit"];
 
     node_["break_after_operator"] = true;
 

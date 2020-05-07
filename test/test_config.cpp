@@ -149,6 +149,17 @@ TEST_CASE("table", "config") {
     config.set("break_after_table_lb", false);
     config.set("break_before_table_rb", false);
     REQUIRE("x = {1, 2, 3,\n  4, 5, 6, 7}\n" == lua_format("x = {1,2,3,4,5,6,7}", config));
+
+    config.set("column_limit", 250);
+    config.set("indent_width", 2);
+    config.set("tab_width", 2);
+    config.set("continuation_indent_width", 2);
+    config.set("chop_down_table", true);
+    config.set("chop_down_kv_table", true);
+    config.set("column_table_limit", 80);
+
+    REQUIRE("test = {\n  image = {1, 2, 3},\n  list = {\n    {\n      ref = {4, 5, 9, 8, 2},\n      tags = {1, 2, 8, 6},\n      time = 10,\n\n      materials = {{materialId = 123, count = 10}}\n    }\n  }\n}\n" ==
+            lua_format("test = {\n  image = {1,2,3},\n  list = {\n    {\n      ref = {4,5,9,8,2},\n      tags = { 1, 2, 8, 6 },\n      time = 10,\n\n      materials = {\n        {\n          materialId = 123,\n          count = 10\n        }\n      },\n    },\n  },\n}", config));
 }
 
 TEST_CASE("break_after_operator", "config") {
