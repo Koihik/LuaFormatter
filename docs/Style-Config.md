@@ -325,6 +325,48 @@ x = {
     k3 = v3, k4 = v4
 }
 ```
+### column_table_limit
+
+type: int, default: column_limit
+
+The column limit of each line of a table. Default value the same as column_limit value.
+
+```lua
+--column_table_limit: column_limit
+test = {
+  image = "test",
+  list = {
+    {
+      ref = "testRef",
+      tags = {"tagTest"},
+      time = 10,
+
+      materials = {{materialId = 123, count = 10}}
+    }
+  }
+}
+
+--column_table_limit: 20
+test = {
+  image = "test",
+  list = {
+    {
+      ref = "testRef",
+      tags = {
+        "tagTest"
+      },
+      time = 10,
+
+      materials = {
+        {
+          materialId = 123,
+          count = 10
+        }
+      }
+    }
+  }
+}
+```
 
 ### table_sep
 
