@@ -60,11 +60,20 @@ void Config::readFromFile(const string& file) {
     YAML::Node n = YAML::LoadFile(file);
 
     // Keys are always strings
+    bool given = false;
+    string CTL = "column_table_limit";
+    string CL = "column_limit";
     for (auto kv : n) {
         auto key = kv.first.as<string>();
         if (node_[key]) {
             node_[key] = kv.second;
         }
+        if (key == CTL) {
+            given = true;
+        }
+    }
+    if (!given) {
+        node_[CTL] = node_[CL];
     }
 }
 
