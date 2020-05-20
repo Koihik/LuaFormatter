@@ -81,6 +81,7 @@ TEST_FILE(PROJECT_PATH "/test/testdata/issues/issue-70.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/issues/issue-98.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/issues/issue-98_1.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/issues/issue-80.lua");
+TEST_FILE(PROJECT_PATH "/test/testdata/issues/PR-101.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/issues/PR-100.lua");
 
 
