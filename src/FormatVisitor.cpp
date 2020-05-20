@@ -697,9 +697,17 @@ antlrcpp::Any FormatVisitor::visitNamelist(LuaParser::NamelistContext* ctx) {
                     cur_writer() << indent();
                     indent_ -= firstParameterIndent;
                 } else {
-                    cur_writer() << commentAfterNewLine(ctx->COMMA()[i], INC_CONTINUATION_INDENT);
-                    cur_writer() << indent();
-                    hasIncIndent = true;
+                    if (config_.get<bool>("break_after_functiondef_lp")) {
+                        cur_writer() << commentAfterNewLine(ctx->COMMA()[i], INC_CONTINUATION_INDENT);
+                        decIndent();
+                        cur_writer() << indent();
+                        incIndent();
+                        hasIncIndent = true;
+                    } else {
+                        cur_writer() << commentAfterNewLine(ctx->COMMA()[i], INC_CONTINUATION_INDENT);
+                        cur_writer() << indent();
+                        hasIncIndent = true;
+                    }
                 }
             }
             cur_writer() << ctx->NAME()[i + 1]->getText();
