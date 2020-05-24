@@ -1,4 +1,5 @@
 #include <args/args.hxx>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
@@ -49,6 +50,22 @@ int main(int argc, const char* argv[]) {
             if (candidate.filename() == ".lua-format") configFileName = candidate.string();
         }
     }
+    
+#ifdef __linux__
+    if (configFileName.empty()) {
+        string conf_dir;
+        if (const char* const conf_dir_p = getenv("XDG_CONFIG_HOME")) conf_dir = conf_dir_p;
+        if (conf_dir.empty()) {
+            string home;
+            if (const char* const home_p = getenv("HOME")) home = home_p;
+            if (!home.empty()) conf_dir = home + "/.config";
+        }
+        if (!conf_dir.empty()) {
+            string candidate = conf_dir + "/luaformatter/config.yaml";
+            if (fs::exists(candidate)) configFileName = candidate;
+        }
+    }
+#endif
 
     if (configFileName.empty()) {
         if (verbose) cerr << "using default configuration" << endl;
