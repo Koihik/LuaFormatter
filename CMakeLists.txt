@@ -5,6 +5,7 @@ project("lua-formatter" VERSION 1.3.0 LANGUAGES CXX)
 
 option(BUILD_TESTS "set ON to build tests" ON)
 option(COVERAGE "set ON to enable coverage" ON)
+option(TEST_C++17_COMPILER "set ON to enable c++17 compiler test" ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -36,19 +37,20 @@ else()
   set(extra-libs "")
 endif()
 
-try_run(TEST_RUN_RESULT
-  TEST_COMPILE_RESULT
-  ${CMAKE_CURRENT_BINARY_DIR}/
-  ${PROJECT_SOURCE_DIR}/test/cpp17/fs.cpp
-  LINK_LIBRARIES ${extra-libs}
-  OUTPUT_VARIABLE var)
+if(TEST_C++17_COMPILER)
+  try_run(TEST_RUN_RESULT
+    TEST_COMPILE_RESULT
+    ${CMAKE_CURRENT_BINARY_DIR}/
+    ${PROJECT_SOURCE_DIR}/test/cpp17/fs.cpp
+    LINK_LIBRARIES ${extra-libs}
+    OUTPUT_VARIABLE var)
 
-message("${var}")
+  message("${var}")
 
-if(NOT "${TEST_COMPILE_RESULT}" OR (NOT "${TEST_RUN_RESULT}" EQUAL 0))
-  message(FATAL_ERROR "Your compiler does not fully support the C++17 standard and libraries")
+  if(NOT "${TEST_COMPILE_RESULT}" OR (NOT "${TEST_RUN_RESULT}" EQUAL 0))
+    message(FATAL_ERROR "Your compiler does not fully support the C++17 standard and libraries")
+  endif()
 endif()
-
 
 include_directories(
   ${PROJECT_SOURCE_DIR}/generated/

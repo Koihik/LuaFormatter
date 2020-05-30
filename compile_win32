@@ -1,0 +1,53 @@
+#!/bin/bash
+cd "${0%/*}"
+
+if [ -z "`docker image ls | grep 'compile_luaformat'`" ]; then
+
+#this step will take a while
+echo "
+FROM ubuntu:latest
+
+RUN apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    autoconf \
+    automake \
+    autopoint \
+    bash \
+    bison \
+    bzip2 \
+    flex \
+    g++ \
+    g++-multilib \
+    gettext \
+    git \
+    gperf \
+    intltool \
+    libc6-dev-i386 \
+    libgdk-pixbuf2.0-dev \
+    libltdl-dev \
+    libssl-dev \
+    libtool-bin \
+    libxml-parser-perl \
+    lzip \
+    make \
+    openssl \
+    p7zip-full \
+    patch \
+    perl \
+    pkg-config \
+    python \
+    ruby \
+    sed \
+    unzip \
+    wget \
+    xz-utils
+
+WORKDIR /root
+RUN git clone https://github.com/mxe/mxe.git --depth 1
+WORKDIR /root/mxe
+RUN make MXE_PLUGIN_DIRS=plugins/gcc10 cc cmake -j2
+" | docker build -t compile_luaformat - || exit 1
+fi
+
+mkdir -p build.win32
+docker run --rm -v `pwd`/:/sources compile_luaformat bash -c 'cd /sources/build.win32; PATH=/root/mxe/usr/bin:$PATH; i686-w64-mingw32.static-cmake .. -DTEST_C++17_COMPILER=off; make -j2'
