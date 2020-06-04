@@ -1,9 +1,11 @@
 #include "Config.h"
 
+#include <any>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <cstring>
 
 namespace fs = filesystem;
 
@@ -67,6 +69,30 @@ void Config::readFromFile(const string &file) {
         auto key = kv.first.as<string>();
         if (node_[key]) {
             node_[key] = kv.second;
+        }
+        if (key == CTL) {
+            given = true;
+        }
+    }
+    if (!given) {
+        node_[CTL] = node_[CL];
+    }
+}
+
+void Config::readFromMap(map<string, any> &mp) {
+    bool given = false;
+    string CTL = "column_table_limit";
+    string CL = "column_limit";
+    for (auto kv : mp) {
+        auto key = kv.first;
+        if (node_[key]) {
+            if (strcmp(kv.second.type().name(), "i") == 0) {
+                node_[key] = any_cast<int>(kv.second);
+            } else if (strcmp(kv.second.type().name(), "b") == 0) {
+                node_[key] = any_cast<bool>(kv.second);
+            } else if (strcmp(kv.second.type().name(), "c") == 0) {
+                node_[key] = any_cast<char>(kv.second);
+            }
         }
         if (key == CTL) {
             given = true;
