@@ -17,7 +17,10 @@ This file contains the details of the program's execution in stages.
     * Windows: `./.lua-format`
     * OSX: `./.lua-format`
 
- In case it doesn't find any suitable file it will fallback to the default values.
+ In case it doesn't find any suitable file it will check commandline configuration value and then fallback to the default values.
+
+ The program read the configuration through commandline by checking the flag. To set the configuration for boolean arguments, it uses the `no-` prefix for falsifiable options.
+ The program will give the top priority to the configuration value given in the command-line, then to the configuration file provided by the user and least priority to the default value.
 
  The default values are hardcoded in the program (`Config.cpp`) and are used as a fallback whenever possible. For instance when fields are not specified in the user's configuration file.
 
