@@ -67,6 +67,7 @@ deploy:
     secure: "${AWS_ACCESS_KEY}"
   bucket: "lua-formatter-release"
   local_dir: "${TRAVIS_BUILD_DIR}/bin"
+  region: ap-southeast-1
   skip_cleanup: true
   on:
     tags: true
