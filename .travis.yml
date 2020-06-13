@@ -63,8 +63,7 @@ before_deploy:
 deploy:
   provider: s3
   access_key_id: "${AWS_KEY_ID}"
-  secret_access_key:
-    secure: "${AWS_ACCESS_KEY}"
+  secret_access_key: "${AWS_ACCESS_KEY}"
   bucket: "lua-formatter-release"
   local_dir: "${TRAVIS_BUILD_DIR}/bin"
   region: ap-southeast-1
