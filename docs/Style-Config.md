@@ -35,7 +35,7 @@ end
 
 -- indent_width: 4
 function x()
-	print(1)
+    print(1)
 end
 ```
 
