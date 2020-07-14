@@ -106,6 +106,7 @@ if(BUILD_TESTS)
     test/test_format_file.cpp
     test/test_parser.cpp
     test/test_args.cpp
+    test/test_validation.cpp
     )
   set_target_properties(lua-format-test PROPERTIES LINKER_LANGUAGE CXX)
 
