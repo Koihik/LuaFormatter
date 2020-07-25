@@ -298,10 +298,18 @@ int main(int argc, const char* argv[]) {
 
     // Automatically look for a .lua-format on the current directory
     if (configFileName.empty()) {
-        fs::path current = ".";
-        for (auto& entry : fs::directory_iterator(current)) {
-            fs::path candidate = entry.path();
-            if (candidate.filename() == ".lua-format") configFileName = candidate.string();
+        fs::path current = fs::current_path();
+        while (configFileName.empty()) {
+            for (auto& entry : fs::directory_iterator(current)) {
+                fs::path candidate = entry.path();
+                if (candidate.filename() == ".lua-format") configFileName = candidate.string();
+            }
+
+            fs::path parent = current.parent_path();
+            if (current == parent) {
+                break;
+            }
+            current = parent;
         }
     }
 
@@ -324,6 +332,8 @@ int main(int argc, const char* argv[]) {
     if (configFileName.empty()) {
         if (verbose) cerr << "using default configuration" << endl;
         goto use_default;
+    } else {
+        if (verbose) cerr << "using configuration file: " << configFileName << endl;
     }
 
     if (fs::exists(configFileName)) {
