@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iterator>
+#include <iostream>
 
 #include "Config.h"
 #include "lua-format.h"
@@ -338,7 +339,12 @@ int main(int argc, const char* argv[]) {
 
     if (fs::exists(configFileName)) {
         // Keeps the default values in case the yaml is missing a field
-        config.readFromFile(configFileName);
+        try {
+            config.readFromFile(configFileName);
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
+            exit(1);
+        }
     } else {
         cerr << configFileName << ": No such file." << endl;
         return 1;
@@ -347,7 +353,12 @@ int main(int argc, const char* argv[]) {
 use_default:
 
     if (!config.argmap.empty()) {
-        config.readFromMap(config.argmap);
+        try {
+            config.readFromMap(config.argmap);
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
+            exit(1);
+        }
     }
     bool stdIn = args::get(files).size() == 0;
     if (stdIn) {

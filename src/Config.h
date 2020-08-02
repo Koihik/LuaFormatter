@@ -3,8 +3,11 @@
 #include <yaml-cpp/yaml.h>
 
 #include <any>
+#include <functional>
+
 using namespace std;
 
+typedef std::function<std::any(std::string, std::any)> Validator;
 class Config {
    public:
     Config();
@@ -12,6 +15,7 @@ class Config {
     void dumpCurrent(ofstream &fout);
     void dumpCurrent(ostream &out);
     map<string, any> argmap;
+    map<string, char> datatype;
     void readFromMap(map<string, any> &mp);
     YAML::Node node_;
     template <typename T>
@@ -30,4 +34,5 @@ class Config {
     void set(const char *key, T value) const {
         node_[key] = value;
     }
+    std::map<std::string, Validator> validators;
 };
