@@ -128,7 +128,7 @@ luarocks install --server=https://luarocks.org/dev luaformatter
       arguments to be treated as positional options
 ```
 
-The program will attempt to automatically use the current directory's `.lua-format` file if no config file is passed in the command line. On Linux it will use `$XDG_CONFIG_HOME/luaformatter/config.yaml` if `.lua-format` does not exist.
+The program will attempt to automatically use the current directory's `.lua-format` file if no config file is passed in the command line. If none is found, it will try to locate a `.lua-format` file in a parent directory recursively. On Linux it will use `$XDG_CONFIG_HOME/luaformatter/config.yaml` if `.lua-format` does not exist.
 In case there's no file, it will fallback to the default configuration.
 The program will give the top priority to the configuration values given in the command-line, then to the configuration files and finally to the hard-coded default values.
 
