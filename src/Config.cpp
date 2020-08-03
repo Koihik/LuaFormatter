@@ -75,13 +75,42 @@ Config::Config() {
         char value = std::any_cast<char>(elem);
         return value;
     };
+    auto validate_quote = [&](std::string key, std::any elem) {
+        bool value = std::any_cast<bool>(elem);
+        if (key == "double_quote_to_single_quote") {
+            if (value && (node_["single_quote_to_double_quote"]).as<bool>()) {
+                throw logic_error("[ERROR] Configuration value of double_quote_to_single_quote is conflicting with the value of single_quote_to_double_quote");
+            }
+        } else if (key == "single_quote_to_double_quote") {
+            if (value && (node_["double_quote_to_single_quote"]).as<bool>()) {
+                throw logic_error("[ERROR] Configuration value of single_quote_to_double_quote is conflicting with the value of double_quote_to_single_quote");
+            }
+        }
+        return value;
+    };
+    auto validate_use_tab = [&](std::string key, std::any elem) {
+        bool value = std::any_cast<bool>(elem);
+        if (value && (node_["tab_width"]).as<int>() == false) {
+            throw logic_error("[ERROR] Configuration value of use_tab is conflicting with the value of tab_width");
+        }
+        return value;
+    };
+    auto validate_tab_width = [&](std::string key, std::any elem) {
+        int value = std::any_cast<int>(elem);
+        if (value < 0) {
+            throw domain_error("[ERROR] Configuration value of tab_width is out of range. Must be a positive integer.");
+        } else if (value == false && (node_["use_tab"]).as<bool>()) {
+            throw logic_error("[ERROR] Configuration value of tab_width is conflicting with the value of use_tab");
+        }
+        return value;
+    };
     validators["spaces_before_call"] = validate_integer_zero;
     validators["column_limit"] = validate_integer;
     validators["indent_width"] = validate_integer_zero;
-    validators["tab_width"] = validate_integer;
+    validators["tab_width"] = validate_tab_width;
     validators["continuation_indent_width"] = validate_integer_zero;
     validators["column_table_limit"] = validate_integer;
-    validators["use_tab"] = validate_boolean;
+    validators["use_tab"] = validate_use_tab;
     validators["keep_simple_control_block_one_line"] = validate_boolean;
     validators["keep_simple_function_one_line"] = validate_boolean;
     validators["align_args"] = validate_boolean;
@@ -98,8 +127,8 @@ Config::Config() {
     validators["chop_down_kv_table"] = validate_boolean;
     validators["extra_sep_at_table_end"] = validate_boolean;
     validators["break_after_operator"] = validate_boolean;
-    validators["double_quote_to_single_quote"] = validate_boolean;
-    validators["single_quote_to_double_quote"] = validate_boolean;
+    validators["double_quote_to_single_quote"] = validate_quote;
+    validators["single_quote_to_double_quote"] = validate_quote;
     validators["table_sep"] = validate_character;
 
     // DataType of every configuration field
