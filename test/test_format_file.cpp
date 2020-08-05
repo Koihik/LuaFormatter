@@ -70,6 +70,9 @@ TEST_FILE(PROJECT_PATH "/test/testdata/syntax/lua54.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/expression/function_1.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/expression/function_2.lua");
 
+TEST_FILE(PROJECT_PATH "/test/testdata/disable_format/simple.lua");
+TEST_FILE(PROJECT_PATH "/test/testdata/disable_format/with_indent.lua");
+
 TEST_FILE(PROJECT_PATH "/test/testdata/issues/issue-1.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/issues/issue-18.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/issues/issue-19.lua");
