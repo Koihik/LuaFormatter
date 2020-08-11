@@ -1,15 +1,12 @@
 #include <any>
 #include <args/args.hxx>
 #include <cstdlib>
-#include <filesystem>
 #include <fstream>
 #include <iterator>
 #include <iostream>
 
 #include "Config.h"
 #include "lua-format.h"
-
-namespace fs = filesystem;
 
 int main(int argc, const char* argv[]) {
     args::ArgumentParser parser("Reformats your Lua source code.", "");

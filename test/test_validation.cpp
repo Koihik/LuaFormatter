@@ -1,5 +1,4 @@
 #include <catch2/catch.hpp>
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -9,7 +8,6 @@
 #include "lua-format.h"
 
 using namespace std;
-namespace fs = filesystem;
 
 // use for validate_integer
 #define TEST_CONFIG_ERROR_FILE(file)                                                                                                                         \

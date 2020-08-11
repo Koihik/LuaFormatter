@@ -5,12 +5,9 @@
 #include <any>
 #include <cstdlib>
 #include <cstring>
-#include <filesystem>
 #include <fstream>
 #include <functional>
 #include <iostream>
-
-namespace fs = filesystem;
 
 Config::Config() {
     // Default configuration
