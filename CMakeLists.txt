@@ -20,6 +20,17 @@ else()
   message(STATUS "IPO / LTO not supported: <${error}>")
 endif()
 
+# The code is modified from
+# https://gitlab.kitware.com/cmake/community/-/wikis/doc/tutorials/How-To-Write-Platform-Checks
+enable_language(C)
+include(CheckIncludeFiles)
+check_include_files(filesystem.h HAVE_FILESYSTEM_H)
+if(NOT HAVE_FILESYSTEM_H)
+    message(WARNING "filesystem.h not found, use experimental/filesystem.h as fallback."
+        " It's recommended to use a stable C++17 compliant compiler/libstdc++.")
+endif()
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/src/ConfigCheck.h)
+
 if(NOT CMAKE_BUILD_TYPE)
   message("set build type to Release.")
   set(CMAKE_BUILD_TYPE Release)

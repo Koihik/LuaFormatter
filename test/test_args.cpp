@@ -1,6 +1,5 @@
 #include <args/args.hxx>
 #include <catch2/catch.hpp>
-#include <filesystem>
 #include <iostream>
 #include <tuple>
 

@@ -1,5 +1,4 @@
 #include <catch2/catch.hpp>
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -9,7 +8,6 @@
 #include "lua-format.h"
 
 using namespace std;
-namespace fs = filesystem;
 
 #define TEST_FILE(file)                                                                                     \
     TEST_CASE("format file " + string(file) + " works well", "format_file") {                               \
