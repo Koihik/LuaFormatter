@@ -4,18 +4,9 @@ on: [push]
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
-    - name: Add g++-9 ppa
-      run: |
-       sudo add-apt-repository 'ppa:ubuntu-toolchain-r/test'
-       sudo apt update
-    - name: Install g++-9
-      run: |
-         sudo apt install g++-9
     - name: Install lcov 1.15
       run: |
          sudo apt install perl libjson-perl libperlio-gzip-perl
@@ -26,9 +17,7 @@ jobs:
     - name: Build LuaFormatter
       run: |
          git submodule update --init
-         mkdir build
-         cd build
-         CXX='g++-9' cmake .. -DCMAKE_BUILD_TYPE=Debug
+         cmake -DCMAKE_BUILD_TYPE=Debug
          make
          CTEST_OUTPUT_ON_FAILURE=1 ctest
     - name: Run lcov and upload to codecov
