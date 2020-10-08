@@ -1,6 +1,6 @@
 # LuaFormatter
 
-Reformats your Lua source code.
+Reformats your Lua source code. Try online [lua formatter](https://goonlinetools.com/lua-beautifier/)
 
 [![Build Status (Linux / MacOS)](https://travis-ci.org/Koihik/LuaFormatter.svg?branch=master)](https://travis-ci.org/Koihik/LuaFormatter)
 [![Build status (Windows)](https://ci.appveyor.com/api/projects/status/to7uvpkdgj96aumg/branch/master?svg=true)](https://ci.appveyor.com/project/Koihik/luaformatter/branch/master)
