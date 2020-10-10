@@ -14,6 +14,10 @@ Reformats your Lua source code.
 
 ### LuaRocks
 
+#### Requirements
+* c++ 17 compiler
+* luarocks 3.3.0+
+
 The easiest way to install is to use [LuaRocks](https://github.com/luarocks/luarocks).
 
 ```bash
@@ -25,7 +29,6 @@ luarocks install --server=https://luarocks.org/dev luaformatter
 #### Requirements
 * cmake 3.9+
 * c++ 17 compiler
-* luarocks 3.3.0+
 
 #### Steps
 ```bash
