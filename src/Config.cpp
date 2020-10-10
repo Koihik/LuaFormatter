@@ -77,13 +77,13 @@ Config::Config() {
     auto validate_quote = [&](const std::string& key, std::any elem) {
         bool value = std::any_cast<bool>(elem);
         if (key == "double_quote_to_single_quote") {
-            if (value && (get<bool>("single_quote_to_double_quote"))) {
+            if (value && (this->get<bool>("single_quote_to_double_quote"))) {
                 throw std::logic_error(
                     "[ERROR] Configuration value of double_quote_to_single_quote is conflicting with the value of "
                     "single_quote_to_double_quote");
             }
         } else if (key == "single_quote_to_double_quote") {
-            if (value && (get<bool>("double_quote_to_single_quote"))) {
+            if (value && (this->get<bool>("double_quote_to_single_quote"))) {
                 throw std::logic_error(
                     "[ERROR] Configuration value of single_quote_to_double_quote is conflicting with the value of "
                     "double_quote_to_single_quote");
@@ -94,7 +94,7 @@ Config::Config() {
     auto validate_use_tab = [&](const std::string& key, std::any elem) {
         (void)(key);
         bool value = std::any_cast<bool>(elem);
-        if (value && (get<int>("tab_width") == 0)) {
+        if (value && (this->get<int>("tab_width") == 0)) {
             throw std::logic_error("[ERROR] Configuration value of use_tab is conflicting with the value of tab_width");
         }
         return value;
@@ -106,7 +106,7 @@ Config::Config() {
             throw std::domain_error(
                 "[ERROR] Configuration value of tab_width is out of range. Must be a positive integer.");
         }
-        if (value == 0 && (get<bool>("use_tab"))) {
+        if (value == 0 && (this->get<bool>("use_tab"))) {
             throw std::logic_error("[ERROR] Configuration value of tab_width is conflicting with the value of use_tab");
         }
         return value;
