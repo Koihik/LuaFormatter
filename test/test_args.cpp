@@ -467,6 +467,11 @@ TEST_CASE("table with args", "[args]") {
     }
     config.set("column_table_limit", args::get(columntablelimit));
 
-    REQUIRE("test = {\n  image = {1, 2, 3},\n  list = {\n    {\n      ref = {4, 5, 9, 8, 2},\n      tags = {1, 2, 8, 6},\n      time = 10,\n\n      materials = {{materialId = 123, count = 10}}\n    }\n  }\n}\n" ==
-            lua_format("test = {\n  image = {1,2,3},\n  list = {\n    {\n      ref = {4,5,9,8,2},\n      tags = { 1, 2, 8, 6 },\n      time = 10,\n\n      materials = {\n        {\n          materialId = 123,\n          count = 10\n        }\n      },\n    },\n  },\n}", config));
+    REQUIRE(
+        "test = {\n  image = {1, 2, 3},\n  list = {\n    {\n      ref = {4, 5, 9, 8, 2},\n      tags = {1, 2, 8, 6},\n "
+        "     time = 10,\n\n      materials = {{materialId = 123, count = 10}}\n    }\n  }\n}\n" ==
+        lua_format("test = {\n  image = {1,2,3},\n  list = {\n    {\n      ref = {4,5,9,8,2},\n      tags = { 1, 2, 8, "
+                   "6 },\n      time = 10,\n\n      materials = {\n        {\n          materialId = 123,\n          "
+                   "count = 10\n        }\n      },\n    },\n  },\n}",
+                   config));
 }

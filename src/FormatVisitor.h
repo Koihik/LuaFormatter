@@ -5,7 +5,6 @@
 #include "LuaParser.h"
 #include "SourceWriter.h"
 
-using namespace std;
 using namespace antlr4;
 
 enum BlockType { CONTROL_BLOCK, FUNCTION_BLOCK };
@@ -13,7 +12,7 @@ enum NewLineIndent { NONE_INDENT, INC_INDENT, DEC_INDENT, INC_CONTINUATION_INDEN
 
 class FormatVisitor : public LuaBaseVisitor {
    public:
-    FormatVisitor(const vector<Token*>& tokens, const Config& config) : tokens_(tokens), config_(config) {}
+    FormatVisitor(const std::vector<Token*>& tokens, const Config& config) : tokens_(tokens), config_(config) {}
 
     antlrcpp::Any visitChunk(LuaParser::ChunkContext* context) override;
     antlrcpp::Any visitBlock(LuaParser::BlockContext* context) override;
@@ -63,23 +62,23 @@ class FormatVisitor : public LuaBaseVisitor {
     bool chop_down_block_ = true;
     bool chop_down_table_ = true;
 
-    vector<SourceWriter*> writers_;
+    std::vector<SourceWriter*> writers_;
 
     // stack to record column of first table field
-    vector<int> firstTableFieldColumn_;
+    std::vector<int> firstTableFieldColumn_;
 
     // stack to record did a chained method call has increased indent
-    vector<bool> chainedMethodCallHasIncIndent_;
+    std::vector<bool> chainedMethodCallHasIncIndent_;
 
     // stack to record is a chained method call is the first call
-    vector<bool> chainedMethodCallIsFirst_;
+    std::vector<bool> chainedMethodCallIsFirst_;
 
     int indent_ = 0;
     int indentForAlign_ = 0;
-    const vector<Token*>& tokens_;
+    const std::vector<Token*>& tokens_;
     const Config& config_;
 
-    string formatLineComment(Token* token);
+    std::string formatLineComment(Token* token);
 
     bool needKeepBlockOneLine(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx, BlockType blockType);
     bool isBlockEmpty(LuaParser::BlockContext* ctx);
@@ -93,11 +92,11 @@ class FormatVisitor : public LuaBaseVisitor {
     SourceWriter& cur_writer();
     int cur_columns();
 
-    string indent();
-    string indentWithAlign();
-    string lineBreak();
-    string commentAfter(tree::ParseTree* a, const string& expect);
-    string commentAfterNewLine(tree::ParseTree* a, NewLineIndent newLineIndent);
+    std::string indent();
+    std::string indentWithAlign();
+    std::string lineBreak();
+    std::string commentAfter(tree::ParseTree* a, const std::string& expect);
+    std::string commentAfterNewLine(tree::ParseTree* a, NewLineIndent newLineIndent);
     void incIndent();
     void decIndent();
     void incContinuationIndent();
@@ -106,6 +105,6 @@ class FormatVisitor : public LuaBaseVisitor {
     void decIndentForAlign(int indent);
 
     // Auxiliary to visitFunctioncall and visitPrefixexp
-    string buildFirstArgumentWs(vector<LuaParser::NameAndArgsContext*> v);
-    void buildArguments(vector<LuaParser::NameAndArgsContext*> v);
+    std::string buildFirstArgumentWs(std::vector<LuaParser::NameAndArgsContext*> v);
+    void buildArguments(std::vector<LuaParser::NameAndArgsContext*> v);
 };

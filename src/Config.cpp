@@ -1,8 +1,7 @@
 #include "Config.h"
 
-#include <assert.h>
-
 #include <any>
+#include <cassert>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
@@ -11,96 +10,109 @@
 
 Config::Config() {
     // Default configuration
-    node_["column_limit"] = 80;
-    node_["indent_width"] = 4;
-    node_["use_tab"] = false;
-    node_["tab_width"] = 4;
-    node_["continuation_indent_width"] = 4;
-    node_["spaces_before_call"] = 1;
+    node["column_limit"] = 80;
+    node["indent_width"] = 4;
+    node["use_tab"] = false;
+    node["tab_width"] = 4;
+    node["continuation_indent_width"] = 4;
+    node["spaces_before_call"] = 1;
 
-    node_["keep_simple_control_block_one_line"] = true;
-    node_["keep_simple_function_one_line"] = true;
+    node["keep_simple_control_block_one_line"] = true;
+    node["keep_simple_function_one_line"] = true;
 
-    node_["align_args"] = true;
-    node_["break_after_functioncall_lp"] = false;
-    node_["break_before_functioncall_rp"] = false;
+    node["align_args"] = true;
+    node["break_after_functioncall_lp"] = false;
+    node["break_before_functioncall_rp"] = false;
 
-    node_["align_parameter"] = true;
-    node_["chop_down_parameter"] = false;
-    node_["break_after_functiondef_lp"] = false;
-    node_["break_before_functiondef_rp"] = false;
+    node["align_parameter"] = true;
+    node["chop_down_parameter"] = false;
+    node["break_after_functiondef_lp"] = false;
+    node["break_before_functiondef_rp"] = false;
 
-    node_["align_table_field"] = true;
-    node_["break_after_table_lb"] = true;
-    node_["break_before_table_rb"] = true;
-    node_["chop_down_table"] = false;
-    node_["chop_down_kv_table"] = true;
-    node_["table_sep"] = ",";
-    node_["extra_sep_at_table_end"] = false;
-    node_["column_table_limit"] = node_["column_limit"];
+    node["align_table_field"] = true;
+    node["break_after_table_lb"] = true;
+    node["break_before_table_rb"] = true;
+    node["chop_down_table"] = false;
+    node["chop_down_kv_table"] = true;
+    node["table_sep"] = ",";
+    node["extra_sep_at_table_end"] = false;
+    node["column_table_limit"] = node["column_limit"];
 
-    node_["break_after_operator"] = true;
+    node["break_after_operator"] = true;
 
-    node_["double_quote_to_single_quote"] = false;
-    node_["single_quote_to_double_quote"] = false;
+    node["double_quote_to_single_quote"] = false;
+    node["single_quote_to_double_quote"] = false;
 
     // Validators
     // validate integer without 0s as configuration value
-    auto validate_integer = [](std::string key, std::any elem) {
+    auto validate_integer = [](const std::string& key, std::any elem) {
         int value = std::any_cast<int>(elem);
         if (value > 0) {
             return value;
         }
         std::cerr << "[ERROR] Processing " << key << " failed" << std::endl;
-        throw domain_error("[ERROR] Configuration value is out of range. Must be a positive integer greater than 0.");
+        throw std::domain_error(
+            "[ERROR] Configuration value is out of range. Must be a positive integer greater than 0.");
     };
 
     // validate integer with 0s as configuration value
-    auto validate_integer_zero = [](std::string key, std::any elem) {
+    auto validate_integer_zero = [](const std::string& key, std::any elem) {
         int value = std::any_cast<int>(elem);
         if (value >= 0) {
             return value;
         }
         std::cerr << "[ERROR] Processing " << key << " failed" << std::endl;
-        throw domain_error("[ERROR] Configuration value is out of range. Must be a positive integer.");
+        throw std::domain_error("[ERROR] Configuration value is out of range. Must be a positive integer.");
     };
-    auto validate_boolean = [](std::string key, std::any elem) {
+    auto validate_boolean = [](const std::string& key, std::any elem) {
+        (void)(key);
         bool value = std::any_cast<bool>(elem);
         return value;
     };
-    auto validate_character = [](std::string key, std::any elem) {
+    auto validate_character = [](const std::string& key, std::any elem) {
+        (void)(key);
         char value = std::any_cast<char>(elem);
         return value;
     };
-    auto validate_quote = [&](std::string key, std::any elem) {
+    auto validate_quote = [&](const std::string& key, std::any elem) {
         bool value = std::any_cast<bool>(elem);
         if (key == "double_quote_to_single_quote") {
-            if (value && (node_["single_quote_to_double_quote"]).as<bool>()) {
-                throw logic_error("[ERROR] Configuration value of double_quote_to_single_quote is conflicting with the value of single_quote_to_double_quote");
+            if (value && (get<bool>("single_quote_to_double_quote"))) {
+                throw std::logic_error(
+                    "[ERROR] Configuration value of double_quote_to_single_quote is conflicting with the value of "
+                    "single_quote_to_double_quote");
             }
         } else if (key == "single_quote_to_double_quote") {
-            if (value && (node_["double_quote_to_single_quote"]).as<bool>()) {
-                throw logic_error("[ERROR] Configuration value of single_quote_to_double_quote is conflicting with the value of double_quote_to_single_quote");
+            if (value && (get<bool>("double_quote_to_single_quote"))) {
+                throw std::logic_error(
+                    "[ERROR] Configuration value of single_quote_to_double_quote is conflicting with the value of "
+                    "double_quote_to_single_quote");
             }
         }
         return value;
     };
-    auto validate_use_tab = [&](std::string key, std::any elem) {
+    auto validate_use_tab = [&](const std::string& key, std::any elem) {
+        (void)(key);
         bool value = std::any_cast<bool>(elem);
-        if (value && (node_["tab_width"]).as<int>() == false) {
-            throw logic_error("[ERROR] Configuration value of use_tab is conflicting with the value of tab_width");
+        if (value && (get<int>("tab_width") == 0)) {
+            throw std::logic_error("[ERROR] Configuration value of use_tab is conflicting with the value of tab_width");
         }
         return value;
     };
-    auto validate_tab_width = [&](std::string key, std::any elem) {
+    auto validate_tab_width = [&](const std::string& key, std::any elem) {
+        (void)(key);
         int value = std::any_cast<int>(elem);
         if (value < 0) {
-            throw domain_error("[ERROR] Configuration value of tab_width is out of range. Must be a positive integer.");
-        } else if (value == false && (node_["use_tab"]).as<bool>()) {
-            throw logic_error("[ERROR] Configuration value of tab_width is conflicting with the value of use_tab");
+            throw std::domain_error(
+                "[ERROR] Configuration value of tab_width is out of range. Must be a positive integer.");
+        }
+        if (value == 0 && (get<bool>("use_tab"))) {
+            throw std::logic_error("[ERROR] Configuration value of tab_width is conflicting with the value of use_tab");
         }
         return value;
     };
+
+    // Validators
     validators["spaces_before_call"] = validate_integer_zero;
     validators["column_limit"] = validate_integer;
     validators["indent_width"] = validate_integer_zero;
@@ -157,17 +169,17 @@ Config::Config() {
     datatype["table_sep"] = 'c';
 }
 
-void Config::readFromFile(const string &file) {
+void Config::readFromFile(const std::string& file) {
     fs::file_status status = fs::status(file);
     fs::perms perm = status.permissions();
 
     if (!fs::is_regular_file(status)) {
-        cerr << file << ": Not a file." << endl;
+        std::cerr << file << ": Not a file." << std::endl;
         exit(-1);
     }
 
     if ((perm & fs::perms::owner_read) == fs::perms::none) {
-        cerr << file << ": No access to read." << endl;
+        std::cerr << file << ": No access to read." << std::endl;
         exit(-1);
     }
 
@@ -175,25 +187,25 @@ void Config::readFromFile(const string &file) {
 
     // Keys are always strings
     bool given = false;
-    string CTL = "column_table_limit";
-    string CL = "column_limit";
-    for (auto kv : n) {
-        auto key = kv.first.as<string>();
-        if (node_[key]) {
+    std::string CTL = "column_table_limit";
+    std::string CL = "column_limit";
+    for (const auto& kv : n) {
+        auto key = kv.first.as<std::string>();
+        if (node[key]) {
             switch (datatype[key]) {
                 case 'i': {
                     auto value = kv.second.as<int>();
-                    node_[key] = std::any_cast<int>(validators[key](key, value));
+                    node[key] = std::any_cast<int>(validators[key](key, value));
                     break;
                 }
                 case 'b': {
                     auto value = kv.second.as<bool>();
-                    node_[key] = std::any_cast<bool>(validators[key](key, value));
+                    node[key] = std::any_cast<bool>(validators[key](key, value));
                     break;
                 }
                 case 'c': {
                     auto value = kv.second.as<char>();
-                    node_[key] = std::any_cast<char>(validators[key](key, value));
+                    node[key] = std::any_cast<char>(validators[key](key, value));
                     break;
                 }
             }
@@ -203,31 +215,31 @@ void Config::readFromFile(const string &file) {
         }
     }
     if (!given) {
-        node_[CTL] = node_[CL];
+        node[CTL] = node[CL];
     }
 }
 
-void Config::readFromMap(map<string, any> &mp) {
+void Config::readFromMap(std::map<std::string, std::any>& mp) {
     bool given = false;
-    string CTL = "column_table_limit";
-    string CL = "column_limit";
-    for (auto kv : mp) {
+    std::string CTL = "column_table_limit";
+    std::string CL = "column_limit";
+    for (const auto& kv : mp) {
         auto key = kv.first;
-        if (node_[key]) {
+        if (node[key]) {
             switch (datatype[key]) {
                 case 'i': {
                     assert(strcmp(kv.second.type().name(), "i") == 0);
-                    node_[key] = std::any_cast<int>(validators[key](key, kv.second));
+                    node[key] = std::any_cast<int>(validators[key](key, kv.second));
                     break;
                 }
                 case 'b': {
                     assert(strcmp(kv.second.type().name(), "b") == 0);
-                    node_[key] = std::any_cast<bool>(validators[key](key, kv.second));
+                    node[key] = std::any_cast<bool>(validators[key](key, kv.second));
                     break;
                 }
                 case 'c': {
                     assert(strcmp(kv.second.type().name(), "c") == 0);
-                    node_[key] = std::any_cast<char>(validators[key](key, kv.second));
+                    node[key] = std::any_cast<char>(validators[key](key, kv.second));
                     break;
                 }
             }
@@ -237,10 +249,10 @@ void Config::readFromMap(map<string, any> &mp) {
         }
     }
     if (!given) {
-        node_[CTL] = node_[CL];
+        node[CTL] = node[CL];
     }
 }
 
-void Config::dumpCurrent(ofstream &fout) { fout << node_ << endl; }
+void Config::dumpCurrent(std::ofstream& fout) { fout << node << std::endl; }
 
-void Config::dumpCurrent(ostream &out) { out << node_ << endl; }
+void Config::dumpCurrent(std::ostream& out) { out << node << std::endl; }

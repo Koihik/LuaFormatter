@@ -1,4 +1,5 @@
 #include <catch2/catch.hpp>
+
 #include "lua-format.h"
 
 TEST_CASE("indent", "config") {
@@ -40,8 +41,12 @@ TEST_CASE("spaces_before_call", "config") {
     config.set("continuation_indent_width", 4);
     config.set("column_limit", 40);
     config.set("spaces_before_call", 0);
-    REQUIRE("function t() return function() end end\nlocal a = t{1, 2, 3, 4}\nlocal a = t{1}\nlocal a = t{8}\nlocal a = t{1, 9}\nlocal a = t(1, 2, 3)\nt{2, 3} {1, 5}\nt{2, 3, 4} {1}\n" ==
-            lua_format("function t() return function () end end local a = t{1, 2, 3, 4} local a = t        {1} local a = t{8} local a = t  {1,9} local a = t(1, 2, 3) t {2, 3}{1,5} t{2, 3, 4}{1}", config));
+    REQUIRE(
+        "function t() return function() end end\nlocal a = t{1, 2, 3, 4}\nlocal a = t{1}\nlocal a = t{8}\nlocal a = "
+        "t{1, 9}\nlocal a = t(1, 2, 3)\nt{2, 3} {1, 5}\nt{2, 3, 4} {1}\n" ==
+        lua_format("function t() return function () end end local a = t{1, 2, 3, 4} local a = t        {1} local a = "
+                   "t{8} local a = t  {1,9} local a = t(1, 2, 3) t {2, 3}{1,5} t{2, 3, 4}{1}",
+                   config));
 }
 
 TEST_CASE("table_sep", "config") {
@@ -168,8 +173,13 @@ TEST_CASE("table", "config") {
     config.set("chop_down_kv_table", true);
     config.set("column_table_limit", 80);
 
-    REQUIRE("test = {\n  image = {1, 2, 3},\n  list = {\n    {\n      ref = {4, 5, 9, 8, 2},\n      tags = {1, 2, 8, 6},\n      time = 10,\n\n      materials = {{materialId = 123, count = 10}}\n    }\n  }\n}\n" ==
-            lua_format("test = {\n  image = {1,2,3},\n  list = {\n    {\n      ref = {4,5,9,8,2},\n      tags = { 1, 2, 8, 6 },\n      time = 10,\n\n      materials = {\n        {\n          materialId = 123,\n          count = 10\n        }\n      },\n    },\n  },\n}", config));
+    REQUIRE(
+        "test = {\n  image = {1, 2, 3},\n  list = {\n    {\n      ref = {4, 5, 9, 8, 2},\n      tags = {1, 2, 8, 6},\n "
+        "     time = 10,\n\n      materials = {{materialId = 123, count = 10}}\n    }\n  }\n}\n" ==
+        lua_format("test = {\n  image = {1,2,3},\n  list = {\n    {\n      ref = {4,5,9,8,2},\n      tags = { 1, 2, 8, "
+                   "6 },\n      time = 10,\n\n      materials = {\n        {\n          materialId = 123,\n          "
+                   "count = 10\n        }\n      },\n    },\n  },\n}",
+                   config));
 }
 
 TEST_CASE("break_after_operator", "config") {
@@ -190,12 +200,12 @@ TEST_CASE("read from file", "config") {
     config.readFromFile(PROJECT_PATH "/test/testconfig/1.lua-format");
 
     REQUIRE(2 == config.get<int>("indent_width"));
-    REQUIRE(";" == config.get<string>("table_sep"));
+    REQUIRE(";" == config.get<std::string>("table_sep"));
     REQUIRE(false == config.get<bool>("extra_sep_at_table_end"));
 
     config.readFromFile(PROJECT_PATH "/test/testconfig/2.lua-format");
 
     REQUIRE(4 == config.get<int>("indent_width"));
-    REQUIRE("," == config.get<string>("table_sep"));
+    REQUIRE("," == config.get<std::string>("table_sep"));
     REQUIRE(false == config.get<bool>("extra_sep_at_table_end"));
 }

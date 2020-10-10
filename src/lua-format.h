@@ -5,7 +5,5 @@
 
 #include "Config.h"
 
-using namespace std;
-
-string lua_format(const string& input, const Config& config);
-string lua_format(istream& stream, const Config& config);
+std::string lua_format(const std::string& input, const Config& config);
+std::string lua_format(std::istream& stream, const Config& config);

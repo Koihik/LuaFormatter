@@ -1,6 +1,7 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
+
 #include "ConfigCheck.h"
 #ifdef HAVE_FILESYSTEM_H
 #include <filesystem>
@@ -11,41 +12,39 @@
 #include <any>
 #include <functional>
 
-using namespace std;
-
-typedef std::function<std::any(std::string, std::any)> Validator;
+using Validator = std::function<std::any(const std::string &, std::any)>;
 
 #ifdef HAVE_FILESYSTEM_H
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 #else
 namespace fs = experimental::filesystem;
 #endif
 
 class Config {
+    YAML::Node node;
+    std::map<std::string, Validator> validators;
+    std::map<std::string, char> datatype;
+
    public:
     Config();
-    void readFromFile(const string &file);
-    void dumpCurrent(ofstream &fout);
-    void dumpCurrent(ostream &out);
-    map<string, any> argmap;
-    map<string, char> datatype;
-    void readFromMap(map<string, any> &mp);
-    YAML::Node node_;
+    void readFromFile(const std::string &file);
+    void dumpCurrent(std::ofstream &fout);
+    void dumpCurrent(std::ostream &out);
+    void readFromMap(std::map<std::string, std::any> &mp);
     template <typename T>
     T get(const char *key) const {
-        return node_[key].as<T>();
+        return node[key].as<T>();
     }
     template <typename T>
     T get(const char *key) {
-        return node_[key].as<T>();
+        return node[key].as<T>();
     }
     template <typename T>
     void set(const char *key, T value) {
-        node_[key] = value;
+        node[key] = value;
     }
     template <typename T>
     void set(const char *key, T value) const {
-        node_[key] = value;
+        node[key] = value;
     }
-    std::map<std::string, Validator> validators;
 };

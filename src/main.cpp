@@ -1,8 +1,8 @@
 #include <args/args.hxx>
 #include <cstdlib>
 #include <fstream>
-#include <iterator>
 #include <iostream>
+#include <iterator>
 
 #include "Config.h"
 #include "lua-format.h"
@@ -14,7 +14,7 @@ int main(int argc, const char* argv[]) {
     args::Flag verbose(dc, "verbose", "Turn on verbose mode", {'v', "verbose"});
     args::Flag inplace(dc, "in-place", "Reformats in-place", {'i'});
     args::Flag dumpcfg(dc, "dump current style", "Dumps the default style used to stdout", {"dump-config"});
-    args::ValueFlag<string> cFile(parser, "file", "Style config file", {'c', "config"});
+    args::ValueFlag<std::string> cFile(parser, "file", "Style config file", {'c', "config"});
     args::ValueFlag<int> columnlimit(parser, "column limit", "Column limit of one line", {"column-limit"});
     args::ValueFlag<int> indentwidth(parser, "indentation width", "Number of spaces used for indentation",
                                      {"indent-width"});
@@ -131,175 +131,179 @@ int main(int argc, const char* argv[]) {
                               "Do not transform string literals to use double quote",
                               {"no-single-quote-to-double-quote"});
 
-    args::PositionalList<string> files(parser, "Lua scripts", "Lua scripts to format");
+    args::PositionalList<std::string> files(parser, "Lua scripts", "Lua scripts to format");
 
     Config config;
 
     try {
         parser.ParseCLI(argc, argv);
     } catch (args::Help& e) {
-        cout << parser;
+        std::cout << parser;
         return 0;
     } catch (args::ParseError& e) {
-        cerr << e.what() << std::endl;
-        cerr << parser;
+        std::cerr << e.what() << std::endl;
+        std::cerr << parser;
         return 1;
     } catch (args::ValidationError& e) {
-        cerr << e.what() << std::endl;
-        cerr << parser;
+        std::cerr << e.what() << std::endl;
+        std::cerr << parser;
         return 1;
     }
 
     if (dumpcfg) {
-        config.dumpCurrent(cout);
+        config.dumpCurrent(std::cout);
         return 0;
     }
 
+    std::map<std::string, std::any> argmap;
+
     if (columnlimit) {
-        config.argmap["column_limit"] = args::get(columnlimit);
+        argmap["column_limit"] = args::get(columnlimit);
     }
     if (indentwidth) {
-        config.argmap["indent_width"] = args::get(indentwidth);
+        argmap["indent_width"] = args::get(indentwidth);
     }
     if (tabwidth) {
-        config.argmap["tab_width"] = args::get(tabwidth);
+        argmap["tab_width"] = args::get(tabwidth);
     }
     if (continuationindentwidth) {
-        config.argmap["continuation_indent_width"] = args::get(continuationindentwidth);
+        argmap["continuation_indent_width"] = args::get(continuationindentwidth);
     }
     if (spacesbeforecall) {
-        config.argmap["spaces_before_call"] = args::get(spacesbeforecall);
+        argmap["spaces_before_call"] = args::get(spacesbeforecall);
     }
     if (columntablelimit) {
-        config.argmap["column_table_limit"] = args::get(columntablelimit);
+        argmap["column_table_limit"] = args::get(columntablelimit);
     }
     if (tablesep) {
-        config.argmap["table_sep"] = args::get(tablesep);
+        argmap["table_sep"] = args::get(tablesep);
     }
 
     if (usetab) {
-        config.argmap["use_tab"] = true;
+        argmap["use_tab"] = true;
     } else if (nousetab) {
-        config.argmap["use_tab"] = false;
+        argmap["use_tab"] = false;
     }
 
     if (controlblock) {
-        config.argmap["keep_simple_control_block_one_line"] = true;
+        argmap["keep_simple_control_block_one_line"] = true;
     } else if (nocontrolblock) {
-        config.argmap["keep_simple_control_block_one_line"] = false;
+        argmap["keep_simple_control_block_one_line"] = false;
     }
 
     if (functionline) {
-        config.argmap["keep_simple_function_one_line"] = true;
+        argmap["keep_simple_function_one_line"] = true;
     } else if (nofunctionline) {
-        config.argmap["keep_simple_function_one_line"] = false;
+        argmap["keep_simple_function_one_line"] = false;
     }
 
     if (alignargs) {
-        config.argmap["align_args"] = true;
+        argmap["align_args"] = true;
     } else if (noalignargs) {
-        config.argmap["align_args"] = false;
+        argmap["align_args"] = false;
     }
 
     if (functioncallLP) {
-        config.argmap["break_after_functioncall_lp"] = true;
+        argmap["break_after_functioncall_lp"] = true;
     } else if (nofunctioncallLP) {
-        config.argmap["break_after_functioncall_lp"] = false;
+        argmap["break_after_functioncall_lp"] = false;
     }
 
     if (functioncallRP) {
-        config.argmap["break_before_functioncall_rp"] = true;
+        argmap["break_before_functioncall_rp"] = true;
     } else if (nofunctioncallRP) {
-        config.argmap["break_before_functioncall_rp"] = false;
+        argmap["break_before_functioncall_rp"] = false;
     }
 
     if (alignparameter) {
-        config.argmap["align_parameter"] = true;
+        argmap["align_parameter"] = true;
     } else if (noalignparameter) {
-        config.argmap["align_parameter"] = false;
+        argmap["align_parameter"] = false;
     }
 
     if (chopdownparameter) {
-        config.argmap["chop_down_parameter"] = true;
+        argmap["chop_down_parameter"] = true;
     } else if (nochopdownparameter) {
-        config.argmap["chop_down_parameter"] = false;
+        argmap["chop_down_parameter"] = false;
     }
 
     if (functiondefLP) {
-        config.argmap["break_after_functiondef_lp"] = true;
+        argmap["break_after_functiondef_lp"] = true;
     } else if (nofunctiondefLP) {
-        config.argmap["break_after_functiondef_lp"] = false;
+        argmap["break_after_functiondef_lp"] = false;
     }
 
     if (functiondefRP) {
-        config.argmap["break_before_functiondef_rp"] = true;
+        argmap["break_before_functiondef_rp"] = true;
     } else if (nofunctiondefRP) {
-        config.argmap["break_before_functiondef_rp"] = false;
+        argmap["break_before_functiondef_rp"] = false;
     }
 
     if (aligntablefield) {
-        config.argmap["align_table_field"] = true;
+        argmap["align_table_field"] = true;
     } else if (noaligntablefield) {
-        config.argmap["align_table_field"] = false;
+        argmap["align_table_field"] = false;
     }
 
     if (tableLB) {
-        config.argmap["break_after_table_lb"] = true;
+        argmap["break_after_table_lb"] = true;
     } else if (notableLB) {
-        config.argmap["break_after_table_lb"] = false;
+        argmap["break_after_table_lb"] = false;
     }
 
     if (tableRB) {
-        config.argmap["break_before_table_rb"] = true;
+        argmap["break_before_table_rb"] = true;
     } else if (notableRB) {
-        config.argmap["break_before_table_rb"] = false;
+        argmap["break_before_table_rb"] = false;
     }
 
     if (chopdowntable) {
-        config.argmap["chop_down_table"] = true;
+        argmap["chop_down_table"] = true;
     } else if (nochopdowntable) {
-        config.argmap["chop_down_table"] = false;
+        argmap["chop_down_table"] = false;
     }
 
     if (chopdownkvtable) {
-        config.argmap["chop_down_kv_table"] = true;
+        argmap["chop_down_kv_table"] = true;
     } else if (nochopdownkvtable) {
-        config.argmap["chop_down_kv_table"] = false;
+        argmap["chop_down_kv_table"] = false;
     }
 
     if (tableEnd) {
-        config.argmap["extra_sep_at_table_end"] = true;
+        argmap["extra_sep_at_table_end"] = true;
     } else if (notableEnd) {
-        config.argmap["extra_sep_at_table_end"] = false;
+        argmap["extra_sep_at_table_end"] = false;
     }
 
     if (breakoperator) {
-        config.argmap["break_after_operator"] = true;
+        argmap["break_after_operator"] = true;
     } else if (nobreakoperator) {
-        config.argmap["break_after_operator"] = false;
+        argmap["break_after_operator"] = false;
     }
 
     if (DoubleSingle) {
-        config.argmap["double_quote_to_single_quote"] = true;
+        argmap["double_quote_to_single_quote"] = true;
     } else if (noDoubleSingle) {
-        config.argmap["double_quote_to_single_quote"] = false;
+        argmap["double_quote_to_single_quote"] = false;
     }
 
     if (SingleDouble) {
-        config.argmap["single_quote_to_double_quote"] = true;
+        argmap["single_quote_to_double_quote"] = true;
     } else if (noSingleDouble) {
-        config.argmap["single_quote_to_double_quote"] = false;
+        argmap["single_quote_to_double_quote"] = false;
     }
 
-    string configFileName = args::get(cFile);
+    std::string configFileName = args::get(cFile);
 
     // Automatically look for a .lua-format on the current directory
     if (configFileName.empty()) {
         fs::path current = fs::current_path();
         while (configFileName.empty()) {
-            for (auto& entry : fs::directory_iterator(current)) {
-                fs::path candidate = entry.path();
-                if (candidate.filename() == ".lua-format") configFileName = candidate.string();
+            for (const auto& entry : fs::directory_iterator(current)) {
+                const fs::path& candidate = entry.path();
+                if (candidate.filename() == ".lua-format") {
+                    configFileName = candidate.string();
+                }
             }
 
             fs::path parent = current.parent_path();
@@ -312,116 +316,127 @@ int main(int argc, const char* argv[]) {
 
 #ifdef __linux__
     if (configFileName.empty()) {
-        string conf_dir;
-        if (const char* const conf_dir_p = getenv("XDG_CONFIG_HOME")) conf_dir = conf_dir_p;
-        if (conf_dir.empty()) {
-            string home;
-            if (const char* const home_p = getenv("HOME")) home = home_p;
-            if (!home.empty()) conf_dir = home + "/.config";
+        std::string conf_dir;
+        if (const char* const conf_dir_p = getenv("XDG_CONFIG_HOME")) {
+            conf_dir = conf_dir_p;
         }
-        if (!conf_dir.empty()) {
-            string candidate = conf_dir + "/luaformatter/config.yaml";
-            if (fs::exists(candidate)) configFileName = candidate;
+        if (conf_dir.empty()) {
+            std::string home;
+            if (const char* const home_p = getenv("HOME")) {
+                home = home_p;
+            }
+            if (!home.empty()) {
+                conf_dir = home + "/.config";
+            }
+        } else {
+            std::string candidate = conf_dir + "/luaformatter/config.yaml";
+            if (fs::exists(candidate)) {
+                configFileName = candidate;
+            }
         }
     }
 #endif
 
     if (configFileName.empty()) {
-        if (verbose) cerr << "using default configuration" << endl;
-        goto use_default;
-    } else {
-        if (verbose) cerr << "using configuration file: " << configFileName << endl;
-    }
-
-    if (fs::exists(configFileName)) {
-        // Keeps the default values in case the yaml is missing a field
-        try {
-            config.readFromFile(configFileName);
-        } catch (const std::exception& e) {
-            cerr << e.what() << endl;
-            exit(1);
+        if (verbose) {
+            std::cerr << "using default configuration" << std::endl;
         }
     } else {
-        cerr << configFileName << ": No such file." << endl;
-        return 1;
-    }
-
-use_default:
-
-    if (!config.argmap.empty()) {
-        try {
-            config.readFromMap(config.argmap);
-        } catch (const std::exception& e) {
-            cerr << e.what() << endl;
-            exit(1);
+        if (verbose) {
+            std::cerr << "using configuration file: " << configFileName << std::endl;
         }
-    }
-    bool stdIn = args::get(files).size() == 0;
-    if (stdIn) {
-        cin >> noskipws;
 
-        istream_iterator<char> it(cin);
-        istream_iterator<char> end;
-        string input(it, end);
-
-        try {
-            string out = lua_format(input, config);
-
-            cout << out;
-        } catch (const std::invalid_argument& e) {
-            cerr << e.what() << endl;
+        if (fs::exists(configFileName)) {
+            // Keeps the default values in case the yaml is missing a field
+            try {
+                config.readFromFile(configFileName);
+            } catch (const std::exception& e) {
+                std::cerr << e.what() << std::endl;
+                exit(1);
+            }
+        } else {
+            std::cerr << configFileName << ": No such file." << std::endl;
             return 1;
         }
-    } else {
-        for (const auto fileName : args::get(files)) {
-            if (verbose) {
-                cerr << "formatting: " << fileName << endl;
-            }
-            if (fs::exists(fileName)) {
-                fs::file_status status = fs::status(fileName);
-                fs::perms perm = status.permissions();
+    }
 
-                if (!fs::is_regular_file(status)) {
-                    cerr << fileName << ": Not a file." << endl;
-                    continue;
-                }
+    // Command line overwrites the config file
+    if (!argmap.empty()) {
+        try {
+            config.readFromMap(argmap);
+        } catch (const std::exception& e) {
+            std::cerr << e.what() << std::endl;
+            exit(1);
+        }
+    }
 
-                if ((perm & fs::perms::owner_read) == fs::perms::none) {
-                    cerr << fileName << ": No access to read." << endl;
-                    continue;
-                }
+    bool stdIn = args::get(files).empty();
+    if (stdIn) {
+        std::cin >> std::noskipws;
 
-                if (inplace && (perm & fs::perms::owner_write) == fs::perms::none) {
-                    cerr << fileName << ": No access to write." << endl;
-                    continue;
-                }
-            } else {
-                cerr << fileName << ": No such file." << endl;
+        std::istream_iterator<char> it(std::cin);
+        std::istream_iterator<char> end;
+        std::string input(it, end);
+
+        try {
+            std::string out = lua_format(input, config);
+            std::cout << out;
+        } catch (const std::invalid_argument& e) {
+            std::cerr << e.what() << std::endl;
+            return 1;
+        }
+
+        return 0;
+    }
+
+    for (const auto& fileName : args::get(files)) {
+        if (verbose) {
+            std::cerr << "formatting: " << fileName << std::endl;
+        }
+        if (fs::exists(fileName)) {
+            fs::file_status status = fs::status(fileName);
+            fs::perms perm = status.permissions();
+
+            if (!fs::is_regular_file(status)) {
+                std::cerr << fileName << ": Not a file." << std::endl;
                 continue;
             }
 
-            std::ifstream ifs;
-            ifs.open(fileName);
-
-            try {
-                string out = lua_format(ifs, config);
-
-                if (!inplace) {
-                    cout << out;
-                } else {
-                    ofstream fout(fileName);
-                    fout << out;
-                    fout.close();
-
-                    if (verbose) {
-                        cerr << "format success: " << fileName << endl;
-                    }
-                }
-
-            } catch (const std::invalid_argument& e) {
-                cerr << e.what() << endl;
-                return 1;
+            if ((perm & fs::perms::owner_read) == fs::perms::none) {
+                std::cerr << fileName << ": No access to read." << std::endl;
+                continue;
             }
+
+            if (inplace && (perm & fs::perms::owner_write) == fs::perms::none) {
+                std::cerr << fileName << ": No access to write." << std::endl;
+                continue;
+            }
+        } else {
+            std::cerr << fileName << ": No such file." << std::endl;
+            continue;
+        }
+
+        std::ifstream ifs;
+        ifs.open(fileName);
+
+        try {
+            std::string out = lua_format(ifs, config);
+
+            if (!inplace) {
+                std::cout << out;
+            } else {
+                std::ofstream fout(fileName);
+                fout << out;
+                fout.close();
+
+                if (verbose) {
+                    std::cerr << "format success: " << fileName << std::endl;
+                }
+            }
+
+        } catch (const std::invalid_argument& e) {
+            std::cerr << e.what() << std::endl;
+            return 1;
         }
     }
 
