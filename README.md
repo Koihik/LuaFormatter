@@ -2,9 +2,7 @@
 
 Reformats your Lua source code.
 
-[![Build Status (Linux / MacOS)](https://travis-ci.org/Koihik/LuaFormatter.svg?branch=master)](https://travis-ci.org/Koihik/LuaFormatter)
-[![Build status (Windows)](https://ci.appveyor.com/api/projects/status/to7uvpkdgj96aumg/branch/master?svg=true)](https://ci.appveyor.com/project/Koihik/luaformatter/branch/master)
-[![codecov](https://codecov.io/gh/Koihik/LuaFormatter/branch/master/graph/badge.svg)](https://codecov.io/gh/Koihik/LuaFormatter)
+![codecov](https://codecov.io/gh/Koihik/LuaFormatter/branch/master/graph/badge.svg)
 
 ## Editor support
 
@@ -15,6 +13,10 @@ Reformats your Lua source code.
 ## Install
 
 ### LuaRocks
+
+#### Requirements
+* c++ 17 compiler
+* luarocks 3.3.0+
 
 The easiest way to install is to use [LuaRocks](https://github.com/luarocks/luarocks).
 
@@ -27,7 +29,6 @@ luarocks install --server=https://luarocks.org/dev luaformatter
 #### Requirements
 * cmake 3.9+
 * c++ 17 compiler
-* luarocks 3.3.0+
 
 #### Steps
 ```bash
@@ -47,83 +48,69 @@ luarocks install --server=https://luarocks.org/dev luaformatter
 
   OPTIONS:
 
-      -h, --help                             Display this help menu
-      -v, --verbose                          Turn on verbose mode
-      -i                                     Reformats in-place
-      --dump-config                          Dumps the default style used to stdout
-      -c[file], --config=[file]              Style config file
-      Lua scripts...                         Lua scripts to format
-      --column-limit=[column limit]          Column limit of one line
+      -h, --help                        Display this help menu
+      -v, --verbose                     Turn on verbose mode
+      -i                                Reformats in-place
+      --dump-config                     Dumps the default style used to stdout
+      -c[file], --config=[file]         Style config file
+      --column-limit=[column limit]     Column limit of one line
       --indent-width=[indentation
-      width]                                 Number of spaces used for indentation
-      --tab-width=[tab width]                Number of spaces used per tab
+      width]                            Number of spaces used for indentation
+      --tab-width=[tab width]           Number of spaces used per tab
       --continuation-indent-width=[Continuation
-      indentation width]                     Indent width for continuations line
+      indentation width]                Indent width for continuations line
       --spaces-before-call=[spaces
-      before call]                           Space on function calls
+      before call]                      Space on function calls
       --column-table-limit=[column
-      table limit]                           Column limit of each line of a table
-      --table-sep=[table separator]          Character to separate table fields
-      This group is all exclusive:
-        --use-tab                            Use tab for indentation
-        --no-use-tab                         Do not use tab for indentation
-      This group is all exclusive:
-        --keep-simple-control-block-one-line
-                                             keep block in one line
-        --no-keep-simple-control-block-one-line
-                                             Do not keep block in one line
-      This group is all exclusive:
-        --keep-simple-function-one-line      keep function in one line
-        --no-keep-simple-function-one-line
-                                             Do not keep function in one line
-      This group is all exclusive:
-        --align-args                         Align the arguments
-        --no-align-args                      Do not align the arguments
-      This group is all exclusive:
-        --break-after-functioncall-lp        Break after '(' of function call
-        --no-break-after-functioncall-lp     Do not break after '(' of function call
-      This group is all exclusive:
-        --break-before-functioncall-rp       Break before ')' of function call
-        --no-break-before-functioncall-rp    Do not break before ')' of function call
-      This group is all exclusive:
-        --align-parameter                    Align the parameters
-        --no-align-parameter                 Do not align the parameters
-      This group is all exclusive:
-        --chop-down-parameter                Chop down all parameters
-        --no-chop-down-parameter             Do not chop down all parameters
-      This group is all exclusive:
-        --break-after-functiondef-lp         Break after '(' of function def
-        --no-break-after-functiondef-lp      Do not break after '(' of function def
-      This group is all exclusive:
-        --break-before-functiondef-rp        Break before ')' of function def
-        --no-break-before-functiondef-rp     Do not break before ')' of function def
-      This group is all exclusive:
-        --align-table-field                  Align fields of table
-        --no-align-table-field               Do not align fields of table
-      This group is all exclusive:
-        --break-after-table-lb               Break after '{' of table
-        --no-break-after-table-lb            Do not break after '{' of table
-      This group is all exclusive:
-        --break-before-table-rb              Break before '}' of table
-        --no-break-before-table-rb           Do not break before '}' of table
-      This group is all exclusive:
-        --chop-down-table                    Chop down any table
-        --no-chop-down-table                 Do not chop down any table
-      This group is all exclusive:
-        --chop-down-kv-table                 Chop down table if table contains key
-        --no-chop-down-kv-table              Do not chop down table if table contains key
-      This group is all exclusive:
-        --extra-sep-at-table-end             Add a extra field separator
-        --no-extra-sep-at-table-end          Do not add a extra field separator
-      This group is all exclusive:
-        --break-after-operator               Put break after operators
-        --no-break-after-operator            Do not put break after operators
-      This group is all exclusive:
-        --double-quote-to-single-quote       Transform string literals to use single quote
-        --no-double-quote-to-single-quote    Do not transform string literals to use single quote
-      This group is all exclusive:
-        --single-quote-to-double-quote       Transform string literals to use double quote
-        --no-single-quote-to-double-quote    Do not transform string literals to use double quote
+      table limit]                      Column limit of each line of a table
+      --table-sep=[table separator]     Character to separate table fields
+      --use-tab                         Use tab for indentation
+      --no-use-tab                      Do not use tab for indentation
+      --keep-simple-control-block-one-line
+                                        keep block in one line
+      --no-keep-simple-control-block-one-line
+                                        Do not keep block in one line
+      --keep-simple-function-one-line   keep function in one line
+      --no-keep-simple-function-one-line
+                                        Do not keep function in one line
+      --align-args                      Align the arguments
+      --no-align-args                   Do not align the arguments
+      --break-after-functioncall-lp     Break after '(' of function call
+      --no-break-after-functioncall-lp  Do not break after '(' of function call
+      --break-before-functioncall-rp    Break before ')' of function call
+      --no-break-before-functioncall-rp Do not break before ')' of function call
+      --align-parameter                 Align the parameters
+      --no-align-parameter              Do not align the parameters
+      --chop-down-parameter             Chop down all parameters
+      --no-chop-down-parameter          Do not chop down all parameters
+      --break-after-functiondef-lp      Break after '(' of function def
+      --no-break-after-functiondef-lp   Do not break after '(' of function def
+      --break-before-functiondef-rp     Break before ')' of function def
+      --no-break-before-functiondef-rp  Do not break before ')' of function def
+      --align-table-field               Align fields of table
+      --no-align-table-field            Do not align fields of table
+      --break-after-table-lb            Break after '{' of table
+      --no-break-after-table-lb         Do not break after '{' of table
+      --break-before-table-rb           Break before '}' of table
+      --no-break-before-table-rb        Do not break before '}' of table
+      --chop-down-table                 Chop down any table
+      --no-chop-down-table              Do not chop down any table
+      --chop-down-kv-table              Chop down table if table contains key
+      --no-chop-down-kv-table           Do not chop down table if table contains
+                                        key
+      --extra-sep-at-table-end          Add a extra field separator
+      --no-extra-sep-at-table-end       Do not add a extra field separator
+      --break-after-operator            Put break after operators
+      --no-break-after-operator         Do not put break after operators
+      --double-quote-to-single-quote    Transform string literals to use single
+                                        quote
+      --no-double-quote-to-single-quote Do not transform string literals to use
+                                        single quote
+      --single-quote-to-double-quote    Transform string literals to use double
+                                        quote
+      --no-single-quote-to-double-quote Do not transform string literals to use
+                                        double quote
+      Lua scripts...                    Lua scripts to format
       "--" can be used to terminate flag options and force all following
       arguments to be treated as positional options
 ```

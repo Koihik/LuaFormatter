@@ -7,44 +7,48 @@
 
 #include "lua-format.h"
 
-using namespace std;
-
 // use for validate_integer
-#define TEST_CONFIG_ERROR_FILE(file)                                                                                                                         \
-    TEST_CASE("Configuration file " + string(file) + " has an error", "format_file") {                                                                       \
-        string configFileName(file);                                                                                                                         \
-        Config config;                                                                                                                                       \
-        REQUIRE_THROWS_WITH(config.readFromFile(configFileName),"[ERROR] Configuration value is out of range. Must be a positive integer greater than 0.");  \
+#define TEST_CONFIG_ERROR_FILE(file)                                                                    \
+    TEST_CASE("Configuration file " + std::string(file) + " has an error", "format_file") {             \
+        std::string configFileName(file);                                                               \
+        Config config;                                                                                  \
+        REQUIRE_THROWS_WITH(                                                                            \
+            config.readFromFile(configFileName),                                                        \
+            "[ERROR] Configuration value is out of range. Must be a positive integer greater than 0."); \
     }
 
 // use for validate_integer_zero
-#define TEST_ZERO_CONFIG_ERROR_FILE(file)                                                                                                                    \
-    TEST_CASE("Configuration file " + string(file) + " has an error", "format_file") {                                                                       \
-        string configFileName(file);                                                                                                                         \
-        Config config;                                                                                                                                       \
-        REQUIRE_THROWS_WITH(config.readFromFile(configFileName),"[ERROR] Configuration value is out of range. Must be a positive integer.");                 \
+#define TEST_ZERO_CONFIG_ERROR_FILE(file)                                                                \
+    TEST_CASE("Configuration file " + std::string(file) + " has an error", "format_file") {              \
+        std::string configFileName(file);                                                                \
+        Config config;                                                                                   \
+        REQUIRE_THROWS_WITH(config.readFromFile(configFileName),                                         \
+                            "[ERROR] Configuration value is out of range. Must be a positive integer."); \
     }
 
 // use for expecting no error
-#define TEST_CONFIG_NO_ERROR_FILE(file)                                                                                                                 \
-    TEST_CASE("Configuration file " + string(file) + " has no error", "format_file") {                                                                  \
-        string configFileName(file);                                                                                                                    \
-        Config config;                                                                                                                                  \
-        REQUIRE_NOTHROW(config.readFromFile(configFileName));                                                                                           \
+#define TEST_CONFIG_NO_ERROR_FILE(file)                                                     \
+    TEST_CASE("Configuration file " + std::string(file) + " has no error", "format_file") { \
+        std::string configFileName(file);                                                   \
+        Config config;                                                                      \
+        REQUIRE_NOTHROW(config.readFromFile(configFileName));                               \
     }
 // use for quote conflicting error
-#define TEST_CONFIG_QUOTE_CONFLICT_ERROR_FILE(file)                                                                                                                                             \
-    TEST_CASE("Configuration file " + string(file) + " has an error", "format_file") {                                                                                                          \
-        string configFileName(file);                                                                                                                                                            \
-        Config config;                                                                                                                                                                          \
-        REQUIRE_THROWS_WITH(config.readFromFile(configFileName),"[ERROR] Configuration value of single_quote_to_double_quote is conflicting with the value of double_quote_to_single_quote");   \
+#define TEST_CONFIG_QUOTE_CONFLICT_ERROR_FILE(file)                                                                \
+    TEST_CASE("Configuration file " + std::string(file) + " has an error", "format_file") {                        \
+        std::string configFileName(file);                                                                          \
+        Config config;                                                                                             \
+        REQUIRE_THROWS_WITH(config.readFromFile(configFileName),                                                   \
+                            "[ERROR] Configuration value of single_quote_to_double_quote is conflicting with the " \
+                            "value of double_quote_to_single_quote");                                              \
     }
 // use for tab conflicting error
-#define TEST_CONFIG_TAB_CONFLICT_ERROR_FILE(file)                                                                                                       \
-    TEST_CASE("Configuration file " + string(file) + " has an error", "format_file") {                                                                  \
-        string configFileName(file);                                                                                                                    \
-        Config config;                                                                                                                                  \
-        REQUIRE_THROWS_WITH(config.readFromFile(configFileName),"[ERROR] Configuration value of use_tab is conflicting with the value of tab_width");   \
+#define TEST_CONFIG_TAB_CONFLICT_ERROR_FILE(file)                                                                 \
+    TEST_CASE("Configuration file " + std::string(file) + " has an error", "format_file") {                       \
+        std::string configFileName(file);                                                                         \
+        Config config;                                                                                            \
+        REQUIRE_THROWS_WITH(config.readFromFile(configFileName),                                                  \
+                            "[ERROR] Configuration value of use_tab is conflicting with the value of tab_width"); \
     }
 
 TEST_CONFIG_ERROR_FILE(PROJECT_PATH "/test/testdata/Config/column_limit.config");

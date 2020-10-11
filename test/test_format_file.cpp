@@ -7,31 +7,29 @@
 
 #include "lua-format.h"
 
-using namespace std;
-
-#define TEST_FILE(file)                                                                                     \
-    TEST_CASE("format file " + string(file) + " works well", "format_file") {                               \
-        string filename(file);                                                                              \
-        ifstream input;                                                                                     \
-        input.open(filename);                                                                               \
-        Config config;                                                                                      \
-        int idx = filename.find_last_of('/');                                                               \
-        string expectFileName = filename.substr(0, idx) + "/_" + filename.substr(idx + 1, filename.size()); \
-        idx = filename.find_last_of('.');                                                                   \
-        string configFileName = filename.substr(0, idx) + ".config";                                        \
-        if (fs::exists(configFileName)) {                                                                   \
-            std::cout << configFileName << " exist" << endl;                                                \
-            config.readFromFile(configFileName);                                                            \
-            std::cout << config.get<bool>("chop_down_parameter") << " dd" << endl;                          \
-        }                                                                                                   \
-        string actual = lua_format(input, config);                                                          \
-        ifstream expectFile(expectFileName);                                                                \
-        stringstream ss;                                                                                    \
-        ss << expectFile.rdbuf();                                                                           \
-        string expect = ss.str();                                                                           \
-        REQUIRE(expect == actual);                                                                          \
-        string formatTwice = lua_format(actual, config);                                                    \
-        REQUIRE(expect == formatTwice);                                                                     \
+#define TEST_FILE(file)                                                                                          \
+    TEST_CASE("format file " + std::string(file) + " works well", "format_file") {                               \
+        std::string filename(file);                                                                              \
+        std::ifstream input;                                                                                     \
+        input.open(filename);                                                                                    \
+        Config config;                                                                                           \
+        int idx = filename.find_last_of('/');                                                                    \
+        std::string expectFileName = filename.substr(0, idx) + "/_" + filename.substr(idx + 1, filename.size()); \
+        idx = filename.find_last_of('.');                                                                        \
+        std::string configFileName = filename.substr(0, idx) + ".config";                                        \
+        if (fs::exists(configFileName)) {                                                                        \
+            std::cout << configFileName << " exist" << std::endl;                                                \
+            config.readFromFile(configFileName);                                                                 \
+            std::cout << config.get<bool>("chop_down_parameter") << " dd" << std::endl;                          \
+        }                                                                                                        \
+        std::string actual = lua_format(input, config);                                                          \
+        std::ifstream expectFile(expectFileName);                                                                \
+        std::stringstream ss;                                                                                    \
+        ss << expectFile.rdbuf();                                                                                \
+        std::string expect = ss.str();                                                                           \
+        REQUIRE(expect == actual);                                                                               \
+        std::string formatTwice = lua_format(actual, config);                                                    \
+        REQUIRE(expect == formatTwice);                                                                          \
     }
 
 TEST_FILE(PROJECT_PATH "/test/testdata/linebreak/args_length.lua");
@@ -83,7 +81,6 @@ TEST_FILE(PROJECT_PATH "/test/testdata/issues/issue-98.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/issues/issue-98_1.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/issues/issue-80.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/issues/PR-100.lua");
-
 
 TEST_FILE(PROJECT_PATH "/test/testdata/issues/PR-108.lua");
 
