@@ -11,22 +11,22 @@ using namespace antlr4;
 // #define LOG_FLAG
 
 #ifdef LOG_FLAG
-#define LOGVAR()                                         \
-    for (int i = 0; i < logIndentSize; i++) cout << " "; \
-    cout << "\"" << __func__ << "\" = ";                 \
-    cout << __func__ << endl
-#define LOG()                                            \
-    for (int i = 0; i < logIndentSize; i++) cout << " "; \
-    cout << __func__ << endl
+#define LOGVAR()                                              \
+    for (int i = 0; i < logIndentSize; i++) std::cout << " "; \
+    std::cout << "\"" << __func__ << "\" = ";                 \
+    std::cout << __func__ << std::endl
+#define LOG()                                                 \
+    for (int i = 0; i < logIndentSize; i++) std::cout << " "; \
+    std::cout << __func__ << std::endl
 static int logIndentSize = 0;
-#define LOG_FUNCTION_BEGIN()                             \
-    logIndentSize++;                                     \
-    for (int i = 0; i < logIndentSize; i++) cout << " "; \
-    cout << __func__ << " begin.." << endl
-#define LOG_FUNCTION_END()                               \
-    for (int i = 0; i < logIndentSize; i++) cout << " "; \
-    logIndentSize--;                                     \
-    cout << __func__ << " end.." << endl
+#define LOG_FUNCTION_BEGIN()                                  \
+    logIndentSize++;                                          \
+    for (int i = 0; i < logIndentSize; i++) std::cout << " "; \
+    std::cout << __func__ << " begin.." << std::endl
+#define LOG_FUNCTION_END()                                    \
+    for (int i = 0; i < logIndentSize; i++) std::cout << " "; \
+    logIndentSize--;                                          \
+    std::cout << __func__ << " end.." << std::endl
 #else
 #define LOG()
 #define LOGVAR()
