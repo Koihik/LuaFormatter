@@ -58,6 +58,8 @@ class FormatVisitor : public LuaBaseVisitor {
     antlrcpp::Any visitChildren(tree::ParseTree* tree) override;
     antlrcpp::Any visitTerminal(tree::TerminalNode* node) override;
 
+    std::pair<int, int> expInfo(LuaParser::ExpContext* ctx);
+
    private:
     bool chop_down_block_ = true;
     bool chop_down_table_ = true;

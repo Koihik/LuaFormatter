@@ -221,7 +221,7 @@ TEST_CASE("args with config", "[args]") {
         config.set("break_after_functioncall_lp", false);
     }
     REQUIRE("xxx(\n    xxx,\n    xxxxx)\n" == lua_format("xxx(xxx,xxxxx)", config));
-    REQUIRE("x(x, x)\n" == lua_format("x(x,x)", config));
+    REQUIRE("xxx(\n    xxxxxxxxxx,\n    x)\n" == lua_format("xxx(xxxxxxxxxx,x)", config));
 
     parser.ParseArgs(std::vector<std::string>{"--break-before-functioncall-rp"});
     if (functioncallRP) {
@@ -230,7 +230,7 @@ TEST_CASE("args with config", "[args]") {
         config.set("break_before_functioncall_rp", false);
     }
     REQUIRE("xxx(\n    xxx,\n    xxxxx\n)\n" == lua_format("xxx(xxx,xxxxx)", config));
-    REQUIRE("x(x, x)\n" == lua_format("x(x,x)", config));
+    REQUIRE("xxx(\n    xxxxx,\n    xxx\n)\n" == lua_format("xxx(xxxxx,xxx)", config));
 
     parser.ParseArgs(std::vector<std::string>{"--no-align-args", "--no-break-after-functioncall-lp",
                                               "--no-break-before-functioncall-rp"});

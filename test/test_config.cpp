@@ -96,11 +96,11 @@ TEST_CASE("args", "config") {
 
     config.set("break_after_functioncall_lp", true);
     REQUIRE("xxx(\n    xxx,\n    xxxxx)\n" == lua_format("xxx(xxx,xxxxx)", config));
-    REQUIRE("x(x, x)\n" == lua_format("x(x,x)", config));
+    REQUIRE("xxx(\n    xxxxxxxxxx,\n    x)\n" == lua_format("xxx(xxxxxxxxxx,x)", config));
 
     config.set("break_before_functioncall_rp", true);
     REQUIRE("xxx(\n    xxx,\n    xxxxx\n)\n" == lua_format("xxx(xxx,xxxxx)", config));
-    REQUIRE("x(x, x)\n" == lua_format("x(x,x)", config));
+    REQUIRE("xxx(\n    xxxxx,\n    xxx\n)\n" == lua_format("xxx(xxxxx,xxx)", config));
 
     config.set("align_args", false);
     config.set("break_after_functioncall_lp", false);
