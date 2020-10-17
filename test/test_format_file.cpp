@@ -81,8 +81,8 @@ TEST_FILE(PROJECT_PATH "/test/testdata/issues/issue-98.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/issues/issue-98_1.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/issues/issue-80.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/issues/PR-100.lua");
-
 TEST_FILE(PROJECT_PATH "/test/testdata/issues/PR-108.lua");
+TEST_FILE(PROJECT_PATH "/test/testdata/issues/issue-104.lua");
 
 TEST_FILE(PROJECT_PATH "/test/testdata/keep_simple_block_one_line/default.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/keep_simple_block_one_line/keep_simple_function_one_line_false.lua");

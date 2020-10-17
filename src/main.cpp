@@ -150,11 +150,6 @@ int main(int argc, const char* argv[]) {
         return 1;
     }
 
-    if (dumpcfg) {
-        config.dumpCurrent(std::cout);
-        return 0;
-    }
-
     std::map<std::string, std::any> argmap;
 
     if (columnlimit) {
@@ -368,6 +363,11 @@ int main(int argc, const char* argv[]) {
             std::cerr << e.what() << std::endl;
             exit(1);
         }
+    }
+
+    if (dumpcfg) {
+        config.dumpCurrent(std::cout);
+        return 0;
     }
 
     bool stdIn = args::get(files).empty();

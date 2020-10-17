@@ -253,6 +253,14 @@ void Config::readFromMap(std::map<std::string, std::any>& mp) {
     }
 }
 
-void Config::dumpCurrent(std::ofstream& fout) { fout << node << std::endl; }
+void Config::dumpCurrent(std::ofstream& fout) {
+   for (const auto& kv : node) {
+      fout << kv.first << ": " << kv.second << std::endl;
+   }
+}
 
-void Config::dumpCurrent(std::ostream& out) { out << node << std::endl; }
+void Config::dumpCurrent(std::ostream& out) {
+   for (const auto& kv : node) {
+      out << kv.first << ": " << kv.second << std::endl;
+   }
+}
