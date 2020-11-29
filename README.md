@@ -155,7 +155,7 @@ break_after_operator: true
 double_quote_to_single_quote: false
 single_quote_to_double_quote: false
 ```
-## Disable formatting for a line or block
+### Disable formatting for a line or block
 Sometimes it may be useful to disable automatic formatting. This is done be putting the code between `LuaFormatter off` and `LuaFormatter on` tags:
 
 ```lua
