@@ -323,7 +323,8 @@ int main(int argc, const char* argv[]) {
             if (!home.empty()) {
                 conf_dir = home + "/.config";
             }
-        } else {
+        }
+        if (!conf_dir.empty()) {
             std::string candidate = conf_dir + "/luaformatter/config.yaml";
             if (fs::exists(candidate)) {
                 configFileName = candidate;
