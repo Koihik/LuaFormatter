@@ -75,6 +75,9 @@ class FormatVisitor : public LuaBaseVisitor {
     // stack to record is a chained method call is the first call
     std::vector<bool> chainedMethodCallIsFirst_;
 
+    // stack to record is break_after_functiondef_lp has increased indent
+    std::vector<bool> breakAfterLpHasIncIndent_;
+
     int indent_ = 0;
     int indentForAlign_ = 0;
     const std::vector<Token*>& tokens_;
