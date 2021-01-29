@@ -38,11 +38,11 @@ jobs:
       run: |
          git submodule update --init
          cmake -G "Visual Studio 16 2019" -DCMAKE_BUILD_TYPE=Release
-         msbuild "lua-formatter.sln" /clp:ErrorsOnly /target:Build
+         msbuild "lua-formatter.sln" /p:Configuration=Release /p:Platform=x64 /clp:ErrorsOnly /target:Build
     - uses: actions/upload-artifact@v2
       with:
         name: windows-artifact
-        path: lua-format.exe
+        path: Release/lua-format.exe
 
   darwin-artifact:
     runs-on: macos-latest
