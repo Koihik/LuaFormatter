@@ -11,13 +11,12 @@ using namespace antlr4;
 // #define LOG_FLAG
 
 #ifdef LOG_FLAG
-#define LOGVAR()                                              \
+#define LOGVAR(arg)                                              \
     for (int i = 0; i < logIndentSize; i++) std::cout << " "; \
-    std::cout << "\"" << __func__ << "\" = ";                 \
-    std::cout << __func__ << std::endl
-#define LOG()                                                 \
+    std::cout << "" #arg " = " << (arg) << std::endl
+#define LOG(arg)                                                 \
     for (int i = 0; i < logIndentSize; i++) std::cout << " "; \
-    std::cout << __func__ << std::endl
+    std::cout << arg << std::endl
 static int logIndentSize = 0;
 #define LOG_FUNCTION_BEGIN()                                  \
     logIndentSize++;                                          \
@@ -643,6 +642,7 @@ antlrcpp::Any FormatVisitor::visitNamelist(LuaParser::NamelistContext* ctx) {
     bool hasIncIndent = false;
     int firstParameterLength = ctx->NAME().front()->getText().size();
     int firstParameterIndent = 0;
+    bool incIndentByFuncdef = !breakAfterLpHasIncIndent_.empty() && breakAfterLpHasIncIndent_.back();
 
     if (n > 0) {
         firstParameterLength++;  // calc a ',' if exp > 1
@@ -680,6 +680,9 @@ antlrcpp::Any FormatVisitor::visitNamelist(LuaParser::NamelistContext* ctx) {
             chopDownParameter = lines > 1 || cur_columns() + length > config_.get<int>("column_limit");
         }
     }
+    if (incIndentByFuncdef) {
+        hasIncIndent = true;
+    }
     for (int i = 0; i < n; i++) {
         cur_writer() << ctx->COMMA()[i]->getText();
         bool beyondLimit = false;
@@ -707,17 +710,9 @@ antlrcpp::Any FormatVisitor::visitNamelist(LuaParser::NamelistContext* ctx) {
                     cur_writer() << indent();
                     indent_ -= firstParameterIndent;
                 } else {
-                    if (config_.get<bool>("break_after_functiondef_lp")) {
-                        cur_writer() << commentAfterNewLine(ctx->COMMA()[i], INC_CONTINUATION_INDENT);
-                        decIndent();
-                        cur_writer() << indent();
-                        incIndent();
-                        hasIncIndent = true;
-                    } else {
-                        cur_writer() << commentAfterNewLine(ctx->COMMA()[i], INC_CONTINUATION_INDENT);
-                        cur_writer() << indent();
-                        hasIncIndent = true;
-                    }
+                    cur_writer() << commentAfterNewLine(ctx->COMMA()[i], INC_CONTINUATION_INDENT);
+                    cur_writer() << indent();
+                    hasIncIndent = true;
                 }
             }
             cur_writer() << ctx->NAME()[i + 1]->getText();
@@ -729,7 +724,7 @@ antlrcpp::Any FormatVisitor::visitNamelist(LuaParser::NamelistContext* ctx) {
             cur_writer() << commentAfter(ctx->NAME()[i + 1], "");
         }
     }
-    if (hasIncIndent) {
+    if (hasIncIndent && !incIndentByFuncdef) {
         decContinuationIndent();
     }
     LOG_FUNCTION_END();
@@ -1463,8 +1458,9 @@ antlrcpp::Any FormatVisitor::visitFuncbody(LuaParser::FuncbodyContext* ctx) {
         } else {
             cur_writer() << commentAfter(ctx->LP(), "");
         }
-
+        breakAfterLpHasIncIndent_.push_back(breakAfterLp);
         visitParlist(ctx->parlist());
+        breakAfterLpHasIncIndent_.pop_back();
 
         if (config_.get<bool>("break_before_functiondef_rp")) {
             if (breakAfterLp) {
