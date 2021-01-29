@@ -26,7 +26,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: linux-artifact
-        path: Release/lua-format
+        path: lua-format
 
   windows-artifact:
     runs-on: windows-latest
@@ -42,7 +42,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: windows-artifact
-        path: Release/lua-format.exe
+        path: lua-format.exe
 
   darwin-artifact:
     runs-on: macos-latest
@@ -56,4 +56,4 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: darwin-artifact
-        path: Release/lua-format
+        path: lua-format
