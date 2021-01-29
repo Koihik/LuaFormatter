@@ -13,3 +13,47 @@ jobs:
       - uses: release-drafter/release-drafter@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  linux-artifact:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build LuaFormatter
+      run: |
+         git submodule update --init
+         cmake -DCMAKE_BUILD_TYPE=Release
+         make
+    - uses: actions/upload-artifact@v2
+      with:
+        name: linux-artifact
+        path: Release/lua-format
+
+  windows-artifact:
+    runs-on: windows-latest
+    steps:
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+    - uses: actions/checkout@v2
+    - name: Build LuaFormatter
+      run: |
+         git submodule update --init
+         cmake -G "Visual Studio 16 2019" -DCMAKE_BUILD_TYPE=Release
+         msbuild "lua-formatter.sln" /clp:ErrorsOnly /target:Build
+    - uses: actions/upload-artifact@v2
+      with:
+        name: windows-artifact
+        path: Release/lua-format.exe
+
+  darwin-artifact:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build LuaFormatter
+      run: |
+         git submodule update --init
+         cmake -DCMAKE_BUILD_TYPE=Release
+         make
+    - uses: actions/upload-artifact@v2
+      with:
+        name: darwin-artifact
+        path: Release/lua-format
