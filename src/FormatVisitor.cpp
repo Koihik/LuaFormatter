@@ -1382,6 +1382,10 @@ antlrcpp::Any FormatVisitor::visitArgs(LuaParser::ArgsContext* ctx) {
             if (!beyondLimit || lines == 1) {
                 breakAfterLp = config_.get<bool>("break_after_functioncall_lp");
             }
+            if (config_.get<bool>("spaces_inside_functioncall_parens") &&
+                !beyondLimit && !breakAfterLp) {
+              cur_writer() << " ";
+            }
             if (breakAfterLp) {
                 // break line on '(' keeping comments
                 cur_writer() << commentAfterNewLine(ctx->LP(), INC_CONTINUATION_INDENT);
@@ -1406,6 +1410,9 @@ antlrcpp::Any FormatVisitor::visitArgs(LuaParser::ArgsContext* ctx) {
                     decContinuationIndent();
                 }
                 cur_writer() << commentAfter(ctx->explist(), "");
+            }
+            if (config_.get<bool>("spaces_inside_functioncall_parens")) {
+              cur_writer() << " ";
             }
             cur_writer() << ctx->RP()->getText();
         } else {
@@ -1452,6 +1459,10 @@ antlrcpp::Any FormatVisitor::visitFuncbody(LuaParser::FuncbodyContext* ctx) {
         if (beyondLimit) {
             breakAfterLp = config_.get<bool>("break_after_functiondef_lp");
         }
+        if (config_.get<bool>("spaces_inside_functiondef_parens") &&
+            !beyondLimit && !breakAfterLp) {
+          cur_writer() << " ";
+        }
         if (breakAfterLp) {
             cur_writer() << commentAfterNewLine(ctx->LP(), INC_CONTINUATION_INDENT);
             cur_writer() << indent();
@@ -1477,6 +1488,10 @@ antlrcpp::Any FormatVisitor::visitFuncbody(LuaParser::FuncbodyContext* ctx) {
         }
     } else {
         cur_writer() << commentAfter(ctx->LP(), "");
+    }
+    if (config_.get<bool>("spaces_inside_functiondef_parens") &&
+        ctx->parlist() != nullptr) {
+      cur_writer() << " ";
     }
     cur_writer() << ctx->RP()->getText();
     visitBlockAndComment(ctx->RP(), ctx->block(), FUNCTION_BLOCK);
@@ -1550,6 +1565,9 @@ antlrcpp::Any FormatVisitor::visitTableconstructor(LuaParser::TableconstructorCo
                 cur_writer() << commentAfterNewLine(ctx->LB(), INC_INDENT);
                 cur_writer() << indent();
             } else {
+                if (config_.get<bool>("spaces_inside_table_braces") && !breakAfterLb) {
+                  cur_writer() << " ";
+                }
                 cur_writer() << commentAfter(ctx->LB(), "");
             }
             chop_down_table_ = false;
@@ -1577,6 +1595,9 @@ antlrcpp::Any FormatVisitor::visitTableconstructor(LuaParser::TableconstructorCo
             } else {
                 cur_writer() << commentAfter(ctx->fieldlist(), "");
             }
+        }
+        if (config_.get<bool>("spaces_inside_table_braces") && !breakAfterLb) {
+          cur_writer() << " ";
         }
         cur_writer() << ctx->RB()->getText();
         chop_down_table_ = temp;
@@ -1674,21 +1695,23 @@ antlrcpp::Any FormatVisitor::visitFieldlist(LuaParser::FieldlistContext* ctx) {
 // LSB exp RSB EQL exp | NAME EQL exp | exp;
 antlrcpp::Any FormatVisitor::visitField(LuaParser::FieldContext* ctx) {
     LOG_FUNCTION_BEGIN();
+    std::string eq_space = config_.get<bool>("spaces_around_equals_in_field")
+                         ? " " : "";
     if (ctx->LSB() != nullptr) {
         cur_writer() << ctx->LSB()->getText();
         cur_writer() << commentAfter(ctx->LSB(), "");
         visitExp(ctx->exp()[0]);
         cur_writer() << commentAfter(ctx->exp()[0], "");
         cur_writer() << ctx->RSB()->getText();
-        cur_writer() << commentAfter(ctx->RSB(), " ");
+        cur_writer() << commentAfter(ctx->RSB(), eq_space);
         cur_writer() << ctx->EQL()->getText();
-        cur_writer() << commentAfter(ctx->EQL(), " ");
+        cur_writer() << commentAfter(ctx->EQL(), eq_space);
         visitExp(ctx->exp()[1]);
     } else if (ctx->NAME() != nullptr) {
         cur_writer() << ctx->NAME()->getText();
-        cur_writer() << commentAfter(ctx->NAME(), " ");
+        cur_writer() << commentAfter(ctx->NAME(), eq_space);
         cur_writer() << ctx->EQL()->getText();
-        cur_writer() << commentAfter(ctx->EQL(), " ");
+        cur_writer() << commentAfter(ctx->EQL(), eq_space);
         visitExp(ctx->exp().front());
     } else {
         visitExp(ctx->exp().front());

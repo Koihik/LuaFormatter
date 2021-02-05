@@ -23,6 +23,8 @@ Config::Config() {
     node["align_args"] = true;
     node["break_after_functioncall_lp"] = false;
     node["break_before_functioncall_rp"] = false;
+    node["spaces_inside_functioncall_parens"] = false;
+    node["spaces_inside_functiondef_parens"] = false;
 
     node["align_parameter"] = true;
     node["chop_down_parameter"] = false;
@@ -37,11 +39,14 @@ Config::Config() {
     node["table_sep"] = ",";
     node["extra_sep_at_table_end"] = false;
     node["column_table_limit"] = node["column_limit"];
+    node["spaces_inside_table_braces"] = false;
 
     node["break_after_operator"] = true;
 
     node["double_quote_to_single_quote"] = false;
     node["single_quote_to_double_quote"] = false;
+
+    node["spaces_around_equals_in_field"] = true;
 
     // Validators
     // validate integer without 0s as configuration value
@@ -139,6 +144,10 @@ Config::Config() {
     validators["double_quote_to_single_quote"] = validate_quote;
     validators["single_quote_to_double_quote"] = validate_quote;
     validators["table_sep"] = validate_character;
+    validators["spaces_inside_functioncall_parens"] = validate_boolean;
+    validators["spaces_inside_functiondef_parens"] = validate_boolean;
+    validators["spaces_inside_table_braces"] = validate_boolean;
+    validators["spaces_around_equals_in_field"] = validate_boolean;
 
     // DataType of every configuration field
     datatype["spaces_before_call"] = 'i';
@@ -167,6 +176,10 @@ Config::Config() {
     datatype["double_quote_to_single_quote"] = 'b';
     datatype["single_quote_to_double_quote"] = 'b';
     datatype["table_sep"] = 'c';
+    datatype["spaces_inside_functioncall_parens"] = 'b';
+    datatype["spaces_inside_functiondef_parens"] = 'b';
+    datatype["spaces_inside_table_braces"] = 'b';
+    datatype["spaces_around_equals_in_field"] = 'b';
 }
 
 void Config::readFromFile(const std::string& file) {

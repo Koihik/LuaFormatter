@@ -110,6 +110,27 @@ luarocks install --server=https://luarocks.org/dev luaformatter
                                         quote
       --no-single-quote-to-double-quote Do not transform string literals to use
                                         double quote
+      --spaces-inside-functiondef-params
+                                        Put spaces on the inside of parens in
+                                        function headers
+      --no-spaces-inside-functiondef-params
+                                        Do not put spaces on the inside of
+                                        parens in function headers
+      --spaces-inside-functioncall-params
+                                        Put spaces on the inside of parens in
+                                        function calls
+      --no-spaces-inside-functioncall-params
+                                        Do not put spaces on the inside of
+                                        parens in function calls
+      --spaces-inside-table-braces      Put spaces on the inside of braces in
+                                        table constructors
+      --no-spaces-inside-table-braces   Do not put spaces on the inside of
+                                        braces in table constructors
+      --spaces-around-equals-in-field   Put spaces around the equal sign in
+                                        key/value fields
+      --no-spaces-around-equals-in-field
+                                        Do not put spaces around the equal sign
+                                        in key/value fields
       Lua scripts...                    Lua scripts to format
       "--" can be used to terminate flag options and force all following
       arguments to be treated as positional options
@@ -139,6 +160,8 @@ keep_simple_function_one_line: true
 align_args: true
 break_after_functioncall_lp: false
 break_before_functioncall_rp: false
+spaces_inside_functioncall_parens: false
+spaces_inside_functiondef_parens: false
 align_parameter: true
 chop_down_parameter: false
 break_after_functiondef_lp: false
@@ -149,11 +172,13 @@ break_before_table_rb: true
 chop_down_table: false
 chop_down_kv_table: true
 table_sep: ","
-column_table_limit: column_limit
 extra_sep_at_table_end: false
+column_table_limit: 80
+spaces_inside_table_braces: false
 break_after_operator: true
 double_quote_to_single_quote: false
 single_quote_to_double_quote: false
+spaces_around_equals_in_field: true
 ```
 ### Disable formatting for a line or block
 Sometimes it may be useful to disable automatic formatting. This is done be putting the code between `LuaFormatter off` and `LuaFormatter on` tags:
