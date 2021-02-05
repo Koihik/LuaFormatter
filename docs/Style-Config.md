@@ -566,14 +566,21 @@ point = Point{ x = 1, y = 2 }
 type: bool, default: true
 
 Inserts spaces around the equal sign in key/value fields.
+Other assignments are not affected, though they may be
+affected by other options or behavior of the formatter.
 
 ```lua
 -- original
 x = {1, 2, 3}
+point={ x=1, y=2}
+point = Point{x=1, y=2}
+
+-- transformed (true)
+x = {1, 2, 3}
 point = {x = 1, y = 2}
 point = Point{x = 1, y = 2}
 
--- transformed
+-- transformed (false)
 x = {1, 2, 3}
 point = {x=1, y=2}
 point = Point{x=1, y=2}
