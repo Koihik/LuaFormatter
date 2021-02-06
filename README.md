@@ -172,8 +172,8 @@ break_before_table_rb: true
 chop_down_table: false
 chop_down_kv_table: true
 table_sep: ","
+column_table_limit: column_limit
 extra_sep_at_table_end: false
-column_table_limit: 80
 spaces_inside_table_braces: false
 break_after_operator: true
 double_quote_to_single_quote: false
