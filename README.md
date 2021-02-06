@@ -110,16 +110,16 @@ luarocks install --server=https://luarocks.org/dev luaformatter
                                         quote
       --no-single-quote-to-double-quote Do not transform string literals to use
                                         double quote
-      --spaces-inside-functiondef-params
+      --spaces-inside-functiondef-parens
                                         Put spaces on the inside of parens in
                                         function headers
-      --no-spaces-inside-functiondef-params
+      --no-spaces-inside-functiondef-parens
                                         Do not put spaces on the inside of
                                         parens in function headers
-      --spaces-inside-functioncall-params
+      --spaces-inside-functioncall-parens
                                         Put spaces on the inside of parens in
                                         function calls
-      --no-spaces-inside-functioncall-params
+      --no-spaces-inside-functioncall-parens
                                         Do not put spaces on the inside of
                                         parens in function calls
       --spaces-inside-table-braces      Put spaces on the inside of braces in
