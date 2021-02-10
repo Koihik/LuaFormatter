@@ -78,6 +78,9 @@ class FormatVisitor : public LuaBaseVisitor {
     // stack to record is break_after_functiondef_lp has increased indent
     std::vector<bool> breakAfterLpHasIncIndent_;
 
+    // stack to record is break_after_functioncall_lp has break the line
+    std::vector<bool> functioncallLpHasBreak_;
+
     int indent_ = 0;
     int indentForAlign_ = 0;
     const std::vector<Token*>& tokens_;

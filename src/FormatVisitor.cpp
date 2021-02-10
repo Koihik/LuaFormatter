@@ -11,10 +11,10 @@ using namespace antlr4;
 // #define LOG_FLAG
 
 #ifdef LOG_FLAG
-#define LOGVAR(arg)                                              \
+#define LOGVAR(arg)                                           \
     for (int i = 0; i < logIndentSize; i++) std::cout << " "; \
     std::cout << "" #arg " = " << (arg) << std::endl
-#define LOG(arg)                                                 \
+#define LOG(arg)                                              \
     for (int i = 0; i < logIndentSize; i++) std::cout << " "; \
     std::cout << arg << std::endl
 static int logIndentSize = 0;
@@ -849,6 +849,9 @@ antlrcpp::Any FormatVisitor::visitExplist(LuaParser::ExplistContext* ctx) {
     if (lines > 1 && cur_columns() > config_.get<int>("column_limit") / 2) {
         beyondLimit = true;
     }
+    if (!functioncallLpHasBreak_.empty() && functioncallLpHasBreak_.back()){
+        beyondLimit = false;
+    }
     bool hasIncIndent = false;
     int firstArgsIndent = 0;
     if (beyondLimit) {
@@ -1350,14 +1353,6 @@ antlrcpp::Any FormatVisitor::visitNameAndArgs(LuaParser::NameAndArgsContext* ctx
     return nullptr;
 }
 
-std::pair<int, int> FormatVisitor::expInfo(LuaParser::ExpContext* ctx) {
-    pushWriterWithColumn();
-    visitExp(ctx);
-    auto ret = std::make_pair(cur_writer().firstLineColumn(), cur_writer().lines());
-    popWriter();
-    return ret;
-}
-
 // LP explist? RP | tableconstructor | string;
 antlrcpp::Any FormatVisitor::visitArgs(LuaParser::ArgsContext* ctx) {
     LOG_FUNCTION_BEGIN();
@@ -1370,22 +1365,20 @@ antlrcpp::Any FormatVisitor::visitArgs(LuaParser::ArgsContext* ctx) {
             visitExplist(ctx->explist());
             cur_writer() << commentAfter(ctx->explist(), "");
             int lines = cur_writer().lines();
-            auto&& [length, _] = expInfo(ctx->explist()->exp().front());
+            int length = cur_writer().firstLineColumn();
+            if (!config_.get<bool>("break_before_functioncall_rp")) {
+                length++;
+            }
             popWriter();
-            // if we have line breaks in the lookahead, we have to avoid
-            // doing an extra line break. this only works if the first exp
-            // of explist has length > column_limit
-            // we also need to consider the following:
-            //   xxx(xxx,xxxxx....xxxx)
-            // 'visitExplist' will break on ',' and lines will be > 1
             bool beyondLimit = cur_columns() + length > config_.get<int>("column_limit");
-            if (!beyondLimit || lines == 1) {
+            if (beyondLimit || lines > 1) {
                 breakAfterLp = config_.get<bool>("break_after_functioncall_lp");
             }
             if (config_.get<bool>("spaces_inside_functioncall_parens") &&
                 !beyondLimit && !breakAfterLp) {
               cur_writer() << " ";
             }
+            functioncallLpHasBreak_.push_back(breakAfterLp);
             if (breakAfterLp) {
                 // break line on '(' keeping comments
                 cur_writer() << commentAfterNewLine(ctx->LP(), INC_CONTINUATION_INDENT);
@@ -1402,9 +1395,12 @@ antlrcpp::Any FormatVisitor::visitArgs(LuaParser::ArgsContext* ctx) {
             // 'visitExplist' will leave 'indent_' on 0 if we detect that it will break line
             // on '(' by itself, therefore we cannot decrement 'indent_'
             if (config_.get<bool>("break_before_functioncall_rp")) {
-                cur_writer() << commentAfterNewLine(ctx->explist(),
-                                                    breakAfterLp ? DEC_CONTINUATION_INDENT : NONE_INDENT);
-                cur_writer() << indentWithAlign();
+                if (breakAfterLp) {
+                    cur_writer() << commentAfterNewLine(ctx->explist(), DEC_CONTINUATION_INDENT);
+                    cur_writer() << indentWithAlign();
+                } else {
+                    cur_writer() << commentAfter(ctx->explist(), "");
+                }
             } else {
                 if (breakAfterLp) {
                     decContinuationIndent();
@@ -1414,6 +1410,7 @@ antlrcpp::Any FormatVisitor::visitArgs(LuaParser::ArgsContext* ctx) {
             if (config_.get<bool>("spaces_inside_functioncall_parens")) {
               cur_writer() << " ";
             }
+            functioncallLpHasBreak_.pop_back();
             cur_writer() << ctx->RP()->getText();
         } else {
             cur_writer() << commentAfter(ctx->LP(), "");

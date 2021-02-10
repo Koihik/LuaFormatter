@@ -1,0 +1,1 @@
+addEvent("onPlayerJoin", true)
