@@ -131,6 +131,30 @@ int main(int argc, const char* argv[]) {
                               "Do not transform string literals to use double quote",
                               {"no-single-quote-to-double-quote"});
 
+    args::Group optspacesinsidefunctiondefparens(parser, "", args::Group::Validators::AtMostOne);
+    args::Flag spacesinsidefunctiondefparens(optspacesinsidefunctiondefparens, "spaces inside function header parens",
+                               "Put spaces on the inside of parens in function headers", {"spaces-inside-functiondef-parens"});
+    args::Flag nospacesinsidefunctiondefparens(optspacesinsidefunctiondefparens, "spaces inside function header parens",
+                               "Do not put spaces on the inside of parens in function headers", {"no-spaces-inside-functiondef-parens"});
+
+    args::Group optspacesinsidefunctioncallparens(parser, "", args::Group::Validators::AtMostOne);
+    args::Flag spacesinsidefunctioncallparens(optspacesinsidefunctioncallparens, "spaces inside function call parens",
+                               "Put spaces on the inside of parens in function calls", {"spaces-inside-functioncall-parens"});
+    args::Flag nospacesinsidefunctioncallparens(optspacesinsidefunctioncallparens, "spaces inside function call parens",
+                               "Do not put spaces on the inside of parens in function calls", {"no-spaces-inside-functioncall-parens"});
+
+    args::Group optspacesinsidetablebraces(parser, "", args::Group::Validators::AtMostOne);
+    args::Flag spacesinsidetablebraces(optspacesinsidetablebraces, "spaces inside table constructor braces",
+                               "Put spaces on the inside of braces in table constructors", {"spaces-inside-table-braces"});
+    args::Flag nospacesinsidetablebraces(optspacesinsidetablebraces, "spaces inside table constructor braces",
+                               "Do not put spaces on the inside of braces in table constructors", {"no-spaces-inside-table-braces"});
+
+    args::Group optspacesaroundequalsinfield(parser, "", args::Group::Validators::AtMostOne);
+    args::Flag spacesaroundequalsinfield(optspacesaroundequalsinfield, "spaces around equals sign in key/value fields",
+                               "Put spaces around the equal sign in key/value fields", {"spaces-around-equals-in-field"});
+    args::Flag nospacesaroundequalsinfield(optspacesaroundequalsinfield, "spaces around equals sign in key/value fields",
+                               "Do not put spaces around the equal sign in key/value fields", {"no-spaces-around-equals-in-field"});
+
     args::PositionalList<std::string> files(parser, "Lua scripts", "Lua scripts to format");
 
     Config config;
@@ -286,6 +310,30 @@ int main(int argc, const char* argv[]) {
         argmap["single_quote_to_double_quote"] = true;
     } else if (noSingleDouble) {
         argmap["single_quote_to_double_quote"] = false;
+    }
+
+    if (spacesinsidefunctiondefparens) {
+      argmap["spaces_inside_functiondef_parens"] = true;
+    } else if (nospacesinsidefunctiondefparens) {
+      argmap["spaces_inside_functiondef_parens"] = false;
+    }
+
+    if (spacesinsidefunctioncallparens) {
+      argmap["spaces_inside_functioncall_parens"] = true;
+    } else if (nospacesinsidefunctioncallparens) {
+      argmap["spaces_inside_functioncall_parens"] = false;
+    }
+
+    if (spacesinsidetablebraces) {
+      argmap["spaces_inside_table_braces"] = true;
+    } else if (nospacesinsidetablebraces) {
+      argmap["spaces_inside_table_braces"] = false;
+    }
+
+    if (spacesaroundequalsinfield) {
+      argmap["spaces_around_equals_in_field"] = true;
+    } else if (nospacesaroundequalsinfield) {
+      argmap["spaces_around_equals_in_field"] = false;
     }
 
     std::string configFileName = args::get(cFile);

@@ -83,6 +83,70 @@ TEST_CASE("keep_simple_function_one_line", "config") {
     REQUIRE("function x()\n  print(1)\nend\n" == lua_format("function x() print(1) end", config));
 }
 
+TEST_CASE("spaces_inside_functiondef_parens", "config") {
+    Config config;
+    config.set("spaces_inside_functiondef_parens", true);
+
+    REQUIRE(lua_format("function x(a, b) print(1); print(1, 2) end\n", config) ==
+           "function x( a, b )\n    print(1);\n    print(1, 2)\nend\n");
+    REQUIRE(lua_format("x = function(a, b) print(1); print(1, 2) end\n", config) ==
+           "x = function( a, b )\n    print(1);\n    print(1, 2)\nend\n");
+
+    config.set("spaces_inside_functiondef_parens", false);
+    REQUIRE(lua_format("function x(a, b) print(1); print(1, 2) end\n", config) ==
+           "function x(a, b)\n    print(1);\n    print(1, 2)\nend\n");
+    REQUIRE(lua_format("x = function(a, b) print(1); print(1, 2) end\n", config) ==
+           "x = function(a, b)\n    print(1);\n    print(1, 2)\nend\n");
+}
+
+TEST_CASE("spaces_inside_functioncall_parens", "config") {
+    Config config;
+    config.set("spaces_inside_functioncall_parens", true);
+
+    REQUIRE(lua_format("function x(a, b) print(1); print(1, 2) end\n", config) ==
+           "function x(a, b)\n    print( 1 );\n    print( 1, 2 )\nend\n");
+    REQUIRE(lua_format("x = function(a, b) print(1); print(1, 2) end\n", config) ==
+           "x = function(a, b)\n    print( 1 );\n    print( 1, 2 )\nend\n");
+
+    config.set("spaces_inside_functioncall_parens", false);
+    REQUIRE(lua_format("function x(a, b) print(1); print(1, 2) end\n", config) ==
+           "function x(a, b)\n    print(1);\n    print(1, 2)\nend\n");
+    REQUIRE(lua_format("x = function(a, b) print(1); print(1, 2) end\n", config) ==
+           "x = function(a, b)\n    print(1);\n    print(1, 2)\nend\n");
+}
+
+TEST_CASE("spaces_inside_table_braces", "config") {
+    Config config;
+    config.set("spaces_before_call", 0);
+    config.set("spaces_inside_table_braces", true);
+
+    REQUIRE(lua_format("x = {}\n", config) == "x = {}\n");
+    REQUIRE(lua_format("x = {1, 2, 3}\n", config) == "x = { 1, 2, 3 }\n");
+    REQUIRE(lua_format("x = foo{1, 2, 3}\n", config) == "x = foo{ 1, 2, 3 }\n");
+    REQUIRE(lua_format("x = {x = 3, y = 5}\n", config) == "x = { x = 3, y = 5 }\n");
+    REQUIRE(lua_format("x = foo{x = 3, y = 5}\n", config) == "x = foo{ x = 3, y = 5 }\n");
+
+    config.set("spaces_inside_table_braces", false);
+    REQUIRE(lua_format("x = {}\n", config) == "x = {}\n");
+    REQUIRE(lua_format("x = {1, 2, 3}\n", config) == "x = {1, 2, 3}\n");
+    REQUIRE(lua_format("x = foo{1, 2, 3}\n", config) == "x = foo{1, 2, 3}\n");
+    REQUIRE(lua_format("x = {x = 3, y = 5}\n", config) == "x = {x = 3, y = 5}\n");
+    REQUIRE(lua_format("x = foo{x = 3, y = 5}\n", config) == "x = foo{x = 3, y = 5}\n");
+}
+
+TEST_CASE("spaces_around_equals_in_field", "config") {
+    Config config;
+    config.set("spaces_before_call", 0);
+    config.set("spaces_around_equals_in_field", true);
+
+    REQUIRE(lua_format("x = {x =3, y= 5}\n", config) == "x = {x = 3, y = 5}\n");
+    REQUIRE(lua_format("x = foo{x = 3, y=5}\n", config) == "x = foo{x = 3, y = 5}\n");
+
+    config.set("spaces_around_equals_in_field", false);
+    REQUIRE(lua_format("x = {x = 3, y =5}\n", config) == "x = {x=3, y=5}\n");
+    REQUIRE(lua_format("x = foo{x = 3, y = 5}\n", config) == "x = foo{x=3, y=5}\n");
+}
+
 TEST_CASE("args", "config") {
     Config config;
     config.set("indent_width", 2);

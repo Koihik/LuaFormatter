@@ -57,6 +57,7 @@ TEST_FILE(PROJECT_PATH "/test/testdata/statement/semi.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/statement/shebang.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/statement/statements.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/statement/table.lua");
+TEST_FILE(PROJECT_PATH "/test/testdata/statement/inner_spaces.lua");
 
 TEST_FILE(PROJECT_PATH "/test/testdata/literals/doublequote.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/literals/singlequote.lua");

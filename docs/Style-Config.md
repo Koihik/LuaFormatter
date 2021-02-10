@@ -490,3 +490,98 @@ f "a" "b"
 require"foo"
 f"a" "b"
 ```
+
+### spaces_inside_functiondef_parens
+
+type: bool, default: false
+
+Inserts spaces inside the parenthesis in a function header.
+
+```lua
+-- original
+function foo(x, y)
+  print('hello')
+end
+
+foo = function(x, y)
+  print('hello')
+end
+
+-- transformed
+function foo( x, y )
+  print('hello')
+end
+
+foo = function( x, y )
+  print('hello')
+end
+```
+
+### spaces_inside_functioncall_parens
+
+type: bool, default: false
+
+Inserts spaces inside the parenthesis in a function call.
+
+```lua
+-- original
+function foo(x, y)
+  print('hello')
+end
+
+foo = function(x, y)
+  print('hello', 2)
+end
+
+-- transformed
+function foo(x, y)
+  print( 'hello' )
+end
+
+foo = function(x, y)
+  print( 'hello', 2 )
+end
+```
+
+### spaces_inside_table_braces
+
+type: bool, default: false
+
+Inserts spaces inside the braces in a table constructor.
+
+```lua
+-- original
+x = {1, 2, 3}
+point = {x = 1, y = 2}
+point = Point{x = 1, y = 2}
+
+-- transformed
+x = { 1, 2, 3 }
+point = { x = 1, y = 2 }
+point = Point{ x = 1, y = 2 }
+```
+
+### spaces_around_equals_in_field
+
+type: bool, default: true
+
+Inserts spaces around the equal sign in key/value fields.
+Other assignments are not affected, though they may be
+affected by other options or behavior of the formatter.
+
+```lua
+-- original
+x = {1, 2, 3}
+point={ x=1, y=2}
+point = Point{x=1, y=2}
+
+-- transformed (true)
+x = {1, 2, 3}
+point = {x = 1, y = 2}
+point = Point{x = 1, y = 2}
+
+-- transformed (false)
+x = {1, 2, 3}
+point = {x=1, y=2}
+point = Point{x=1, y=2}
+```
