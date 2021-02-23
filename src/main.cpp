@@ -154,7 +154,8 @@ int main(int argc, const char* argv[]) {
                                "Put spaces around the equal sign in key/value fields", {"spaces-around-equals-in-field"});
     args::Flag nospacesaroundequalsinfield(optspacesaroundequalsinfield, "spaces around equals sign in key/value fields",
                                "Do not put spaces around the equal sign in key/value fields", {"no-spaces-around-equals-in-field"});
-
+    args::ValueFlag<int> linebreaksafterfunctionbody(parser, "line breaks after function body", "Line breaks after function body", {"line-breaks-after-function-body"});
+    
     args::PositionalList<std::string> files(parser, "Lua scripts", "Lua scripts to format");
 
     Config config;
@@ -336,6 +337,10 @@ int main(int argc, const char* argv[]) {
       argmap["spaces_around_equals_in_field"] = false;
     }
 
+    if (linebreaksafterfunctionbody) {
+        argmap["line_breaks_after_function_body"] = args::get(linebreaksafterfunctionbody);
+    }
+    
     std::string configFileName = args::get(cFile);
 
     // Automatically look for a .lua-format on the current directory

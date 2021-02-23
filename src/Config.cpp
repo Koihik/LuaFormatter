@@ -47,6 +47,7 @@ Config::Config() {
     node["single_quote_to_double_quote"] = false;
 
     node["spaces_around_equals_in_field"] = true;
+    node["line_breaks_after_function_body"] = 1;
 
     // Validators
     // validate integer without 0s as configuration value
@@ -148,6 +149,7 @@ Config::Config() {
     validators["spaces_inside_functiondef_parens"] = validate_boolean;
     validators["spaces_inside_table_braces"] = validate_boolean;
     validators["spaces_around_equals_in_field"] = validate_boolean;
+    validators["line_breaks_after_function_body"] = validate_integer;
 
     // DataType of every configuration field
     datatype["spaces_before_call"] = 'i';
@@ -180,6 +182,7 @@ Config::Config() {
     datatype["spaces_inside_functiondef_parens"] = 'b';
     datatype["spaces_inside_table_braces"] = 'b';
     datatype["spaces_around_equals_in_field"] = 'b';
+    datatype["line_breaks_after_function_body"] = 'i';
 }
 
 void Config::readFromFile(const std::string& file) {
