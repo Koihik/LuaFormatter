@@ -131,6 +131,8 @@ luarocks install --server=https://luarocks.org/dev luaformatter
       --no-spaces-around-equals-in-field
                                         Do not put spaces around the equal sign
                                         in key/value fields
+      --line-breaks-after-function-body
+                                        Line brakes after function body
       Lua scripts...                    Lua scripts to format
       "--" can be used to terminate flag options and force all following
       arguments to be treated as positional options
@@ -179,6 +181,7 @@ break_after_operator: true
 double_quote_to_single_quote: false
 single_quote_to_double_quote: false
 spaces_around_equals_in_field: true
+line_breaks_after_function_body: 1
 ```
 ### Disable formatting for a line or block
 Sometimes it may be useful to disable automatic formatting. This is done be putting the code between `LuaFormatter off` and `LuaFormatter on` tags:

@@ -1492,7 +1492,15 @@ antlrcpp::Any FormatVisitor::visitFuncbody(LuaParser::FuncbodyContext* ctx) {
     }
     cur_writer() << ctx->RP()->getText();
     visitBlockAndComment(ctx->RP(), ctx->block(), FUNCTION_BLOCK);
-    cur_writer() << ctx->END()->getText();
+    cur_writer() << ctx->END()->getText();    
+    auto lineBrakesCount = config_.get<int>("line_breaks_after_function_body");
+    if(lineBrakesCount > 1)
+    {
+        for (size_t i = 1; i < lineBrakesCount; i++)
+        {
+            cur_writer() << "\n";
+        }
+    }    
     LOG_FUNCTION_END();
     return nullptr;
 }

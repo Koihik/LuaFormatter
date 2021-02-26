@@ -585,3 +585,32 @@ x = {1, 2, 3}
 point = {x=1, y=2}
 point = Point{x=1, y=2}
 ```
+
+### line_breaks_after_function_body
+
+type: int, default: 1
+
+Line brakes after function body
+
+```lua
+-- original(1)
+function foo()
+
+end
+
+function foo2()
+
+end
+
+-- transformed(2)
+function foo()
+
+end
+
+
+function foo2()
+
+end
+
+
+```
