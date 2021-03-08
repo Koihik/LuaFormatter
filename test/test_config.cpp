@@ -101,18 +101,28 @@ TEST_CASE("spaces_inside_functiondef_parens", "config") {
 
 TEST_CASE("spaces_inside_functioncall_parens", "config") {
     Config config;
-    config.set("spaces_inside_functioncall_parens", true);
+    config.set("column_limit", 80);
 
+    config.set("spaces_inside_functioncall_parens", true);
     REQUIRE(lua_format("function x(a, b) print(1); print(1, 2) end\n", config) ==
            "function x(a, b)\n    print( 1 );\n    print( 1, 2 )\nend\n");
     REQUIRE(lua_format("x = function(a, b) print(1); print(1, 2) end\n", config) ==
            "x = function(a, b)\n    print( 1 );\n    print( 1, 2 )\nend\n");
+    // This tests an edge case where inserting spaces inside the parenthesis causes the
+    // result to be pushed just over the column limit.
+    REQUIRE(lua_format("module.this_is_a_really_long_lo_long_name(param1, param2, param3, param4, param5)\n", config) ==
+                     // |0        |10       |20       |30       |40       |50       |60       |70       |80
+                       "module.this_is_a_really_long_lo_long_name( param1, param2, param3, param4,\n"
+                       "                                           param5 )\n");
 
     config.set("spaces_inside_functioncall_parens", false);
     REQUIRE(lua_format("function x(a, b) print(1); print(1, 2) end\n", config) ==
            "function x(a, b)\n    print(1);\n    print(1, 2)\nend\n");
     REQUIRE(lua_format("x = function(a, b) print(1); print(1, 2) end\n", config) ==
            "x = function(a, b)\n    print(1);\n    print(1, 2)\nend\n");
+    REQUIRE(lua_format("module.this_is_a_really_long_lo_long_name(param1, param2, param3, param4, param5)\n", config) ==
+                     // |0        |10       |20       |30       |40       |50       |60       |70       |80
+                       "module.this_is_a_really_long_lo_long_name(param1, param2, param3, param4, param5)\n");
 }
 
 TEST_CASE("spaces_inside_table_braces", "config") {
