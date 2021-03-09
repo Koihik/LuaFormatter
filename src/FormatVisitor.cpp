@@ -1375,7 +1375,7 @@ antlrcpp::Any FormatVisitor::visitArgs(LuaParser::ArgsContext* ctx) {
                 breakAfterLp = config_.get<bool>("break_after_functioncall_lp");
             }
             if (config_.get<bool>("spaces_inside_functioncall_parens") &&
-                !beyondLimit && !breakAfterLp) {
+                !breakAfterLp) {
               cur_writer() << " ";
             }
             functioncallLpHasBreak_.push_back(breakAfterLp);
