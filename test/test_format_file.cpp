@@ -18,9 +18,7 @@
         idx = filename.find_last_of('.');                                                                        \
         std::string configFileName = filename.substr(0, idx) + ".config";                                        \
         if (fs::exists(configFileName)) {                                                                        \
-            std::cout << configFileName << " exist" << std::endl;                                                \
             config.readFromFile(configFileName);                                                                 \
-            std::cout << config.get<bool>("chop_down_parameter") << " dd" << std::endl;                          \
         }                                                                                                        \
         std::string actual = lua_format(input, config);                                                          \
         std::ifstream expectFile(expectFileName);                                                                \
@@ -84,6 +82,7 @@ TEST_FILE(PROJECT_PATH "/test/testdata/issues/issue-80.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/issues/issue-104.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/issues/issue-156.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/issues/issue-162.lua");
+TEST_FILE(PROJECT_PATH "/test/testdata/issues/issue-168.lua");
 
 TEST_FILE(PROJECT_PATH "/test/testdata/issues/PR-100.lua");
 TEST_FILE(PROJECT_PATH "/test/testdata/issues/PR-108.lua");
