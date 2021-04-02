@@ -1830,11 +1830,11 @@ std::string FormatVisitor::indent() {
 std::string FormatVisitor::indentWithAlign() {
     std::stringstream ss;
     if (config_.get<bool>("use_tab")) {
-        for (int i = 0; i < indentForAlign_; i++) {
-            ss << " ";
-        }
         for (int i = 0; i < indent_; i++) {
             ss << "\t";
+        }
+        for (int i = 0; i < indentForAlign_; i++) {
+            ss << " ";
         }
     } else {
         for (int i = 0; i < indent_ + indentForAlign_; i++) {
