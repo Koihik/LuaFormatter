@@ -7,6 +7,18 @@
 #include "Config.h"
 #include "lua-format.h"
 
+#if defined(_WIN32)
+#include <fcntl.h>
+#include <io.h>
+int setBinaryMode(FILE *file) {
+    return _setmode(_fileno(file), _O_BINARY);
+}
+#else
+int setBinaryMode(FILE*) {
+    return 0;
+}
+#endif
+
 int main(int argc, const char* argv[]) {
     args::ArgumentParser parser("Reformats your Lua source code.", "");
     args::HelpFlag help(parser, "help", "Display this help menu", {'h', "help"});
@@ -155,7 +167,15 @@ int main(int argc, const char* argv[]) {
     args::Flag nospacesaroundequalsinfield(optspacesaroundequalsinfield, "spaces around equals sign in key/value fields",
                                "Do not put spaces around the equal sign in key/value fields", {"no-spaces-around-equals-in-field"});
     args::ValueFlag<int> linebreaksafterfunctionbody(parser, "line breaks after function body", "Line breaks after function body", {"line-breaks-after-function-body"});
-    
+
+    args::ValueFlag<std::string> lineseparator(parser, "line separator",
+                                               "input(determined by the input content), "
+                                               "os(Use line ending of the current Operating system), "
+                                               "lf(Unix style \"\\n\"), "
+                                               "crlf(Windows style \"\\r\\n\"), "
+                                               "cr(classic Max style \"\\r\")",
+                                               {"line-separator"});
+
     args::PositionalList<std::string> files(parser, "Lua scripts", "Lua scripts to format");
 
     Config config;
@@ -340,7 +360,11 @@ int main(int argc, const char* argv[]) {
     if (linebreaksafterfunctionbody) {
         argmap["line_breaks_after_function_body"] = args::get(linebreaksafterfunctionbody);
     }
-    
+
+    if (lineseparator) {
+        argmap["line_separator"] = args::get(lineseparator);
+    }
+
     std::string configFileName = args::get(cFile);
 
     // Automatically look for a .lua-format on the current directory
@@ -424,6 +448,8 @@ int main(int argc, const char* argv[]) {
         return 0;
     }
 
+    setBinaryMode(stdout);
+
     bool stdIn = args::get(files).empty();
     if (stdIn) {
         std::cin >> std::noskipws;
@@ -470,8 +496,7 @@ int main(int argc, const char* argv[]) {
             continue;
         }
 
-        std::ifstream ifs;
-        ifs.open(fileName);
+        std::ifstream ifs(fileName, std::ifstream::binary);
 
         try {
             std::string out = lua_format(ifs, config);
@@ -479,7 +504,7 @@ int main(int argc, const char* argv[]) {
             if (!inplace) {
                 std::cout << out;
             } else {
-                std::ofstream fout(fileName);
+                std::ofstream fout(fileName, std::ofstream::binary);
                 fout << out;
                 fout.close();
 

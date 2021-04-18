@@ -1,3 +1,5 @@
+#include "lua-format.h"
+
 #include <iostream>
 
 #include "FormatVisitor.h"
@@ -51,6 +53,34 @@ std::vector<std::pair<size_t, size_t>> findBlocksBetweenFormatSwitch(const std::
     return blocks;
 }
 
+static std::string getOSLineSeparator() {
+#ifdef _WIN32
+    return "\r\n";
+#else
+    return "\n";
+#endif
+}
+
+std::string handleLineSeparator(const std::string& original, const std::string& formatted, const Config& config) {
+    const auto line_separator_config = config.get<std::string>("line_separator");
+    auto out = formatted;
+    if (line_separator_config == "os") {
+        out = convert_line_separator(out, getOSLineSeparator());
+    } else if (line_separator_config == "input") {
+        auto line_sep = get_line_separator(original);
+        out = convert_line_separator(out, line_sep);
+    } else if (line_separator_config == "lf") {
+        out = convert_line_separator(out, "\n");
+    } else if (line_separator_config == "cr") {
+        out = convert_line_separator(out, "\r");
+    } else if (line_separator_config == "crlf") {
+        out = convert_line_separator(out, "\r\n");
+    } else {
+        throw std::runtime_error("Should not reach here. Invalid line_separator config");
+    }
+    return out;
+}
+
 std::string resetContentInDisableFormatBlocks(const std::string& original, const std::string& formatted) {
     std::vector<std::pair<size_t, size_t>> originalBlocks = findBlocksBetweenFormatSwitch(original);
     std::vector<std::pair<size_t, size_t>> formattedBlocks = findBlocksBetweenFormatSwitch(formatted);
@@ -84,11 +114,72 @@ std::string lua_format(std::istream& is, const Config& config) {
     std::string original = os.str();
     ANTLRInputStream input(original);
     std::string formatted = __format(input, config);
+    formatted = handleLineSeparator(original, formatted, config);
     return resetContentInDisableFormatBlocks(original, formatted);
 }
 
 std::string lua_format(const std::string& str, const Config& config) {
     ANTLRInputStream input(str);
     std::string formatted = __format(input, config);
+    formatted = handleLineSeparator(str, formatted, config);
     return resetContentInDisableFormatBlocks(str, formatted);
+}
+
+std::string get_line_separator(const std::string& input) {
+    constexpr char CR = '\r';
+    constexpr char LF = '\n';
+    size_t lf_count = 0;
+    size_t cr_count = 0;
+    size_t crlf_count = 0;
+    const auto length = input.length();
+    for (size_t i = 0; i < length; i++) {
+        const auto cur = input[i];
+        if (cur == LF) {
+            lf_count++;
+        } else if (cur == CR) {
+            const auto next = input[i + 1];
+            if (next == LF) {
+                crlf_count++;
+                i++;
+            } else {
+                cr_count++;
+            }
+        }
+    }
+
+    std::string result;
+    if (lf_count >= crlf_count && lf_count >= cr_count) {
+        result += LF;
+    } else if (crlf_count >= lf_count && crlf_count >= cr_count) {
+        result += CR;
+        result += LF;
+    } else {
+        result += CR;
+    }
+    return result;
+}
+
+std::string convert_line_separator(const std::string& input, const std::string& line_sep) {
+    constexpr char CR = '\r';
+    constexpr char LF = '\n';
+    const auto length = input.length();
+
+    std::string result;
+    for (size_t i = 0; i < length; i++) {
+        const auto cur = input[i];
+        if (cur == LF) {
+            result += line_sep;
+        } else if (cur == CR) {
+            const auto next = input[i + 1];
+            if (next == LF) {
+                result += line_sep;
+                i++;
+            } else {
+                result += line_sep;
+            }
+        } else {
+            result += cur;
+        }
+    }
+    return result;
 }

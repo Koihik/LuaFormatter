@@ -283,3 +283,31 @@ TEST_CASE("read from file", "config") {
     REQUIRE("," == config.get<std::string>("table_sep"));
     REQUIRE(false == config.get<bool>("extra_sep_at_table_end"));
 }
+
+TEST_CASE("line_separator", "config") {
+    Config config;
+    config.set("indent_width", 2);
+
+    config.set("line_separator", "lf");
+    REQUIRE("function W()\n  print(1)\n  print(2)\nend\n" == lua_format("function W() print(1) print(2) end", config));
+    config.set("line_separator", "cr");
+    REQUIRE("function W()\r  print(1)\r  print(2)\rend\r" == lua_format("function W() print(1) print(2) end", config));
+    config.set("line_separator", "crlf");
+    REQUIRE("function W()\r\n  print(1)\r\n  print(2)\r\nend\r\n" == lua_format("function W() print(1) print(2) end", config));
+
+    config.set("line_separator", "input");
+    REQUIRE("function W()\n  print(1)\n  print(2)\nend\n" == lua_format("function W()\n print(1)\n print(2)\n end", config));
+    REQUIRE("function W()\r  print(1)\r  print(2)\rend\r" == lua_format("function W()\r print(1)\r print(2)\r end", config));
+    REQUIRE("function W()\r\n  print(1)\r\n  print(2)\r\nend\r\n" == lua_format("function W()\r\n print(1)\r\n print(2)\r\n end", config));
+
+    config.set("line_separator", "os");
+#ifdef _WIN32
+    REQUIRE("function W()\r\n  print(1)\r\n  print(2)\r\nend\r\n" == lua_format("function W()\n print(1)\n print(2)\n end", config));
+    REQUIRE("function W()\r\n  print(1)\r\n  print(2)\r\nend\r\n" == lua_format("function W()\r print(1)\r print(2)\r end", config));
+    REQUIRE("function W()\r\n  print(1)\r\n  print(2)\r\nend\r\n" == lua_format("function W()\r\n print(1)\r\n print(2)\r\n end", config));
+#else
+    REQUIRE("function W()\n  print(1)\n  print(2)\nend\n" == lua_format("function W()\n print(1)\n print(2)\n end", config));
+    REQUIRE("function W()\n  print(1)\n  print(2)\nend\n" == lua_format("function W()\r print(1)\r print(2)\r end", config));
+    REQUIRE("function W()\n  print(1)\n  print(2)\nend\n" == lua_format("function W()\r\n print(1)\r\n print(2)\r\n end", config));
+#endif
+}

@@ -49,6 +49,8 @@ Config::Config() {
     node["spaces_around_equals_in_field"] = true;
     node["line_breaks_after_function_body"] = 1;
 
+    node["line_separator"] = "input";
+
     // Validators
     // validate integer without 0s as configuration value
     auto validate_integer = [](const std::string& key, std::any elem) {
@@ -117,6 +119,15 @@ Config::Config() {
         }
         return value;
     };
+    auto validate_line_separator = [&](const std::string& key, std::any elem) {
+        (void)(key);
+        const auto value = std::any_cast<std::string>(elem);
+        if (value != "os" && value != "input" && value != "lf" && value != "cr" && value != "crlf") {
+            throw std::domain_error(
+                "[ERROR] Configuration value of line_separator should be one of os/input/lf/cr/crlf");
+        }
+        return value;
+    };
 
     // Validators
     validators["spaces_before_call"] = validate_integer_zero;
@@ -150,6 +161,7 @@ Config::Config() {
     validators["spaces_inside_table_braces"] = validate_boolean;
     validators["spaces_around_equals_in_field"] = validate_boolean;
     validators["line_breaks_after_function_body"] = validate_integer;
+    validators["line_separator"] = validate_line_separator;
 
     // DataType of every configuration field
     datatype["spaces_before_call"] = 'i';
@@ -183,6 +195,7 @@ Config::Config() {
     datatype["spaces_inside_table_braces"] = 'b';
     datatype["spaces_around_equals_in_field"] = 'b';
     datatype["line_breaks_after_function_body"] = 'i';
+    datatype["line_separator"] = 's';
 }
 
 void Config::readFromFile(const std::string& file) {
@@ -224,6 +237,11 @@ void Config::readFromFile(const std::string& file) {
                     node[key] = std::any_cast<char>(validators[key](key, value));
                     break;
                 }
+                case 's': {
+                    auto value = kv.second.as<std::string>();
+                    node[key] = std::any_cast<std::string>(validators[key](key, value));
+                    break;
+                }
             }
         }
         if (key == CTL) {
@@ -256,6 +274,11 @@ void Config::readFromMap(std::map<std::string, std::any>& mp) {
                 case 'c': {
                     assert(strcmp(kv.second.type().name(), "c") == 0);
                     node[key] = std::any_cast<char>(validators[key](key, kv.second));
+                    break;
+                }
+                case 's': {
+                    assert(strcmp(kv.second.type().name(), "s") == 0);
+                    node[key] = std::any_cast<std::string>(validators[key](key, kv.second));
                     break;
                 }
             }
