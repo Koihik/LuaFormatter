@@ -19,12 +19,40 @@ int setBinaryMode(FILE*) {
 }
 #endif
 
+bool file_is_usable(const std::string& fileName, const bool inplace) {
+    if (!fs::exists(fileName)) {
+        std::cerr << fileName << ": No such file." << std::endl;
+        return false;
+    }
+
+    fs::file_status status = fs::status(fileName);
+    fs::perms perm = status.permissions();
+
+    if (!fs::is_regular_file(status)) {
+        std::cerr << fileName << ": Not a file." << std::endl;
+        return false;
+    }
+
+    if ((perm & fs::perms::owner_read) == fs::perms::none) {
+        std::cerr << fileName << ": No access to read." << std::endl;
+        return false;
+    }
+
+    if (inplace && (perm & fs::perms::owner_write) == fs::perms::none) {
+        std::cerr << fileName << ": No access to write." << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
 int main(int argc, const char* argv[]) {
     args::ArgumentParser parser("Reformats your Lua source code.", "");
     args::HelpFlag help(parser, "help", "Display this help menu", {'h', "help"});
     args::Group dc(parser, "", args::Group::Validators::DontCare);
     args::Flag verbose(dc, "verbose", "Turn on verbose mode", {'v', "verbose"});
-    args::Flag inplace(dc, "in-place", "Reformats in-place", {'i'});
+    args::Flag inplace(dc, "in-place", "Reformats in-place", {'i', "in-place"});
+    args::Flag check(dc, "check", "Non-zero return if formatting is needed", {"check"});
     args::Flag dumpcfg(dc, "dump current style", "Dumps the default style used to stdout", {"dump-config"});
     args::ValueFlag<std::string> cFile(parser, "file", "Style config file", {'c', "config"});
     args::ValueFlag<int> columnlimit(parser, "column limit", "Column limit of one line", {"column-limit"});
@@ -450,57 +478,50 @@ int main(int argc, const char* argv[]) {
 
     setBinaryMode(stdout);
 
+    bool would_format = false;
+
     bool stdIn = args::get(files).empty();
     if (stdIn) {
-        std::cin >> std::noskipws;
-
-        std::istream_iterator<char> it(std::cin);
-        std::istream_iterator<char> end;
+        std::istreambuf_iterator<char> it(std::cin);
+        std::istreambuf_iterator<char> end;
         std::string input(it, end);
 
         try {
             std::string out = lua_format(input, config);
-            std::cout << out;
+
+            if (check) {
+                would_format = input != out;
+            } else {
+                std::cout << out;
+                return 0;
+            }
         } catch (const std::invalid_argument& e) {
             std::cerr << e.what() << std::endl;
             return 1;
         }
-
-        return 0;
     }
 
     for (const auto& fileName : args::get(files)) {
         if (verbose) {
             std::cerr << "formatting: " << fileName << std::endl;
         }
-        if (fs::exists(fileName)) {
-            fs::file_status status = fs::status(fileName);
-            fs::perms perm = status.permissions();
-
-            if (!fs::is_regular_file(status)) {
-                std::cerr << fileName << ": Not a file." << std::endl;
-                continue;
-            }
-
-            if ((perm & fs::perms::owner_read) == fs::perms::none) {
-                std::cerr << fileName << ": No access to read." << std::endl;
-                continue;
-            }
-
-            if (inplace && (perm & fs::perms::owner_write) == fs::perms::none) {
-                std::cerr << fileName << ": No access to write." << std::endl;
-                continue;
-            }
-        } else {
-            std::cerr << fileName << ": No such file." << std::endl;
+        if (!file_is_usable(fileName, inplace)) {
             continue;
         }
 
         std::ifstream ifs(fileName, std::ifstream::binary);
+        std::string input((std::istreambuf_iterator<char>(ifs)), {});
 
         try {
-            std::string out = lua_format(ifs, config);
+            std::string out = lua_format(input, config);
 
+            if (check) {
+                if (input != out) {
+                    std::cout << fileName << std::endl;
+                    would_format = true;
+                }
+                continue;
+            }
             if (!inplace) {
                 std::cout << out;
             } else {
@@ -512,12 +533,14 @@ int main(int argc, const char* argv[]) {
                     std::cerr << "format success: " << fileName << std::endl;
                 }
             }
-
         } catch (const std::invalid_argument& e) {
             std::cerr << e.what() << std::endl;
             return 1;
         }
     }
 
+    if (check && would_format) {
+        return 2;
+    }
     return 0;
 }
