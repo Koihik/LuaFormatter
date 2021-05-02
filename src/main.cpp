@@ -386,7 +386,7 @@ int main(int argc, const char* argv[]) {
         }
     }
 
-#ifdef __linux__
+#if defined __unix__ || defined __APPLE__
     if (configFileName.empty()) {
         std::string conf_dir;
         if (const char* const conf_dir_p = getenv("XDG_CONFIG_HOME")) {
