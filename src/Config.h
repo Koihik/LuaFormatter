@@ -17,7 +17,7 @@ using Validator = std::function<std::any(const std::string &, std::any)>;
 #ifdef HAVE_FILESYSTEM_H
 namespace fs = std::filesystem;
 #else
-namespace fs = experimental::filesystem;
+namespace fs = std::experimental::filesystem;
 #endif
 
 class Config {
