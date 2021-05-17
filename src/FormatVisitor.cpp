@@ -9,29 +9,53 @@
 using namespace antlr4;
 
 // #define LOG_FLAG
+// #define LOG_FUNC_VISIT
 
 #ifdef LOG_FLAG
-#define LOGVAR(arg)                                           \
-    for (int i = 0; i < logIndentSize; i++) std::cout << " "; \
-    std::cout << "" #arg " = " << (arg) << std::endl
-#define LOG(arg)                                              \
-    for (int i = 0; i < logIndentSize; i++) std::cout << " "; \
-    std::cout << arg << std::endl
+
 static int logIndentSize = 0;
-#define LOG_FUNCTION_BEGIN()                                  \
-    logIndentSize++;                                          \
-    for (int i = 0; i < logIndentSize; i++) std::cout << " "; \
-    std::cout << __func__ << " begin.." << std::endl
-#define LOG_FUNCTION_END()                                    \
-    for (int i = 0; i < logIndentSize; i++) std::cout << " "; \
-    logIndentSize--;                                          \
-    std::cout << __func__ << " end.." << std::endl
+static std::string LOG_INDENT = "  ";
+static std::unordered_map<std::string, int> countMp;
+
+void func_begin(std::string funcName) {
+#ifdef LOG_FUNC_VISIT
+    logIndentSize++;
+    for (int i = 0; i < logIndentSize; i++) std::cout << LOG_INDENT;
+    std::cout << funcName << " begin.." << std::endl;
+#endif
+}
+
+void func_end(std::string funcName) {
+    countMp[funcName]++;
+#ifdef LOG_FUNC_VISIT
+    for (int i = 0; i < logIndentSize; i++) std::cout << LOG_INDENT;
+    logIndentSize--;
+    std::cout << funcName << " end.." << std::endl;
+#endif
+}
+
+#define LOGVAR(arg)                                                  \
+    for (int i = 0; i < logIndentSize; i++) std::cout << LOG_INDENT; \
+    std::cout << "" #arg " = " << (arg) << std::endl
+#define LOG(arg)                                                     \
+    for (int i = 0; i < logIndentSize; i++) std::cout << LOG_INDENT; \
+    std::cout << arg << std::endl
+#define LOG_FUNCTION_BEGIN() func_begin(__func__)
+#define LOG_FUNCTION_END() func_end(__func__)
 #else
 #define LOG()
 #define LOGVAR()
 #define LOG_FUNCTION_BEGIN()
 #define LOG_FUNCTION_END()
 #endif
+
+void print_cost() {
+#ifdef LOG_FLAG
+    for (auto p : countMp) {
+        std::cout << p.first << " called " << p.second << " times" << std::endl;
+    }
+#endif
+}
 
 static bool isBlankChar(const char c) { return c == ' ' || c == '\t' || c == '\u000C'; }
 
@@ -202,6 +226,21 @@ void FormatVisitor::popWriter() {
     SourceWriter* writer = writers_.back();
     writers_.pop_back();
     delete writer;
+}
+
+std::pair<int, int> FormatVisitor::calcASTLengthAndLines(tree::ParseTree* node, std::function<void()> func) {
+    if (node == nullptr) return {0, 0};
+    if (lengthCache_.find(node) != lengthCache_.end()) {
+        return lengthCache_[node];
+    }
+    pushWriterWithColumn();
+    func();
+    int length = cur_writer().firstLineColumn();
+    int lines = cur_writer().lines();
+    popWriter();
+    std::pair<int, int> ret = std::make_pair(length, lines);
+    lengthCache_[node] = ret;
+    return ret;
 }
 
 bool FormatVisitor::fastTestColumnLimit(tree::ParseTree* node) {
@@ -840,11 +879,9 @@ antlrcpp::Any FormatVisitor::visitAttrib(LuaParser::AttribContext* ctx) {
 antlrcpp::Any FormatVisitor::visitExplist(LuaParser::ExplistContext* ctx) {
     LOG_FUNCTION_BEGIN();
     int n = ctx->COMMA().size();
-    pushWriterWithColumn();
-    visitExp(ctx->exp().front());
-    int expLength = cur_writer().firstLineColumn();
-    int lines = cur_writer().lines();
-    popWriter();
+    auto p = calcASTLengthAndLines(ctx->exp().front(), [=]() { visitExp(ctx->exp().front()); });
+    int expLength = p.first;
+    int lines = p.second;
     if (n > 0) {
         expLength++;  // calc a ',' if exp > 1
     }
@@ -857,7 +894,7 @@ antlrcpp::Any FormatVisitor::visitExplist(LuaParser::ExplistContext* ctx) {
     if (lines > 1 && cur_columns() > config_.get<int>("column_limit") / 2) {
         beyondLimit = true;
     }
-    if (!functioncallLpHasBreak_.empty() && functioncallLpHasBreak_.back()){
+    if (!functioncallLpHasBreak_.empty() && functioncallLpHasBreak_.back()) {
         beyondLimit = false;
     }
     bool hasIncIndent = false;
@@ -916,11 +953,10 @@ antlrcpp::Any FormatVisitor::visitExplist(LuaParser::ExplistContext* ctx) {
             // So determine if this expression is still beyond column limit after break.
             // If true, determine the column again with current columns.
             if (indentWithAlign().size() + expLength + firstArgsIndent > config_.get<unsigned int>("column_limit")) {
-                pushWriterWithColumn();
-                cur_writer() << commentAfter(ctx->COMMA()[i], " ");
-                visitExp(ctx->exp()[i + 1]);
-                int expLength = cur_writer().firstLineColumn();
-                popWriter();
+                int expLength = calcASTLengthAndLines(ctx->exp()[i + 1], [=]() {
+                                    cur_writer() << commentAfter(ctx->COMMA()[i], " ");
+                                    visitExp(ctx->exp()[i + 1]);
+                                }).first;
                 if (i != n - 1) expLength++;  // calc a ',' if exp > 1
                 beyondLimit = cur_columns() + expLength > config_.get<int>("column_limit");
             }
@@ -1224,13 +1260,12 @@ antlrcpp::Any FormatVisitor::visitVarSuffix(LuaParser::VarSuffixContext* ctx) {
         const std::vector<LuaParser::VarSuffixContext*>& arr = varCtx->varSuffix();
         int index = find(arr.begin(), arr.end(), ctx) - arr.begin();
         if (index != 0) {
-            pushWriterWithColumn();
-            cur_writer() << ctx->DOT()->getText();
-            cur_writer() << commentAfter(ctx->DOT(), "");
-            cur_writer() << ctx->NAME()->getText();
-            visitNextNameAndArgs(ctx);
-            int length = cur_writer().firstLineColumn();
-            popWriter();
+            int length = calcASTLengthAndLines(ctx->NAME(), [=]() {
+                             cur_writer() << ctx->DOT()->getText();
+                             cur_writer() << commentAfter(ctx->DOT(), "");
+                             cur_writer() << ctx->NAME()->getText();
+                             visitNextNameAndArgs(ctx);
+                         }).first;
             bool beyondLimit = cur_columns() + length > config_.get<int>("column_limit");
             if (beyondLimit) {
                 cur_writer() << "\n";
@@ -1329,14 +1364,13 @@ antlrcpp::Any FormatVisitor::visitNameAndArgs(LuaParser::NameAndArgsContext* ctx
         if (!chainedMethodCallIsFirst_.back()) {
             chainedMethodCallIsFirst_[chainedMethodCallIsFirst_.size() - 1] = true;
         } else {
-            pushWriterWithColumn();
-            cur_writer() << ctx->COLON()->getText();
-            cur_writer() << commentAfter(ctx->COLON(), "");
-            cur_writer() << ctx->NAME()->getText();
-            cur_writer() << commentAfter(ctx->NAME(), needWhiteSpace ? " " : "");
-            visitArgs(ctx->args());
-            int length = cur_writer().firstLineColumn();
-            popWriter();
+            int length = calcASTLengthAndLines(ctx->args(), [=]() {
+                             cur_writer() << ctx->COLON()->getText();
+                             cur_writer() << commentAfter(ctx->COLON(), "");
+                             cur_writer() << ctx->NAME()->getText();
+                             cur_writer() << commentAfter(ctx->NAME(), needWhiteSpace ? " " : "");
+                             visitArgs(ctx->args());
+                         }).first;
             beyondLimit = cur_columns() + length > config_.get<int>("column_limit");
         }
         if (beyondLimit) {
@@ -1368,23 +1402,22 @@ antlrcpp::Any FormatVisitor::visitArgs(LuaParser::ArgsContext* ctx) {
         cur_writer() << ctx->LP()->getText();
         if (ctx->explist() != nullptr) {
             bool breakAfterLp = false;
-            pushWriterWithColumn();
-            cur_writer() << commentAfter(ctx->LP(), "");
-            visitExplist(ctx->explist());
-            cur_writer() << commentAfter(ctx->explist(), "");
-            int lines = cur_writer().lines();
-            int length = cur_writer().firstLineColumn();
+            auto p = calcASTLengthAndLines(ctx->explist(), [=]() {
+                cur_writer() << commentAfter(ctx->LP(), "");
+                visitExplist(ctx->explist());
+                cur_writer() << commentAfter(ctx->explist(), "");
+            });
+            int length = p.first;
+            int lines = p.second;
             if (!config_.get<bool>("break_before_functioncall_rp")) {
                 length++;
             }
-            popWriter();
             bool beyondLimit = cur_columns() + length > config_.get<int>("column_limit");
             if (beyondLimit || lines > 1) {
                 breakAfterLp = config_.get<bool>("break_after_functioncall_lp");
             }
-            if (config_.get<bool>("spaces_inside_functioncall_parens") &&
-                !breakAfterLp) {
-              cur_writer() << " ";
+            if (config_.get<bool>("spaces_inside_functioncall_parens") && !breakAfterLp) {
+                cur_writer() << " ";
             }
             functioncallLpHasBreak_.push_back(breakAfterLp);
             if (breakAfterLp) {
@@ -1416,7 +1449,7 @@ antlrcpp::Any FormatVisitor::visitArgs(LuaParser::ArgsContext* ctx) {
                 cur_writer() << commentAfter(ctx->explist(), "");
             }
             if (config_.get<bool>("spaces_inside_functioncall_parens")) {
-              cur_writer() << " ";
+                cur_writer() << " ";
             }
             functioncallLpHasBreak_.pop_back();
             cur_writer() << ctx->RP()->getText();
@@ -1464,9 +1497,8 @@ antlrcpp::Any FormatVisitor::visitFuncbody(LuaParser::FuncbodyContext* ctx) {
         if (beyondLimit) {
             breakAfterLp = config_.get<bool>("break_after_functiondef_lp");
         }
-        if (config_.get<bool>("spaces_inside_functiondef_parens") &&
-            !beyondLimit && !breakAfterLp) {
-          cur_writer() << " ";
+        if (config_.get<bool>("spaces_inside_functiondef_parens") && !beyondLimit && !breakAfterLp) {
+            cur_writer() << " ";
         }
         if (breakAfterLp) {
             cur_writer() << commentAfterNewLine(ctx->LP(), INC_CONTINUATION_INDENT);
@@ -1494,21 +1526,18 @@ antlrcpp::Any FormatVisitor::visitFuncbody(LuaParser::FuncbodyContext* ctx) {
     } else {
         cur_writer() << commentAfter(ctx->LP(), "");
     }
-    if (config_.get<bool>("spaces_inside_functiondef_parens") &&
-        ctx->parlist() != nullptr) {
-      cur_writer() << " ";
+    if (config_.get<bool>("spaces_inside_functiondef_parens") && ctx->parlist() != nullptr) {
+        cur_writer() << " ";
     }
     cur_writer() << ctx->RP()->getText();
     visitBlockAndComment(ctx->RP(), ctx->block(), FUNCTION_BLOCK);
-    cur_writer() << ctx->END()->getText();    
+    cur_writer() << ctx->END()->getText();
     auto lineBrakesCount = config_.get<int>("line_breaks_after_function_body");
-    if(lineBrakesCount > 1)
-    {
-        for (size_t i = 1; i < lineBrakesCount; i++)
-        {
+    if (lineBrakesCount > 1) {
+        for (size_t i = 1; i < lineBrakesCount; i++) {
             cur_writer() << "\n";
         }
-    }    
+    }
     LOG_FUNCTION_END();
     return nullptr;
 }
@@ -1579,7 +1608,7 @@ antlrcpp::Any FormatVisitor::visitTableconstructor(LuaParser::TableconstructorCo
                 cur_writer() << indent();
             } else {
                 if (config_.get<bool>("spaces_inside_table_braces") && !breakAfterLb) {
-                  cur_writer() << " ";
+                    cur_writer() << " ";
                 }
                 cur_writer() << commentAfter(ctx->LB(), "");
             }
@@ -1610,7 +1639,7 @@ antlrcpp::Any FormatVisitor::visitTableconstructor(LuaParser::TableconstructorCo
             }
         }
         if (config_.get<bool>("spaces_inside_table_braces") && !breakAfterLb) {
-          cur_writer() << " ";
+            cur_writer() << " ";
         }
         cur_writer() << ctx->RB()->getText();
         chop_down_table_ = temp;
@@ -1708,8 +1737,7 @@ antlrcpp::Any FormatVisitor::visitFieldlist(LuaParser::FieldlistContext* ctx) {
 // LSB exp RSB EQL exp | NAME EQL exp | exp;
 antlrcpp::Any FormatVisitor::visitField(LuaParser::FieldContext* ctx) {
     LOG_FUNCTION_BEGIN();
-    std::string eq_space = config_.get<bool>("spaces_around_equals_in_field")
-                         ? " " : "";
+    std::string eq_space = config_.get<bool>("spaces_around_equals_in_field") ? " " : "";
     if (ctx->LSB() != nullptr) {
         cur_writer() << ctx->LSB()->getText();
         cur_writer() << commentAfter(ctx->LSB(), "");
