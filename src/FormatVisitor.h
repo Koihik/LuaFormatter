@@ -67,6 +67,9 @@ class FormatVisitor : public LuaBaseVisitor {
     std::vector<SourceWriter*> writers_;
 
     // stack to record column of first table field
+    std::unordered_map<tree::ParseTree*, std::pair<int, int>> lengthCache_;
+
+    // stack to record column of first table field
     std::vector<int> firstTableFieldColumn_;
 
     // stack to record did a chained method call has increased indent
@@ -96,6 +99,7 @@ class FormatVisitor : public LuaBaseVisitor {
     void pushWriter();
     void pushWriterWithColumn();
     void popWriter();
+    std::pair<int, int> calcASTLengthAndLines(tree::ParseTree* node, std::function<void()> func);
     bool fastTestColumnLimit(tree::ParseTree* node);
     SourceWriter& cur_writer();
     int cur_columns();
