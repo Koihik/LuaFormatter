@@ -700,22 +700,26 @@ antlrcpp::Any FormatVisitor::visitNamelist(LuaParser::NamelistContext* ctx) {
             beyondLimit = cur_columns() + length > config_.get<int>("column_limit");
         }
         if (beyondLimit) {
+            bool hasIncIndentForAlign = false;
             if (hasIncIndent) {
                 cur_writer() << commentAfterNewLine(ctx->COMMA()[i], NONE_INDENT);
-                cur_writer() << indent();
+                cur_writer() << indentWithAlign();
             } else {
                 if (config_.get<bool>("align_parameter")) {
                     cur_writer() << commentAfterNewLine(ctx->COMMA()[i], NONE_INDENT);
-                    indent_ += firstParameterIndent;
-                    cur_writer() << indent();
-                    indent_ -= firstParameterIndent;
+                    incIndentForAlign(firstParameterIndent);
+                    cur_writer() << indentWithAlign();
+                    hasIncIndentForAlign = true;
                 } else {
                     cur_writer() << commentAfterNewLine(ctx->COMMA()[i], INC_CONTINUATION_INDENT);
-                    cur_writer() << indent();
+                    cur_writer() << indentWithAlign();
                     hasIncIndent = true;
                 }
             }
             cur_writer() << ctx->NAME()[i + 1]->getText();
+            if (hasIncIndentForAlign) {
+                decIndentForAlign(firstParameterIndent);
+            }
         } else {
             cur_writer() << commentAfter(ctx->COMMA()[i], " ");
             cur_writer() << ctx->NAME()[i + 1]->getText();
@@ -779,23 +783,27 @@ antlrcpp::Any FormatVisitor::visitAttnamelist(LuaParser::AttnamelistContext* ctx
         }
         beyondLimit = cur_columns() + length > config_.get<int>("column_limit");
         if (beyondLimit) {
+            bool hasIncIndentForAlign = false;
             if (hasIncIndent) {
                 cur_writer() << commentAfterNewLine(ctx->COMMA()[i], NONE_INDENT);
-                cur_writer() << indent();
+                cur_writer() << indentWithAlign();
             } else {
                 if (config_.get<bool>("align_parameter")) {
                     cur_writer() << commentAfterNewLine(ctx->COMMA()[i], NONE_INDENT);
-                    indent_ += firstParameterIndent;
-                    cur_writer() << indent();
-                    indent_ -= firstParameterIndent;
+                    incIndentForAlign(firstParameterIndent);
+                    cur_writer() << indentWithAlign();
+                    hasIncIndentForAlign = true;
                 } else {
                     cur_writer() << commentAfterNewLine(ctx->COMMA()[i], INC_CONTINUATION_INDENT);
-                    cur_writer() << indent();
+                    cur_writer() << indentWithAlign();
                     hasIncIndent = true;
                 }
             }
             cur_writer() << ctx->NAME()[i + 1]->getText();
             cur_writer() << ctx->attrib()[i + 1]->getText();
+            if (hasIncIndentForAlign) {
+                decIndentForAlign(firstParameterIndent);
+            }
         } else {
             cur_writer() << commentAfter(ctx->COMMA()[i], " ");
             cur_writer() << ctx->NAME()[i + 1]->getText();
