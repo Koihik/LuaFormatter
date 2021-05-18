@@ -61,6 +61,9 @@ if(NOT "${TEST_COMPILE_RESULT}" OR (NOT "${TEST_RUN_RESULT}" EQUAL 0))
   message(FATAL_ERROR "Your compiler does not fully support the C++17 standard and libraries")
 endif()
 
+if( ${CMAKE_BUILD_TYPE} MATCHES "Debug")
+  add_definitions(-DDEBUG)
+endif()
 
 include_directories(
   ${PROJECT_SOURCE_DIR}/generated/

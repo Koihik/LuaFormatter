@@ -8,10 +8,9 @@
 
 using namespace antlr4;
 
-// #define LOG_FLAG
 // #define LOG_FUNC_VISIT
 
-#ifdef LOG_FLAG
+#ifdef DEBUG
 
 static int logIndentSize = 0;
 static std::string LOG_INDENT = "  ";
@@ -50,7 +49,7 @@ void func_end(std::string funcName) {
 #endif
 
 void print_cost() {
-#ifdef LOG_FLAG
+#ifdef DEBUG
     for (auto p : countMp) {
         std::cout << p.first << " called " << p.second << " times" << std::endl;
     }
@@ -891,7 +890,8 @@ antlrcpp::Any FormatVisitor::visitExplist(LuaParser::ExplistContext* ctx) {
     // var:foo(xxxx .. xxxx) -- no break
     // longlonglonglongvar:foo(
     //     xxxx .. xxxx) --  break
-    if (lines > 1 && cur_columns() > config_.get<int>("column_limit") / 2) {
+    int column_limit = config_.get<int>("column_limit");
+    if (lines > 1 && cur_columns() > column_limit / 2 && expLength >= column_limit / 4) {
         beyondLimit = true;
     }
     if (!functioncallLpHasBreak_.empty() && functioncallLpHasBreak_.back()) {
