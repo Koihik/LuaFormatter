@@ -7,59 +7,41 @@
 
 #include "lua-format.h"
 
-// use for validate_integer
-#define TEST_CONFIG_ERROR_FILE(file)                                                                    \
-    TEST_CASE("Configuration file " + std::string(file) + " has an error", "format_file") {             \
-        std::string configFileName(file);                                                               \
-        Config config;                                                                                  \
-        REQUIRE_THROWS_WITH(                                                                            \
-            config.readFromFile(configFileName),                                                        \
-            "[ERROR] Configuration value is out of range. Must be a positive integer greater than 0."); \
-    }
+TEST_CASE("gt0 validator", "[config_validator]") {
+    std::string configFileName(PROJECT_PATH "/test/config/column_limit.config");
+    Config config;
+    REQUIRE_THROWS_WITH(config.readFromFile(configFileName),
+                        "[ERROR] Configuration value is out of range. Must be a positive integer greater than 0.");
 
-// use for validate_integer_zero
-#define TEST_ZERO_CONFIG_ERROR_FILE(file)                                                                \
-    TEST_CASE("Configuration file " + std::string(file) + " has an error", "format_file") {              \
-        std::string configFileName(file);                                                                \
-        Config config;                                                                                   \
-        REQUIRE_THROWS_WITH(config.readFromFile(configFileName),                                         \
-                            "[ERROR] Configuration value is out of range. Must be a positive integer."); \
-    }
+    std::string configFileName2(PROJECT_PATH "/test/config/column_table_limit.config");
+    Config config2;
+    REQUIRE_THROWS_WITH(config2.readFromFile(configFileName2),
+                        "[ERROR] Configuration value is out of range. Must be a positive integer greater than 0.");
+}
 
-// use for expecting no error
-#define TEST_CONFIG_NO_ERROR_FILE(file)                                                     \
-    TEST_CASE("Configuration file " + std::string(file) + " has no error", "format_file") { \
-        std::string configFileName(file);                                                   \
-        Config config;                                                                      \
-        REQUIRE_NOTHROW(config.readFromFile(configFileName));                               \
-    }
-// use for quote conflicting error
-#define TEST_CONFIG_QUOTE_CONFLICT_ERROR_FILE(file)                                                                \
-    TEST_CASE("Configuration file " + std::string(file) + " has an error", "format_file") {                        \
-        std::string configFileName(file);                                                                          \
-        Config config;                                                                                             \
-        REQUIRE_THROWS_WITH(config.readFromFile(configFileName),                                                   \
-                            "[ERROR] Configuration value of single_quote_to_double_quote is conflicting with the " \
-                            "value of double_quote_to_single_quote");                                              \
-    }
-// use for tab conflicting error
-#define TEST_CONFIG_TAB_CONFLICT_ERROR_FILE(file)                                                                 \
-    TEST_CASE("Configuration file " + std::string(file) + " has an error", "format_file") {                       \
-        std::string configFileName(file);                                                                         \
-        Config config;                                                                                            \
-        REQUIRE_THROWS_WITH(config.readFromFile(configFileName),                                                  \
-                            "[ERROR] Configuration value of use_tab is conflicting with the value of tab_width"); \
-    }
+TEST_CASE("ge0 validator", "[config_validator]") {
+    std::string configFileName(PROJECT_PATH "/test/config/indent_width.config");
+    Config config;
+    REQUIRE_THROWS_WITH(config.readFromFile(configFileName),
+                        "[ERROR] Configuration value is out of range. Must be a positive integer.");
+}
 
-TEST_CONFIG_ERROR_FILE(PROJECT_PATH "/test/testdata/Config/column_limit.config");
-TEST_CONFIG_ERROR_FILE(PROJECT_PATH "/test/testdata/Config/column_table_limit.config");
+TEST_CASE("correct config file", "[config_validator]") {
+    std::string configFileName(PROJECT_PATH "/test/config/correct.config");
+    Config config;
+    REQUIRE_NOTHROW(config.readFromFile(configFileName));
+}
 
-TEST_ZERO_CONFIG_ERROR_FILE(PROJECT_PATH "/test/testdata/Config/indent_width.config");
+TEST_CASE("quote validator", "[config_validator]") {
+    std::string configFileName(PROJECT_PATH "/test/config/single_to_double.config");
+    Config config;
+    REQUIRE_THROWS_WITH(config.readFromFile(configFileName),
+                        "[ERROR] Configuration value of single_quote_to_double_quote is conflicting with the value of double_quote_to_single_quote");
+}
 
-TEST_CONFIG_NO_ERROR_FILE(PROJECT_PATH "/test/testdata/Config/spaces_before_call.config");
-
-TEST_CONFIG_NO_ERROR_FILE(PROJECT_PATH "/test/testdata/Config/no_error_quote.config");
-TEST_CONFIG_QUOTE_CONFLICT_ERROR_FILE(PROJECT_PATH "/test/testdata/Config/single_to_double.config");
-
-TEST_CONFIG_NO_ERROR_FILE(PROJECT_PATH "/test/testdata/Config/no_error_tab.config");
-TEST_CONFIG_TAB_CONFLICT_ERROR_FILE(PROJECT_PATH "/test/testdata/Config/tab.config")
+TEST_CASE("tab validator", "[config_validator]") {
+    std::string configFileName(PROJECT_PATH "/test/config/tab.config");
+    Config config;
+    REQUIRE_THROWS_WITH(config.readFromFile(configFileName),
+                        "[ERROR] Configuration value of use_tab is conflicting with the value of tab_width");
+}

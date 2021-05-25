@@ -2,7 +2,7 @@
 
 #include "lua-format.h"
 
-TEST_CASE("get_line_separator", "line_separator") {
+TEST_CASE("get_line_separator", "[line_separator]") {
     REQUIRE(get_line_separator("\n") == "\n");
     REQUIRE(get_line_separator("\r") == "\r");
     REQUIRE(get_line_separator("\r\n") == "\r\n");
@@ -25,7 +25,7 @@ TEST_CASE("get_line_separator", "line_separator") {
     REQUIRE(get_line_separator("1\n2\r3\r") == "\r");
 }
 
-TEST_CASE("convert_line_separator", "line_separator") {
+TEST_CASE("convert_line_separator", "[line_separator]") {
     REQUIRE(convert_line_separator("", "\r\n").empty());
     REQUIRE(convert_line_separator("", "\n").empty());
     REQUIRE(convert_line_separator("", "\r").empty());
