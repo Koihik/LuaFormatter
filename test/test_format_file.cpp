@@ -45,6 +45,7 @@ TEST_FILE("comment", "space");
 TEST_FILE("comment", "table");
 TEST_FILE("comment", "varlist");
 TEST_FILE("comment", "attrib");
+TEST_FILE("comment", "in_args");
 
 TEST_FILE("statement", "function_call");
 TEST_FILE("statement", "function");
