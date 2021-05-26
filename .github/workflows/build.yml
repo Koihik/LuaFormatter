@@ -43,7 +43,7 @@ jobs:
          git submodule update --init
          cmake -G "Visual Studio 16 2019" -DCMAKE_BUILD_TYPE=Debug
          msbuild "lua-formatter.sln" /clp:ErrorsOnly /target:Build
-         ctest
+         ctest -C Debug
 
   darwin:
     runs-on: macos-latest

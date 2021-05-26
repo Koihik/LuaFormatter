@@ -7,7 +7,7 @@
 
 #include "lua-format.h"
 
-TEST_CASE("wrong shebang", "[lua parser]") {
+TEST_CASE("wrong shebang", "[parser]") {
     Config config;
     REQUIRE_THROWS_WITH(lua_format(
 R"(local foo = "aaa"

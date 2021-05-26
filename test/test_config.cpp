@@ -2,7 +2,7 @@
 
 #include "lua-format.h"
 
-TEST_CASE("indent", "config") {
+TEST_CASE("indent", "[config]") {
     Config config;
     config.set("indent_width", 2);
     REQUIRE("function W()\n  print(1)\n  print(2)\nend\n" == lua_format("function W() print(1) print(2) end", config));
@@ -11,7 +11,7 @@ TEST_CASE("indent", "config") {
     REQUIRE("function W()\n print(1)\n print(2)\nend\n" == lua_format("function W() print(1) print(2) end", config));
 }
 
-TEST_CASE("use_tab", "config") {
+TEST_CASE("use_tab", "[config]") {
     Config config;
     config.set("indent_width", 1);
     config.set("use_tab", true);
@@ -22,7 +22,7 @@ TEST_CASE("use_tab", "config") {
     REQUIRE("function W()\n print(1)\n print(2)\nend\n" == lua_format("function W() print(1) print(2) end", config));
 }
 
-TEST_CASE("column_limit", "config") {
+TEST_CASE("column_limit", "[config]") {
     Config config;
     config.set("indent_width", 1);
     config.set("continuation_indent_width", 2);
@@ -35,7 +35,7 @@ TEST_CASE("column_limit", "config") {
             lua_format("function W() q(aaaa,bbbb) print(aaaa,bbbb) end", config));
 }
 
-TEST_CASE("spaces_before_call", "config") {
+TEST_CASE("spaces_before_call", "[config]") {
     Config config;
     config.set("indent_width", 4);
     config.set("continuation_indent_width", 4);
@@ -49,7 +49,7 @@ TEST_CASE("spaces_before_call", "config") {
                    config));
 }
 
-TEST_CASE("table_sep", "config") {
+TEST_CASE("table_sep", "[config]") {
     Config config;
     config.set("indent_width", 2);
     config.set("table_sep", ",");
@@ -60,7 +60,7 @@ TEST_CASE("table_sep", "config") {
     REQUIRE("x = {1; 2; 3}\n" == lua_format("x = {1,2;3}", config));
 }
 
-TEST_CASE("extra_sep_at_table_end", "config") {
+TEST_CASE("extra_sep_at_table_end", "[config]") {
     Config config;
     config.set("indent_width", 2);
     config.set("extra_sep_at_table_end", true);
@@ -73,7 +73,7 @@ TEST_CASE("extra_sep_at_table_end", "config") {
     REQUIRE("x = {\n  1, -- line break\n  2, 3\n}\n" == lua_format("x = {1,-- line break\n2;3}", config));
 }
 
-TEST_CASE("keep_simple_function_one_line", "config") {
+TEST_CASE("keep_simple_function_one_line", "[config]") {
     Config config;
     config.set("indent_width", 2);
 
@@ -83,7 +83,7 @@ TEST_CASE("keep_simple_function_one_line", "config") {
     REQUIRE("function x()\n  print(1)\nend\n" == lua_format("function x() print(1) end", config));
 }
 
-TEST_CASE("spaces_inside_functiondef_parens", "config") {
+TEST_CASE("spaces_inside_functiondef_parens", "[config]") {
     Config config;
     config.set("spaces_inside_functiondef_parens", true);
 
@@ -99,7 +99,7 @@ TEST_CASE("spaces_inside_functiondef_parens", "config") {
            "x = function(a, b)\n    print(1);\n    print(1, 2)\nend\n");
 }
 
-TEST_CASE("spaces_inside_functioncall_parens", "config") {
+TEST_CASE("spaces_inside_functioncall_parens", "[config]") {
     Config config;
     config.set("column_limit", 80);
 
@@ -125,7 +125,7 @@ TEST_CASE("spaces_inside_functioncall_parens", "config") {
                        "module.this_is_a_really_long_lo_long_name(param1, param2, param3, param4, param5)\n");
 }
 
-TEST_CASE("spaces_inside_table_braces", "config") {
+TEST_CASE("spaces_inside_table_braces", "[config]") {
     Config config;
     config.set("spaces_before_call", 0);
     config.set("spaces_inside_table_braces", true);
@@ -144,7 +144,7 @@ TEST_CASE("spaces_inside_table_braces", "config") {
     REQUIRE(lua_format("x = foo{x = 3, y = 5}\n", config) == "x = foo{x = 3, y = 5}\n");
 }
 
-TEST_CASE("spaces_around_equals_in_field", "config") {
+TEST_CASE("spaces_around_equals_in_field", "[config]") {
     Config config;
     config.set("spaces_before_call", 0);
     config.set("spaces_around_equals_in_field", true);
@@ -157,7 +157,7 @@ TEST_CASE("spaces_around_equals_in_field", "config") {
     REQUIRE(lua_format("x = foo{x = 3, y = 5}\n", config) == "x = foo{x=3, y=5}\n");
 }
 
-TEST_CASE("args", "config") {
+TEST_CASE("args", "[config]") {
     Config config;
     config.set("indent_width", 2);
     config.set("continuation_indent_width", 4);
@@ -182,7 +182,7 @@ TEST_CASE("args", "config") {
     REQUIRE("x(xxxxxx,\n    xxxxx)\n" == lua_format("x(xxxxxx,xxxxx)", config));
 }
 
-TEST_CASE("functiondef", "config") {
+TEST_CASE("functiondef", "[config]") {
     Config config;
     config.set("indent_width", 2);
     config.set("continuation_indent_width", 4);
@@ -215,7 +215,7 @@ TEST_CASE("functiondef", "config") {
             lua_format("function xxx(xxx,yyy,zzz)\n  print(1)\nend\n", config));
 }
 
-TEST_CASE("table", "config") {
+TEST_CASE("table", "[config]") {
     Config config;
     config.set("indent_width", 2);
     config.set("continuation_indent_width", 4);
@@ -256,7 +256,7 @@ TEST_CASE("table", "config") {
                    config));
 }
 
-TEST_CASE("break_after_operator", "config") {
+TEST_CASE("break_after_operator", "[config]") {
     Config config;
     config.set("indent_width", 2);
     config.set("continuation_indent_width", 4);
@@ -269,22 +269,22 @@ TEST_CASE("break_after_operator", "config") {
     REQUIRE("x = 111\n        + 1111111\n        + 1111111\n" == lua_format("x = 111 + 1111111 + 1111111", config));
 }
 
-TEST_CASE("read from file", "config") {
+TEST_CASE("read from file", "[config]") {
     Config config;
-    config.readFromFile(PROJECT_PATH "/test/testconfig/1.lua-format");
+    config.readFromFile(PROJECT_PATH "/test/config/1.lua-format");
 
     REQUIRE(2 == config.get<int>("indent_width"));
     REQUIRE(";" == config.get<std::string>("table_sep"));
     REQUIRE(false == config.get<bool>("extra_sep_at_table_end"));
 
-    config.readFromFile(PROJECT_PATH "/test/testconfig/2.lua-format");
+    config.readFromFile(PROJECT_PATH "/test/config/2.lua-format");
 
     REQUIRE(4 == config.get<int>("indent_width"));
     REQUIRE("," == config.get<std::string>("table_sep"));
     REQUIRE(false == config.get<bool>("extra_sep_at_table_end"));
 }
 
-TEST_CASE("line_separator", "config") {
+TEST_CASE("line_separator", "[config]") {
     Config config;
     config.set("indent_width", 2);
 
