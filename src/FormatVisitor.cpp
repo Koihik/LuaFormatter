@@ -611,7 +611,7 @@ antlrcpp::Any FormatVisitor::visitLocalFuncStat(LuaParser::LocalFuncStatContext*
     return nullptr;
 }
 
-// LOCAL namelist (EQL explist)? SEMI?;
+// LOCAL attnamelist (EQL explist)? SEMI?;
 antlrcpp::Any FormatVisitor::visitLocalVarDecl(LuaParser::LocalVarDeclContext* ctx) {
     LOG_FUNCTION_BEGIN();
     cur_writer() << ctx->LOCAL()->getText();
@@ -1425,12 +1425,7 @@ antlrcpp::Any FormatVisitor::visitArgs(LuaParser::ArgsContext* ctx) {
                 cur_writer() << commentAfterNewLine(ctx->LP(), INC_CONTINUATION_INDENT);
                 cur_writer() << indentWithAlign();
             } else {
-                std::string comment = commentAfter(ctx->LP(), "");
-                if (!comment.empty() && comment.back() == '\n') {
-                    // avoid a duplicate newline
-                    comment.pop_back();
-                }
-                cur_writer() << comment;
+                cur_writer() << commentAfter(ctx->LP(), "");
             }
             visitExplist(ctx->explist());
             // 'visitExplist' will leave 'indent_' on 0 if we detect that it will break line
