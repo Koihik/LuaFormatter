@@ -109,7 +109,7 @@ end
 
 type: bool, default: true
 
-Align arguements of function call if there is a line break.
+Align arguments of function call if there is a line break.
 If false, use `continuation_indent_width` to indentation.
 
 ```lua
