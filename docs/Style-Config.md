@@ -97,10 +97,10 @@ type: bool, default: true
 Allow format simple function to one line.
 
 ```lua
--- keep_simple_block_one_line: true
+-- keep_simple_function_one_line: true
 function x() print(1) end
 
--- keep_simple_block_one_line: false
+-- keep_simple_function_one_line: false
 function x()
     print(1)
 end
