@@ -78,7 +78,7 @@ local xxx, yyy =
 
 type: bool, default: true
 
-Allow format simple control block(e.g. if, while, for, ...) to one line.
+Allow format simple control block(e.g., if, while, for, ...) to one line.
 
 ```lua
 -- keep_simple_block_one_line: true
@@ -109,7 +109,7 @@ end
 
 type: bool, default: true
 
-Align arguements of function call if there is a line break.
+Align arguments of a function call if there is a line break.
 If false, use `continuation_indent_width` to indentation.
 
 ```lua
@@ -233,7 +233,7 @@ function xxx(
 
 type: bool, default: true
 
-Align fields of table if there is a line break.
+Align fields of a table if there is a line break.
 if false, use `indent_width` to indentation.
 
 ```lua
@@ -250,7 +250,7 @@ x = {111, 222,
 
 type: bool, default: true
 
-Break after '{' of table if columns greater than `column_limit`.
+Break after '{' of a table if columns greater than `column_limit`.
 
 ```lua
 -- break_after_table_lb: true
@@ -267,7 +267,7 @@ x = {111, 222,
 
 type: bool, default: true
 
-Break before '}' of table if columns greater than `column_limit`.
+Break before '}' of a table if columns greater than `column_limit`.
 
 ```lua
 -- break_before_table_rb: true
@@ -308,7 +308,7 @@ x = {
 
 type: bool, default: true
 
-Chop down table if table contains key.
+Chop down table if a table contains a key.
 
 ```lua
 -- chop_down_kv_table: true
@@ -394,7 +394,7 @@ x = {
 
 type: bool, default: false
 
-Add a extra field separator after last field unless the table is in a single line.
+Add an extra field separator after the last field unless the table is in a single line.
 
 ```lua
 -- extra_sep_at_table_end: true
@@ -435,7 +435,7 @@ x = 11111 + 11111
 
 type: bool, default: false
 
-Transform string literals to use double quote.
+Transform string literals to use double quotes.
 
 ```lua
 -- original
@@ -457,7 +457,7 @@ local foo = "\\\\'"
 
 type: bool, default: false
 
-Transform string literals to use single quote.
+Transform string literals to use a single quote.
 
 ```lua
 -- original
@@ -479,7 +479,7 @@ local foobar = '\\\\"'
 
 type: int, default: 1
 
-Inserts a space on function calls with parantheses omitted.
+Inserts a space on function calls with parentheses omitted.
 
 ```lua
 -- spaces_before_call: 1
@@ -590,7 +590,7 @@ point = Point{x=1, y=2}
 
 type: int, default: 1
 
-Line brakes after function body
+Line brakes after the function body
 
 ```lua
 -- original(1)
