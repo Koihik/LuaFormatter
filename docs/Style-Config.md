@@ -81,10 +81,10 @@ type: bool, default: true
 Allow format simple control block(e.g., if, while, for, ...) to one line.
 
 ```lua
--- keep_simple_block_one_line: true
+-- keep_simple_control_block_one_line: true
 if cond then xx() end
 
--- keep_simple_block_one_line: false
+-- keep_simple_control_block_one_line: false
 if cond then
     xx()
 end
