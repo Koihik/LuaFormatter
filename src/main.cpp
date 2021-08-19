@@ -6,6 +6,9 @@
 
 #include "Config.h"
 #include "lua-format.h"
+#include <unistd.h>
+#include <sys/stat.h>
+#include <dirent.h>
 
 #if defined(_WIN32)
 #include <fcntl.h>
@@ -20,25 +23,30 @@ int setBinaryMode(FILE*) {
 #endif
 
 bool file_is_usable(const std::string& fileName, const bool inplace) {
-    if (!fs::exists(fileName)) {
+    struct stat buffer;
+    if (stat(fileName.c_str(),&buffer) != 0){
+    // if (!fs::exists(fileName)) {
         std::cerr << fileName << ": No such file." << std::endl;
         return false;
     }
 
-    fs::file_status status = fs::status(fileName);
-    fs::perms perm = status.permissions();
+    // fs::file_status status = fs::status(fileName);
+    // fs::perms perm = status.permissions();
 
-    if (!fs::is_regular_file(status)) {
+    // if (!fs::is_regular_file(status)) {
+    if((S_IFREG & buffer.st_mode) != S_IFREG){
         std::cerr << fileName << ": Not a file." << std::endl;
         return false;
     }
 
-    if ((perm & fs::perms::owner_read) == fs::perms::none) {
+    // if ((perm & fs::perms::owner_read) == fs::perms::none) {
+    if ((buffer.st_mode & S_IRUSR) != S_IRUSR){
         std::cerr << fileName << ": No access to read." << std::endl;
         return false;
     }
 
-    if (inplace && (perm & fs::perms::owner_write) == fs::perms::none) {
+    // if (inplace && (perm & fs::perms::owner_write) == fs::perms::none) {
+    if ((buffer.st_mode & S_IWUSR) != S_IWUSR){
         std::cerr << fileName << ": No access to write." << std::endl;
         return false;
     }
@@ -397,20 +405,35 @@ int main(int argc, const char* argv[]) {
 
     // Automatically look for a .lua-format on the current directory
     if (configFileName.empty()) {
-        fs::path current = fs::current_path();
-        while (configFileName.empty()) {
-            for (const auto& entry : fs::directory_iterator(current)) {
-                const fs::path& candidate = entry.path();
-                if (candidate.filename() == ".lua-format") {
-                    configFileName = candidate.string();
+        // fs::path current = fs::current_path();
+        // while (configFileName.empty()) {
+        //     for (const auto& entry : fs::directory_iterator(current)) {
+        //         const fs::path& candidate = entry.path();
+        //         if (candidate.filename() == ".lua-format") {
+        //             configFileName = candidate.string();
+        //         }
+        //     }
+
+        //     fs::path parent = current.parent_path();
+        //     if (current == parent) {
+        //         break;
+        //     }
+        //     current = parent;
+        // }
+        char * cwd;
+        cwd = getcwd(NULL,0);
+        DIR * dir = opendir(cwd);
+        if (dir) {
+            struct dirent* ent;
+            while ((ent = readdir(dir)) != NULL)
+            {
+                if (strcmp(ent->d_name,".lua-format")){
+                    configFileName = ent->d_name;
+                    break;
                 }
             }
-
-            fs::path parent = current.parent_path();
-            if (current == parent) {
-                break;
-            }
-            current = parent;
+            
+            
         }
     }
 
@@ -431,7 +454,8 @@ int main(int argc, const char* argv[]) {
         }
         if (!conf_dir.empty()) {
             std::string candidate = conf_dir + "/luaformatter/config.yaml";
-            if (fs::exists(candidate)) {
+            // if (fs::exists(candidate)) {
+            if(access(candidate.c_str(),F_OK) == 0){
                 configFileName = candidate;
             }
         }
@@ -447,7 +471,8 @@ int main(int argc, const char* argv[]) {
             std::cerr << "using configuration file: " << configFileName << std::endl;
         }
 
-        if (fs::exists(configFileName)) {
+        // if (fs::exists(configFileName)) {
+        if(access(configFileName.c_str(),F_OK)==0){
             // Keeps the default values in case the yaml is missing a field
             try {
                 config.readFromFile(configFileName);

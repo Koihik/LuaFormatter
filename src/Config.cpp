@@ -199,18 +199,18 @@ Config::Config() {
 }
 
 void Config::readFromFile(const std::string& file) {
-    fs::file_status status = fs::status(file);
-    fs::perms perm = status.permissions();
+    // fs::file_status status = fs::status(file);
+    // fs::perms perm = status.permissions();
 
-    if (!fs::is_regular_file(status)) {
-        std::cerr << file << ": Not a file." << std::endl;
-        exit(-1);
-    }
+    // if (!fs::is_regular_file(status)) {
+    //     std::cerr << file << ": Not a file." << std::endl;
+    //     exit(-1);
+    // }
 
-    if ((perm & fs::perms::owner_read) == fs::perms::none) {
-        std::cerr << file << ": No access to read." << std::endl;
-        exit(-1);
-    }
+    // if ((perm & fs::perms::owner_read) == fs::perms::none) {
+    //     std::cerr << file << ": No access to read." << std::endl;
+    //     exit(-1);
+    // }
 
     YAML::Node n = YAML::LoadFile(file);
 

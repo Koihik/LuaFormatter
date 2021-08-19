@@ -4,6 +4,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <unistd.h>
 
 #include "lua-format.h"
 
@@ -16,7 +17,7 @@
         std::string configFileName = filepath + tag + "/" + file + ".config";             \
         input.open(filename);                                                             \
         Config config;                                                                    \
-        if (fs::exists(configFileName)) {                                                 \
+        if (access(configFileName.c_str(),F_OK) == 0) {                                                 \
             config.readFromFile(configFileName);                                          \
         }                                                                                 \
         std::string actual = lua_format(input, config);                                   \

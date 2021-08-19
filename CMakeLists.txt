@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.9)
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment version")
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.14" CACHE STRING "Minimum OS X deployment version")
 
 project("lua-formatter" VERSION 1.3.0 LANGUAGES CXX)
 
@@ -24,13 +24,13 @@ endif()
 
 # The code is modified from
 # https://gitlab.kitware.com/cmake/community/-/wikis/doc/tutorials/How-To-Write-Platform-Checks
-include(CheckIncludeFileCXX)
-check_include_file_cxx("filesystem" HAVE_FILESYSTEM_H)
-if(NOT HAVE_FILESYSTEM_H)
-    message(WARNING "filesystem not found, use experimental/filesystem as fallback."
-        " It's recommended to use a stable C++17 compliant compiler/libstdc++.")
-endif()
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/src/ConfigCheck.h)
+# include(CheckIncludeFileCXX)
+# check_include_file_cxx("filesystem" HAVE_FILESYSTEM_H)
+# if(NOT HAVE_FILESYSTEM_H)
+#     message(WARNING "filesystem not found, use experimental/filesystem as fallback."
+#         " It's recommended to use a stable C++17 compliant compiler/libstdc++.")
+# endif()
+# configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/src/ConfigCheck.h)
 
 if(NOT CMAKE_BUILD_TYPE)
   message("set build type to Release.")
@@ -48,18 +48,18 @@ else()
   set(extra-libs "")
 endif()
 
-try_run(TEST_RUN_RESULT
-  TEST_COMPILE_RESULT
-  ${CMAKE_CURRENT_BINARY_DIR}/
-  ${PROJECT_SOURCE_DIR}/test/cpp17/fs.cpp
-  LINK_LIBRARIES ${extra-libs}
-  OUTPUT_VARIABLE var)
+# try_run(TEST_RUN_RESULT
+#   TEST_COMPILE_RESULT
+#   ${CMAKE_CURRENT_BINARY_DIR}/
+#   ${PROJECT_SOURCE_DIR}/test/cpp17/fs.cpp
+#   LINK_LIBRARIES ${extra-libs}
+#   OUTPUT_VARIABLE var)
 
-message("${var}")
+# message("${var}")
 
-if(NOT "${TEST_COMPILE_RESULT}" OR (NOT "${TEST_RUN_RESULT}" EQUAL 0))
-  message(FATAL_ERROR "Your compiler does not fully support the C++17 standard and libraries")
-endif()
+# if(NOT "${TEST_COMPILE_RESULT}" OR (NOT "${TEST_RUN_RESULT}" EQUAL 0))
+#   message(FATAL_ERROR "Your compiler does not fully support the C++17 standard and libraries")
+# endif()
 
 if( ${CMAKE_BUILD_TYPE} MATCHES "Debug")
   add_definitions(-DDEBUG)
