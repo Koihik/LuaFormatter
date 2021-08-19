@@ -7,6 +7,7 @@
 #include <fstream>
 #include <functional>
 #include <iostream>
+#include <sys/stat.h>
 
 Config::Config() {
     // Default configuration
@@ -211,6 +212,15 @@ void Config::readFromFile(const std::string& file) {
     //     std::cerr << file << ": No access to read." << std::endl;
     //     exit(-1);
     // }
+    struct stat buffer;
+    if (stat(file.c_str(),&buffer) != 0){
+        std::cerr << file << ": No such file." << std::endl;
+        exit(-1);
+    }
+    if ((S_IRUSR & buffer.st_mode) != S_IRUSR){
+        std::cerr << file << ": No access to read." << std::endl;
+        exit(-1);
+    }
 
     YAML::Node n = YAML::LoadFile(file);
 
