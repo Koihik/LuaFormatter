@@ -427,8 +427,9 @@ int main(int argc, const char* argv[]) {
             struct dirent* ent;
             while ((ent = readdir(dir)) != NULL)
             {
-                if (strcmp(ent->d_name,".lua-format")){
+                if (strcmp(ent->d_name,".lua-format") == 0){
                     configFileName = ent->d_name;
+                    std::cerr << ent -> d_name << std::endl;
                     break;
                 }
             }
