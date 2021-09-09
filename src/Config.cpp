@@ -38,7 +38,7 @@ Config::Config() {
     node["chop_down_kv_table"] = true;
     node["table_sep"] = ",";
     node["extra_sep_at_table_end"] = false;
-    node["column_table_limit"] = node["column_limit"];
+    node["column_table_limit"] = 0; // follows column_limit by default
     node["spaces_inside_table_braces"] = false;
 
     node["break_after_operator"] = true;
@@ -215,9 +215,6 @@ void Config::readFromFile(const std::string& file) {
     YAML::Node n = YAML::LoadFile(file);
 
     // Keys are always strings
-    bool given = false;
-    std::string CTL = "column_table_limit";
-    std::string CL = "column_limit";
     for (const auto& kv : n) {
         auto key = kv.first.as<std::string>();
         if (node[key]) {
@@ -244,19 +241,10 @@ void Config::readFromFile(const std::string& file) {
                 }
             }
         }
-        if (key == CTL) {
-            given = true;
-        }
-    }
-    if (!given) {
-        node[CTL] = node[CL];
     }
 }
 
 void Config::readFromMap(std::map<std::string, std::any>& mp) {
-    bool given = false;
-    std::string CTL = "column_table_limit";
-    std::string CL = "column_limit";
     for (const auto& kv : mp) {
         auto key = kv.first;
         if (node[key]) {
@@ -283,23 +271,17 @@ void Config::readFromMap(std::map<std::string, std::any>& mp) {
                 }
             }
         }
-        if (key == CTL) {
-            given = true;
-        }
-    }
-    if (!given) {
-        node[CTL] = node[CL];
     }
 }
 
 void Config::dumpCurrent(std::ofstream& fout) {
-   for (const auto& kv : node) {
-      fout << kv.first << ": " << kv.second << std::endl;
-   }
+    for (const auto& kv : node) {
+        fout << kv.first << ": " << kv.second << std::endl;
+    }
 }
 
 void Config::dumpCurrent(std::ostream& out) {
-   for (const auto& kv : node) {
-      out << kv.first << ": " << kv.second << std::endl;
-   }
+    for (const auto& kv : node) {
+        out << kv.first << ": " << kv.second << std::endl;
+    }
 }
