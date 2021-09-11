@@ -798,7 +798,7 @@ antlrcpp::Any FormatVisitor::visitAttnamelist(LuaParser::AttnamelistContext* ctx
         maxLen = len > maxLen ? len: maxLen;
         
     }
-    int selfLen  =ctx->COMMA().size()*2-1;
+    int selfLen  =ctx->COMMA().size()*2;
     for (auto &&i : ctx->NAME())
     {
         selfLen += i->getText().length();
@@ -874,7 +874,7 @@ antlrcpp::Any FormatVisitor::visitAttnamelist(LuaParser::AttnamelistContext* ctx
             }
             if (i == n - 1) {
                 std::stringstream s ;
-                s << std::left << std::setw(maxLen-selfLen) << ctx->NAME()[i+1]->getText();
+                s << std::left << std::setw(maxLen-selfLen + ctx->NAME()[i+1]->getText().length()) << ctx->NAME()[i+1]->getText();
                 cur_writer() << s.str();
             } else {
                 cur_writer() << ctx->NAME()[i + 1]->getText();
@@ -889,7 +889,7 @@ antlrcpp::Any FormatVisitor::visitAttnamelist(LuaParser::AttnamelistContext* ctx
             cur_writer() << commentAfter(ctx->COMMA()[i], " ");
             if (i == n - 1) {
                 std::stringstream s ;
-                s << std::left << std::setw(maxLen-selfLen) << ctx->NAME()[i+1]->getText();
+                s << std::left << std::setw(maxLen-selfLen + ctx->NAME()[i+1]->getText().length()) << ctx->NAME()[i+1]->getText();
                 cur_writer() << s.str();
             } else {
                 cur_writer() << ctx->NAME()[i + 1]->getText();
