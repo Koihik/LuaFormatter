@@ -781,6 +781,35 @@ antlrcpp::Any FormatVisitor::visitAttnamelist(LuaParser::AttnamelistContext* ctx
     unsigned firstParameterLength = ctx->NAME().front()->getText().size() + ctx->attrib().front()->getText().size();
     int firstParameterIndent = 0;
 
+    LuaParser::BlockContext *block = dynamic_cast<LuaParser::BlockContext*>(ctx->parent->parent->parent);
+    auto stats = block->getRuleContexts<LuaParser::StatContext>();
+    std::vector<LuaParser::LocalVarDeclContext*> v;
+    for (auto &&stat : stats)
+    {
+        auto localVar = stat->getRuleContext<LuaParser::LocalVarDeclContext>(0);
+        if (localVar != nullptr) {
+            v.push_back(localVar);
+        }
+    }
+    int maxLen = 0;
+    for (auto &&var : v)
+    {
+        int len = var->attnamelist()->getText().length() + var->attnamelist()->COMMA().size();
+        maxLen = len > maxLen ? len: maxLen;
+        
+    }
+    int selfLen  =ctx->COMMA().size()*2-1;
+    for (auto &&i : ctx->NAME())
+    {
+        selfLen += i->getText().length();
+        
+    }
+    
+    /**
+     * 
+    **/
+    
+
     if (n > 0) {
         firstParameterLength++;  // calc a ',' if exp > 1
     }
@@ -793,7 +822,14 @@ antlrcpp::Any FormatVisitor::visitAttnamelist(LuaParser::AttnamelistContext* ctx
     } else {
         firstParameterIndent = cur_columns() - indent_ - indentForAlign_;
     }
-    cur_writer() << ctx->NAME().front()->getText();
+    // 第一个变量处
+    if (n>0) {
+        cur_writer() << ctx->NAME().front()->getText();
+    } else {
+        std::stringstream s ;
+        s << std::left << std::setw(maxLen) << ctx->NAME().front()->getText();
+        cur_writer() << s.str();
+    }
     std::string attrib = ctx->attrib().front()->getText();
     // judge attrib size, avoid print comment twice
     if (!attrib.empty()) {
@@ -812,7 +848,6 @@ antlrcpp::Any FormatVisitor::visitAttnamelist(LuaParser::AttnamelistContext* ctx
         bool beyondLimit = false;
         pushWriter();
         cur_writer() << commentAfter(ctx->COMMA()[i], " ");
-        cur_writer() << ctx->NAME()[i + 1]->getText();
         cur_writer() << ctx->attrib()[i + 1]->getText();
         int length = cur_writer().firstLineColumn();
         popWriter();
@@ -837,14 +872,30 @@ antlrcpp::Any FormatVisitor::visitAttnamelist(LuaParser::AttnamelistContext* ctx
                     hasIncIndent = true;
                 }
             }
-            cur_writer() << ctx->NAME()[i + 1]->getText();
+            if (i == n - 1) {
+                std::stringstream s ;
+                s << std::left << std::setw(maxLen-selfLen) << ctx->NAME()[i+1]->getText();
+                cur_writer() << s.str();
+            } else {
+                cur_writer() << ctx->NAME()[i + 1]->getText();
+
+            }
+            // cur_writer() << ctx->NAME()[i + 1]->getText();
             cur_writer() << ctx->attrib()[i + 1]->getText();
             if (hasIncIndentForAlign) {
                 decIndentForAlign(firstParameterIndent);
             }
         } else {
             cur_writer() << commentAfter(ctx->COMMA()[i], " ");
-            cur_writer() << ctx->NAME()[i + 1]->getText();
+            if (i == n - 1) {
+                std::stringstream s ;
+                s << std::left << std::setw(maxLen-selfLen) << ctx->NAME()[i+1]->getText();
+                cur_writer() << s.str();
+            } else {
+                cur_writer() << ctx->NAME()[i + 1]->getText();
+
+            }
+            // cur_writer() << ctx->NAME()[i + 1]->getText();
             cur_writer() << ctx->attrib()[i + 1]->getText();
         }
         if (i != n - 1) {
@@ -1740,6 +1791,7 @@ antlrcpp::Any FormatVisitor::visitFieldlist(LuaParser::FieldlistContext* ctx) {
 // LSB exp RSB EQL exp | NAME EQL exp | exp;
 antlrcpp::Any FormatVisitor::visitField(LuaParser::FieldContext* ctx) {
     LOG_FUNCTION_BEGIN();
+    
     std::string eq_space = config_.get<bool>("spaces_around_equals_in_field") ? " " : "";
     if (ctx->LSB() != nullptr) {
         cur_writer() << ctx->LSB()->getText();
@@ -1752,7 +1804,19 @@ antlrcpp::Any FormatVisitor::visitField(LuaParser::FieldContext* ctx) {
         cur_writer() << commentAfter(ctx->EQL(), eq_space);
         visitExp(ctx->exp()[1]);
     } else if (ctx->NAME() != nullptr) {
-        cur_writer() << ctx->NAME()->getText();
+        // to get the max len key
+        auto fieldList = dynamic_cast<LuaParser::FieldlistContext*>(ctx->parent);
+        int n  = fieldList->field().size();
+        int maxFieldLen = 0;
+        for (size_t i = 0; i < n; i++)
+        {
+            int len = fieldList->field()[i]->NAME()->getText().length();
+            maxFieldLen = len > maxFieldLen?len: maxFieldLen;
+        }
+        std::stringstream s;
+        s << std::left << std::setw(maxFieldLen) << ctx->NAME()->getText();
+        // cur_writer() << ctx->NAME()->getText();
+        cur_writer() << s.str();
         cur_writer() << commentAfter(ctx->NAME(), eq_space);
         cur_writer() << ctx->EQL()->getText();
         cur_writer() << commentAfter(ctx->EQL(), eq_space);
