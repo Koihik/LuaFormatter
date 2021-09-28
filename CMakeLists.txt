@@ -110,6 +110,10 @@ install(TARGETS lua-format
   RUNTIME DESTINATION bin
   )
 
+if(APPLE AND ${CMAKE_SYSTEM_PROCESSOR} MATCHES "^(aarch64|arm64)$")
+    set(BUILD_TESTS OFF)
+endif()
+
 if(BUILD_TESTS)
   message("BUILD_TESTS enabled.")
   enable_testing()
