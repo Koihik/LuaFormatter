@@ -590,7 +590,7 @@ point = Point{x=1, y=2}
 
 type: int, default: 1
 
-Line brakes after the function body
+Line breaks after the function body
 
 ```lua
 -- original(1)
