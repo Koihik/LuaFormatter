@@ -155,7 +155,7 @@ See [this file](https://github.com/Koihik/LuaFormatter/blob/master/docs/Style-Co
 
 ### Default configuration
 
-```
+```yaml
 column_limit: 80
 indent_width: 4
 use_tab: false
