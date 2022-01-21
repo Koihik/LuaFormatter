@@ -1,0 +1,6 @@
+-   id: luaformatter
+    name: LuaFormatter
+    description: Format Lua code to a set style
+    entry: lua-format -i
+    language: lua
+    types: [lua]
