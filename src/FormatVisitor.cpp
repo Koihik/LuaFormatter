@@ -1810,6 +1810,7 @@ antlrcpp::Any FormatVisitor::visitField(LuaParser::FieldContext* ctx) {
         int maxFieldLen = 0;
         for (size_t i = 0; i < n; i++)
         {
+            if (!fieldList->field()[i]->NAME()) continue;
             int len = fieldList->field()[i]->NAME()->getText().length();
             maxFieldLen = len > maxFieldLen?len: maxFieldLen;
         }
