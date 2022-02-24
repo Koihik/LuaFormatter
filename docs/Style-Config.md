@@ -614,3 +614,32 @@ end
 
 
 ```
+
+### line_separator
+
+type: str, default: input
+```
+input: Determine line separator by the input content. This is the default.
+os: Determine line separator by the operating system
+lf: Use Unix Style ("\n")
+cr: Use classic Mac Style ("\r")
+crlf: Use Windows Style ("\r\n")
+```
+Auto change the line ending according to config
+
+```lua
+-- original
+function foo()<\n>
+<\n>
+end<\n>
+
+-- transformed (cr)
+function foo()<\r>
+<\r>
+end<\r>
+
+-- transformed (crlf)
+function foo()<\r\n>
+<\r\n>
+end<\r\n>
+```
