@@ -2,7 +2,7 @@ rockspec_format = "3.0"
 package = "LuaFormatter"
 version = "scm-1"
 source = {
-   url = "https://github.com/Koihik/LuaFormatter.git"
+   url = "https://github.com/Koihik/LuaFormatter"
 }
 description = {
    summary = "Reformats your Lua source code.",
