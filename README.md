@@ -134,7 +134,7 @@ luarocks install --server=https://luarocks.org/dev luaformatter
                                         Do not put spaces around the equal sign
                                         in key/value fields
       --line-breaks-after-function-body
-                                        Line brakes after function body
+                                        Line breakes after function body
       --line-separator=[line separator] input(determined by the input content),
                                         os(Use line ending of the current
                                         Operating system), lf(Unix style "\n"),
