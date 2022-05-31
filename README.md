@@ -98,8 +98,10 @@ luarocks install --server=https://luarocks.org/dev luaformatter
       --chop-down-kv-table              Chop down table if table contains key
       --no-chop-down-kv-table           Do not chop down table if table contains
                                         key
-      --extra-sep-at-table-end          Add a extra field separator
-      --no-extra-sep-at-table-end       Do not add a extra field separator
+      --extra-sep-at-table-end          Add extra field separator at end of
+                                        table
+      --no-extra-sep-at-table-end       Do not add extra field separator at end
+                                        of table
       --break-after-operator            Put break after operators
       --no-break-after-operator         Do not put break after operators
       --double-quote-to-single-quote    Transform string literals to use single
@@ -132,7 +134,7 @@ luarocks install --server=https://luarocks.org/dev luaformatter
                                         Do not put spaces around the equal sign
                                         in key/value fields
       --line-breaks-after-function-body
-                                        Line brakes after function body
+                                        Line breakes after function body
       --line-separator=[line separator] input(determined by the input content),
                                         os(Use line ending of the current
                                         Operating system), lf(Unix style "\n"),
