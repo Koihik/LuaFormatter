@@ -41,7 +41,7 @@ jobs:
     - name: Build LuaFormatter
       run: |
          git submodule update --init
-         cmake -G "Visual Studio 16 2019" -DCMAKE_BUILD_TYPE=Debug
+         cmake -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Debug
          msbuild "lua-formatter.sln" /clp:ErrorsOnly /target:Build
          ctest -C Debug
 
