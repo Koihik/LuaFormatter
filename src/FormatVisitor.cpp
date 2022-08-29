@@ -1,6 +1,7 @@
 #include "FormatVisitor.h"
 
 #include <iostream>
+#include <iterator>
 #include <regex>
 #include <utility>
 
@@ -1097,19 +1098,16 @@ antlrcpp::Any FormatVisitor::visitString(LuaParser::StringContext* ctx) {
         return nullptr;
     }
     char quote = ctx->NORMALSTRING() != nullptr ? '\'' : '\"';
-    tree::TerminalNode* tn = nullptr;
 
     switch (quote) {
         case '\"':
             if (config_.get<bool>("single_quote_to_double_quote")) {
-                tn = ctx->CHARSTRING();
                 break;
             }
             cur_writer() << ctx->getText();
             return nullptr;
         case '\'':
             if (config_.get<bool>("double_quote_to_single_quote")) {
-                tn = ctx->NORMALSTRING();
                 break;
             }
             cur_writer() << ctx->getText();
@@ -1118,7 +1116,8 @@ antlrcpp::Any FormatVisitor::visitString(LuaParser::StringContext* ctx) {
             assert(0);
     }
 
-    std::string newstr = tn->getSymbol()->getText();
+    std::string oldstr = ctx->getText();
+    std::string newstr;
 
     std::regex re_single("'", std::regex_constants::extended);
     std::regex re_double("\"", std::regex_constants::extended);
@@ -1126,23 +1125,14 @@ antlrcpp::Any FormatVisitor::visitString(LuaParser::StringContext* ctx) {
     std::regex re_escapeddouble("\\\\\"", std::regex_constants::extended);
 
     if (quote == '\"') {
-        newstr = regex_replace(newstr, re_escapedsingle, "'");
+        regex_replace(std::back_inserter(newstr), oldstr.begin() + 1, oldstr.end() - 1, re_escapedsingle, "'");
         newstr = regex_replace(newstr, re_double, "\\\"");
     } else {
-        newstr = regex_replace(newstr, re_single, "\\'");
+        regex_replace(std::back_inserter(newstr), oldstr.begin() + 1, oldstr.end() - 1, re_single, "\\'");
         newstr = regex_replace(newstr, re_escapeddouble, "\"");
     }
 
-    // switch the beginning and end to the new format
-    *newstr.begin() = quote;
-    *newstr.rbegin() = quote;
-
-    // undo a transformation that invalidates strings in certain conditions
-    if (newstr.at(newstr.size() - 2) == '\\' && newstr.at(newstr.size() - 3) != '\\') {
-        newstr.insert(newstr.size() - 2, "\\");
-    }
-
-    cur_writer() << newstr;
+    cur_writer() << quote + newstr + quote;
     return nullptr;
 }
 
