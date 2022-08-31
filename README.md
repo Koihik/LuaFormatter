@@ -34,6 +34,7 @@ luarocks install --server=https://luarocks.org/dev luaformatter
 ```bash
     git clone --recurse-submodules https://github.com/Koihik/LuaFormatter.git
     cd LuaFormatter
+    git submodule update --init --recursive
     cmake .
     make
     make install
