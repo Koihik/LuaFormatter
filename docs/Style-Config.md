@@ -327,12 +327,13 @@ x = {
 ```
 ### column_table_limit
 
-type: int, default: column_limit
+type: int, default: 0
 
-The column limit of each line of a table. Default value the same as column_limit value.
+The column limit of each line of a table.
+If set to 0 (the default), the value of `column_limit` is used.
 
 ```lua
---column_table_limit: column_limit
+--column_table_limit: 0
 test = {
   image = "test",
   list = {

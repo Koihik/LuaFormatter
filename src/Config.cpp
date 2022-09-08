@@ -135,7 +135,7 @@ Config::Config() {
     validators["indent_width"] = validate_integer_zero;
     validators["tab_width"] = validate_tab_width;
     validators["continuation_indent_width"] = validate_integer_zero;
-    validators["column_table_limit"] = validate_integer;
+    validators["column_table_limit"] = validate_integer_zero;
     validators["use_tab"] = validate_use_tab;
     validators["keep_simple_control_block_one_line"] = validate_boolean;
     validators["keep_simple_function_one_line"] = validate_boolean;

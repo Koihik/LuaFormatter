@@ -12,17 +12,17 @@ TEST_CASE("gt0 validator", "[config_validator]") {
     Config config;
     REQUIRE_THROWS_WITH(config.readFromFile(configFileName),
                         "[ERROR] Configuration value is out of range. Must be a positive integer greater than 0.");
-
-    std::string configFileName2(PROJECT_PATH "/test/config/column_table_limit.config");
-    Config config2;
-    REQUIRE_THROWS_WITH(config2.readFromFile(configFileName2),
-                        "[ERROR] Configuration value is out of range. Must be a positive integer greater than 0.");
 }
 
 TEST_CASE("ge0 validator", "[config_validator]") {
     std::string configFileName(PROJECT_PATH "/test/config/indent_width.config");
     Config config;
     REQUIRE_THROWS_WITH(config.readFromFile(configFileName),
+                        "[ERROR] Configuration value is out of range. Must be a positive integer.");
+
+    std::string configFileName2(PROJECT_PATH "/test/config/column_table_limit.config");
+    Config config2;
+    REQUIRE_THROWS_WITH(config2.readFromFile(configFileName2),
                         "[ERROR] Configuration value is out of range. Must be a positive integer.");
 }
 

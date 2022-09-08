@@ -181,7 +181,7 @@ break_before_table_rb: true
 chop_down_table: false
 chop_down_kv_table: true
 table_sep: ","
-column_table_limit: column_limit
+column_table_limit: 0
 extra_sep_at_table_end: false
 spaces_inside_table_braces: false
 break_after_operator: true
