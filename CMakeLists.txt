@@ -92,14 +92,14 @@ file(GLOB_RECURSE yaml-cpp-src
   ${PROJECT_SOURCE_DIR}/third_party/yaml-cpp/src/*.cpp
   )
 
-add_library (antlr4-cpp-runtime ${antlr4-cpp-src})
-add_library (yaml-cpp ${yaml-cpp-src})
+add_library (antlr4-cpp-runtime STATIC ${antlr4-cpp-src})
+add_library (yaml-cpp STATIC ${yaml-cpp-src})
 
 add_executable(lua-format ${src_dir} src/main.cpp)
 
 if(WIN32)
-  target_compile_definitions(antlr4-cpp-runtime PRIVATE ANTLR4CPP_EXPORTS)
-  target_compile_definitions(yaml-cpp PRIVATE YAMLCPP_EXPORTS)
+  target_compile_definitions(antlr4-cpp-runtime PUBLIC ANTLR4CPP_STATIC)
+  target_compile_definitions(yaml-cpp PUBLIC YAMLCPP_STATIC)
 endif()
 
 set_target_properties(lua-format PROPERTIES LINKER_LANGUAGE CXX)
