@@ -4,6 +4,7 @@
 #include "LuaBaseVisitor.h"
 #include "LuaParser.h"
 #include "SourceWriter.h"
+#include "log.h"
 
 using namespace antlr4;
 
@@ -91,7 +92,7 @@ class FormatVisitor : public LuaBaseVisitor {
 
     std::string formatLineComment(Token* token);
 
-    bool needKeepBlockOneLine(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx, BlockType blockType);
+    [[maybe_unused]] bool needKeepBlockOneLine(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx, BlockType blockType);
     bool isBlockEmpty(LuaParser::BlockContext* ctx);
     void visitBlockAndComment(tree::ParseTree* previousNode, LuaParser::BlockContext* ctx, BlockType blockType);
     void visitNextNameAndArgs(LuaParser::VarSuffixContext* ctx);
