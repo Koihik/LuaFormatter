@@ -35,7 +35,7 @@ class FormatVisitor : public LuaBaseVisitor {
     antlrcpp::Any visitVarlist(LuaParser::VarlistContext* context) override;
     antlrcpp::Any visitNamelist(LuaParser::NamelistContext* context) override;
     antlrcpp::Any visitAttnamelist(LuaParser::AttnamelistContext* context) override;
-    antlrcpp::Any visitAttrib(LuaParser::AttribContext* context) override;
+    antlrcpp::Any visitNameattrib(LuaParser::NameattribContext* context) override;
     antlrcpp::Any visitExplist(LuaParser::ExplistContext* context) override;
 
     antlrcpp::Any visitExp(LuaParser::ExpContext* context) override;

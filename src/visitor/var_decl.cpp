@@ -1,8 +1,7 @@
-#include "visitor/FormatVisitor.h"
-
 #include <utility>
 
 #include "LuaLexer.h"
+#include "visitor/FormatVisitor.h"
 
 using namespace antlr4;
 
@@ -66,12 +65,12 @@ antlrcpp::Any FormatVisitor::visitLocalVarDecl(LuaParser::LocalVarDeclContext* c
     return nullptr;
 }
 
-// NAME attrib (COMMA NAME attrib)*;
+// nameattrib (COMMA nameattrib)*;
 antlrcpp::Any FormatVisitor::visitAttnamelist(LuaParser::AttnamelistContext* ctx) {
     LOG_FUNCTION_BEGIN();
     int n = ctx->COMMA().size();
     bool hasIncIndent = false;
-    unsigned firstParameterLength = ctx->NAME().front()->getText().size() + ctx->attrib().front()->getText().size();
+    unsigned firstParameterLength = ctx->nameattrib().front()->getText().size();
     int firstParameterIndent = 0;
 
     if (n > 0) {
@@ -86,27 +85,16 @@ antlrcpp::Any FormatVisitor::visitAttnamelist(LuaParser::AttnamelistContext* ctx
     } else {
         firstParameterIndent = cur_columns() - indent_ - indentForAlign_;
     }
-    cur_writer() << ctx->NAME().front()->getText();
-    std::string attrib = ctx->attrib().front()->getText();
-    // judge attrib size, avoid print comment twice
-    if (!attrib.empty()) {
-        cur_writer() << commentAfter(ctx->NAME().front(), "");
-        cur_writer() << attrib;
-        if (n > 0) {
-            cur_writer() << commentAfter(ctx->attrib().front(), "");
-        }
-    } else {
-        if (n > 0) {
-            cur_writer() << commentAfter(ctx->NAME().front(), "");
-        }
+    visitNameattrib(ctx->nameattrib().front());
+    if (n > 0) {
+        cur_writer() << commentAfter(ctx->nameattrib().front(), "");
     }
     for (int i = 0; i < n; i++) {
         cur_writer() << ctx->COMMA()[i]->getText();
         bool beyondLimit = false;
         pushWriter();
         cur_writer() << commentAfter(ctx->COMMA()[i], " ");
-        cur_writer() << ctx->NAME()[i + 1]->getText();
-        cur_writer() << ctx->attrib()[i + 1]->getText();
+        visitNameattrib(ctx->nameattrib()[i + 1]);
         int length = cur_writer().firstLineColumn();
         popWriter();
         if (i != n - 1) {
@@ -130,22 +118,16 @@ antlrcpp::Any FormatVisitor::visitAttnamelist(LuaParser::AttnamelistContext* ctx
                     hasIncIndent = true;
                 }
             }
-            cur_writer() << ctx->NAME()[i + 1]->getText();
-            cur_writer() << ctx->attrib()[i + 1]->getText();
+            visitNameattrib(ctx->nameattrib()[i + 1]);
             if (hasIncIndentForAlign) {
                 decIndentForAlign(firstParameterIndent);
             }
         } else {
             cur_writer() << commentAfter(ctx->COMMA()[i], " ");
-            cur_writer() << ctx->NAME()[i + 1]->getText();
-            cur_writer() << ctx->attrib()[i + 1]->getText();
+            visitNameattrib(ctx->nameattrib()[i + 1]);
         }
         if (i != n - 1) {
-            if (!ctx->attrib()[i + 1]->getText().empty()) {
-                cur_writer() << commentAfter(ctx->attrib()[i + 1], "");
-            } else {
-                cur_writer() << commentAfter(ctx->NAME()[i + 1], "");
-            }
+            cur_writer() << commentAfter(ctx->nameattrib()[i + 1], "");
         }
     }
     if (hasIncIndent) {
@@ -155,12 +137,14 @@ antlrcpp::Any FormatVisitor::visitAttnamelist(LuaParser::AttnamelistContext* ctx
     return nullptr;
 }
 
-// (LT NAME GT)?;
-antlrcpp::Any FormatVisitor::visitAttrib(LuaParser::AttribContext* ctx) {
+// NAME (LT NAME GT)?;
+antlrcpp::Any FormatVisitor::visitNameattrib(LuaParser::NameattribContext* ctx) {
     LOG_FUNCTION_BEGIN();
-    if (ctx->NAME() != nullptr) {
+    cur_writer() << ctx->NAME().front()->getText();
+    if (ctx->LT() != nullptr) {
+        cur_writer() << commentAfter(ctx->NAME().front(), "");
         cur_writer() << ctx->LT()->getText();
-        cur_writer() << ctx->NAME()->getText();
+        cur_writer() << ctx->NAME()[1]->getText();
         cur_writer() << ctx->GT()->getText();
     }
     LOG_FUNCTION_END();

@@ -374,3 +374,7 @@ cmake-build-*
 
 # Lua rocks
 build.luarocks
+
+# coverage
+coverage.info
+result/

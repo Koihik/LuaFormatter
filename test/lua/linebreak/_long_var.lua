@@ -13,3 +13,6 @@ xxxxxxxxxxxxxxxxxx:xxxxxxxxxxxxxxxxxxxxxx(
         "wwwwwwwwwwww" .. "wwwwwwwwwwwwwwww",
     args .. "wwwwwwwwwwwwwwww" .. "wwwwwwwwwwww" .. "wwwwwwwwwwww" ..
         "wwwwwwwwwwww" .. "wwwwwwwwwwww" .. "wwwwwwwwwwwwwwww")
+
+local xxxxxxxxxxxxxxxxxx, xxxxxxxxxxxxxxxxxx, xxxxxxxxxxxxxxxxxx,
+      xxxxxxxxxxxxxxxxxx = 1, 2, 3, 4
