@@ -74,15 +74,12 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/src/
   )
 
-set(src_dir
-  ${PROJECT_SOURCE_DIR}/src/lua-format.cpp
-  ${PROJECT_SOURCE_DIR}/src/Config.cpp
-  ${PROJECT_SOURCE_DIR}/src/FormatVisitor.cpp
-  ${PROJECT_SOURCE_DIR}/generated/LuaLexer.cpp
-  ${PROJECT_SOURCE_DIR}/generated/LuaParser.cpp
-  ${PROJECT_SOURCE_DIR}/generated/LuaVisitor.cpp
-  ${PROJECT_SOURCE_DIR}/generated/LuaBaseVisitor.cpp
+file(GLOB_RECURSE src_dir
+  ${PROJECT_SOURCE_DIR}/src/*.cpp
+  ${PROJECT_SOURCE_DIR}/generated/*.cpp
   )
+
+list(REMOVE_ITEM src_dir ${PROJECT_SOURCE_DIR}/src/main.cpp)
 
 file(GLOB_RECURSE antlr4-cpp-src
   ${PROJECT_SOURCE_DIR}/third_party/antlr4/runtime/Cpp/runtime/src/*.cpp

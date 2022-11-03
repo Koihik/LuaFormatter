@@ -1,5 +1,5 @@
 
-// Generated from Lua.g4 by ANTLR 4.7.2
+// Generated from Lua.g4 by ANTLR 4.7.1
 
 #pragma once
 
@@ -31,7 +31,7 @@ public:
     RuleIfStat = 9, RuleForStat = 10, RuleForInStat = 11, RuleFuncStat = 12, 
     RuleLocalFuncStat = 13, RuleLocalVarDecl = 14, RuleRetstat = 15, RuleLabel = 16, 
     RuleFuncname = 17, RuleVarlist = 18, RuleNamelist = 19, RuleAttnamelist = 20, 
-    RuleAttrib = 21, RuleExplist = 22, RuleExp = 23, RulePrefixexp = 24, 
+    RuleNameattrib = 21, RuleExplist = 22, RuleExp = 23, RulePrefixexp = 24, 
     RuleVarOrExp = 25, RuleVar = 26, RuleVarSuffix = 27, RuleNameAndArgs = 28, 
     RuleArgs = 29, RuleFunctiondef = 30, RuleFuncbody = 31, RuleParlist = 32, 
     RuleTableconstructor = 33, RuleFieldlist = 34, RuleField = 35, RuleFieldsep = 36, 
@@ -69,7 +69,7 @@ public:
   class VarlistContext;
   class NamelistContext;
   class AttnamelistContext;
-  class AttribContext;
+  class NameattribContext;
   class ExplistContext;
   class ExpContext;
   class PrefixexpContext;
@@ -417,10 +417,8 @@ public:
   public:
     AttnamelistContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    std::vector<antlr4::tree::TerminalNode *> NAME();
-    antlr4::tree::TerminalNode* NAME(size_t i);
-    std::vector<AttribContext *> attrib();
-    AttribContext* attrib(size_t i);
+    std::vector<NameattribContext *> nameattrib();
+    NameattribContext* nameattrib(size_t i);
     std::vector<antlr4::tree::TerminalNode *> COMMA();
     antlr4::tree::TerminalNode* COMMA(size_t i);
 
@@ -430,19 +428,20 @@ public:
 
   AttnamelistContext* attnamelist();
 
-  class  AttribContext : public antlr4::ParserRuleContext {
+  class  NameattribContext : public antlr4::ParserRuleContext {
   public:
-    AttribContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    NameattribContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
+    std::vector<antlr4::tree::TerminalNode *> NAME();
+    antlr4::tree::TerminalNode* NAME(size_t i);
     antlr4::tree::TerminalNode *LT();
-    antlr4::tree::TerminalNode *NAME();
     antlr4::tree::TerminalNode *GT();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    
   };
 
-  AttribContext* attrib();
+  NameattribContext* nameattrib();
 
   class  ExplistContext : public antlr4::ParserRuleContext {
   public:
@@ -683,8 +682,6 @@ public:
   public:
     LinkOperatorContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *LT();
-    antlr4::tree::TerminalNode *GT();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
    
