@@ -45,3 +45,10 @@ TEST_CASE("tab validator", "[config_validator]") {
     REQUIRE_THROWS_WITH(config.readFromFile(configFileName),
                         "[ERROR] Configuration value of use_tab is conflicting with the value of tab_width");
 }
+
+TEST_CASE("line_separator validator", "[config_validator]") {
+    std::string configFileName(PROJECT_PATH "/test/config/line_separator.config");
+    Config config;
+    REQUIRE_THROWS_WITH(config.readFromFile(configFileName),
+                        "[ERROR] Configuration value of line_separator should be one of os/input/lf/cr/crlf");
+}
