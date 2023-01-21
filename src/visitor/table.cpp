@@ -37,10 +37,17 @@ antlrcpp::Any FormatVisitor::visitTableconstructor(LuaParser::TableconstructorCo
             int length = cur_writer().firstLineColumn();
             int lines = cur_writer().lines();
             popWriter();
-            auto column_table_limit = config_.get<int>("column_table_limit");
-            if (!column_table_limit) {
-                column_table_limit = config_.get<int>("column_limit");
+            int column_table_limit = 0;
+            if (containsKv) {
+                column_table_limit = config_.get<int>("column_table_limit_kv");
             }
+            if (!column_table_limit) {
+                column_table_limit = config_.get<int>("column_table_limit");
+                if (!column_table_limit) {
+                    column_table_limit = config_.get<int>("column_limit");
+                }
+            }
+            
             beyondLimit = cur_columns() + length > column_table_limit || lines > 1;
         }
         bool breakAfterLb = false;

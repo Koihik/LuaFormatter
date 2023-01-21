@@ -65,6 +65,8 @@ int main(int argc, const char* argv[]) {
                                           {"spaces-before-call"});
     args::ValueFlag<int> columntablelimit(parser, "column table limit", "Column limit of each line of a table",
                                           {"column-table-limit"});
+    args::ValueFlag<int> columntablelimitkv(parser, "column table kv limit", "The column limit of each line of a k = v table. Default value the same as column_table_limit value.",
+                                          {"column_table_limit_kv"});
     args::ValueFlag<char> tablesep(parser, "table separator", "Character to separate table fields", {"table-sep"});
 
     args::Group optusetab(parser, "", args::Group::Validators::AtMostOne);
@@ -242,6 +244,9 @@ int main(int argc, const char* argv[]) {
     }
     if (columntablelimit) {
         argmap["column_table_limit"] = args::get(columntablelimit);
+    }
+    if (columntablelimitkv) {
+        argmap["column_table_limit_kv"] = args::get(columntablelimitkv);
     }
     if (tablesep) {
         argmap["table_sep"] = args::get(tablesep);

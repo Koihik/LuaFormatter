@@ -87,6 +87,7 @@ TEST_FILE("issues", "issue-156");
 TEST_FILE("issues", "issue-162");
 TEST_FILE("issues", "issue-168");
 TEST_FILE("issues", "issue-186");
+TEST_FILE("issues", "issue-144");
 TEST_FILE("issues", "PR-100");
 TEST_FILE("issues", "PR-108");
 TEST_FILE("issues", "PR-181");
