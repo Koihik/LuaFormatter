@@ -9,7 +9,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install lcov 1.15
       run: |
-         sudo apt install perl libjson-perl libperlio-gzip-perl
+         sudo apt install perl libjson-perl libperlio-gzip-perl libcapture-tiny-perl
          git clone --depth=1 https://github.com/linux-test-project/lcov.git
          cd lcov
          sudo make install

@@ -3,6 +3,7 @@
 Reformats your Lua source code.
 
 ![codecov](https://codecov.io/gh/Koihik/LuaFormatter/branch/master/graph/badge.svg)
+![build](https://github.com/Koihik/LuaFormatter/actions/workflows/build.yml/badge.svg)
 
 ## Editor support
 
