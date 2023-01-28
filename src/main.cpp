@@ -51,6 +51,7 @@ int main(int argc, const char* argv[]) {
     args::HelpFlag help(parser, "help", "Display this help menu", {'h', "help"});
     args::Group dc(parser, "", args::Group::Validators::DontCare);
     args::Flag verbose(dc, "verbose", "Turn on verbose mode", {'v', "verbose"});
+    args::Flag version(dc, "version", "Display the version and exit", {'e', "version"});
     args::Flag inplace(dc, "in-place", "Reformats in-place", {'i', "in-place"});
     args::Flag check(dc, "check", "Non-zero return if formatting is needed", {"check"});
     args::Flag dumpcfg(dc, "dump current style", "Dumps the default style used to stdout", {"dump-config"});
@@ -212,8 +213,9 @@ int main(int argc, const char* argv[]) {
 
     try {
         parser.ParseCLI(argc, argv);
-    } catch (args::Help& e) {
+    } catch (args::Help&) {
         std::cout << parser;
+        std::cout << "Version:  " << LUA_FORMAT_VERSION << std::endl;
         return 0;
     } catch (args::ParseError& e) {
         std::cerr << e.what() << std::endl;
@@ -478,6 +480,11 @@ int main(int argc, const char* argv[]) {
 
     if (dumpcfg) {
         config.dumpCurrent(std::cout);
+        return 0;
+    }
+
+    if (version) {
+        std::cout << "Version:  " << LUA_FORMAT_VERSION << std::endl;
         return 0;
     }
 

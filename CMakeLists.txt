@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.9)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment version")
 
-project("lua-formatter" VERSION 1.3.0 LANGUAGES CXX)
+project("lua-formatter" VERSION 1.3.6 LANGUAGES CXX)
 
 option(BUILD_TESTS "set ON to build tests" ON)
 option(COVERAGE "set ON to enable coverage" ON)
@@ -93,6 +93,8 @@ add_library (antlr4-cpp-runtime STATIC ${antlr4-cpp-src})
 add_library (yaml-cpp STATIC ${yaml-cpp-src})
 
 add_executable(lua-format ${src_dir} src/main.cpp)
+
+target_compile_definitions(lua-format PRIVATE LUA_FORMAT_VERSION="${CMAKE_PROJECT_VERSION}")
 
 if(WIN32)
   target_compile_definitions(antlr4-cpp-runtime PUBLIC ANTLR4CPP_STATIC)
