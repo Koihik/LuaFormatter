@@ -369,6 +369,28 @@ test = {
 }
 ```
 
+### column_table_limit_kv
+
+type: int, default: 0
+
+The column limit of each line of a k = v table.
+If set to 0 (the default), the value of `column_table_limit` is used.
+
+```lua
+--column_table_limit_kv: 80
+--column_table_limit: 120
+
+local a = {"one", "one", "one", "one", "one", "one", "one", "one", "one", "one", "one", "one", "one", "one"}
+
+local some_list = {
+  ['A'] = true,
+  ['B'] = true,
+  ['C'] = true,
+  ['D'] = true,
+  ['E'] = true
+}
+```
+
 ### table_sep
 
 type: str, default: ','
