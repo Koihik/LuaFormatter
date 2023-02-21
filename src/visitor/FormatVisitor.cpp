@@ -250,23 +250,38 @@ antlrcpp::Any FormatVisitor::visitString(LuaParser::StringContext* ctx) {
             assert(0);
     }
 
-    std::string oldstr = ctx->getText();
-    std::string newstr;
-
-    std::regex re_single("'", std::regex_constants::extended);
-    std::regex re_double("\"", std::regex_constants::extended);
-    std::regex re_escapedsingle("\\\\'", std::regex_constants::extended);
-    std::regex re_escapeddouble("\\\\\"", std::regex_constants::extended);
-
-    if (quote == '\"') {
-        regex_replace(std::back_inserter(newstr), oldstr.begin() + 1, oldstr.end() - 1, re_escapedsingle, "'");
-        newstr = regex_replace(newstr, re_double, "\\\"");
-    } else {
-        regex_replace(std::back_inserter(newstr), oldstr.begin() + 1, oldstr.end() - 1, re_single, "\\'");
-        newstr = regex_replace(newstr, re_escapeddouble, "\"");
+    //Switch the type of quote
+    std::string newstr = ctx->getText();
+    newstr.front() = quote;    
+    newstr.back() = quote;
+    bool escaped = false;  //Is the current character in the sequence escaped
+    const char oldChar = quote == '\'' ? '"' : '\'';  
+    auto itr = ++newstr.begin();
+    auto itrStop = --newstr.end();
+    while (itr != itrStop) {
+        if (*itr == '\\') {
+            escaped = !escaped;  //If the character isn't currently escaped, the next one will be escaped
+        } else {
+            if (*itr == quote) {
+                // Add the escape character before the non escaped old character
+                if (!escaped) {
+                    itr = newstr.insert(itr, '\\');
+                    ++itr;  // Extra incriment to get back to the previous character
+                    itrStop = --newstr.end();
+                }
+            } else if (*itr == oldChar) {
+                // Remove the escape before the previously escaped old character
+                if (escaped) {
+                    itr = newstr.erase(--itr);
+                    itrStop = --newstr.end();
+                }        
+            }
+            escaped = false;
+        }
+        ++itr;
     }
 
-    cur_writer() << quote + newstr + quote;
+    cur_writer() << newstr;
     return nullptr;
 }
 
