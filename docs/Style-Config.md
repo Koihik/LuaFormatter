@@ -327,12 +327,13 @@ x = {
 ```
 ### column_table_limit
 
-type: int, default: column_limit
+type: int, default: 0
 
-The column limit of each line of a table. Default value the same as column_limit value.
+The column limit of each line of a table.
+If set to 0 (the default), the value of `column_limit` is used.
 
 ```lua
---column_table_limit: column_limit
+--column_table_limit: 0
 test = {
   image = "test",
   list = {
@@ -365,6 +366,28 @@ test = {
       }
     }
   }
+}
+```
+
+### column_table_limit_kv
+
+type: int, default: 0
+
+The column limit of each line of a k = v table.
+If set to 0 (the default), the value of `column_table_limit` is used.
+
+```lua
+--column_table_limit_kv: 80
+--column_table_limit: 120
+
+local a = {"one", "one", "one", "one", "one", "one", "one", "one", "one", "one", "one", "one", "one", "one"}
+
+local some_list = {
+  ['A'] = true,
+  ['B'] = true,
+  ['C'] = true,
+  ['D'] = true,
+  ['E'] = true
 }
 ```
 

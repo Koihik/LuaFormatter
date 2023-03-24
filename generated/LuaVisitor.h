@@ -1,5 +1,5 @@
 
-// Generated from Lua.g4 by ANTLR 4.7.2
+// Generated from Lua.g4 by ANTLR 4.7.1
 
 #pragma once
 
@@ -61,7 +61,7 @@ public:
 
     virtual antlrcpp::Any visitAttnamelist(LuaParser::AttnamelistContext *context) = 0;
 
-    virtual antlrcpp::Any visitAttrib(LuaParser::AttribContext *context) = 0;
+    virtual antlrcpp::Any visitNameattrib(LuaParser::NameattribContext *context) = 0;
 
     virtual antlrcpp::Any visitExplist(LuaParser::ExplistContext *context) = 0;
 

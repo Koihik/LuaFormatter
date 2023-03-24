@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.9)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment version")
 
-project("lua-formatter" VERSION 1.3.0 LANGUAGES CXX)
+project("lua-formatter" VERSION 1.3.6 LANGUAGES CXX)
 
 option(BUILD_TESTS "set ON to build tests" ON)
 option(COVERAGE "set ON to enable coverage" ON)
@@ -74,15 +74,12 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/src/
   )
 
-set(src_dir
-  ${PROJECT_SOURCE_DIR}/src/lua-format.cpp
-  ${PROJECT_SOURCE_DIR}/src/Config.cpp
-  ${PROJECT_SOURCE_DIR}/src/FormatVisitor.cpp
-  ${PROJECT_SOURCE_DIR}/generated/LuaLexer.cpp
-  ${PROJECT_SOURCE_DIR}/generated/LuaParser.cpp
-  ${PROJECT_SOURCE_DIR}/generated/LuaVisitor.cpp
-  ${PROJECT_SOURCE_DIR}/generated/LuaBaseVisitor.cpp
+file(GLOB_RECURSE src_dir
+  ${PROJECT_SOURCE_DIR}/src/*.cpp
+  ${PROJECT_SOURCE_DIR}/generated/*.cpp
   )
+
+list(REMOVE_ITEM src_dir ${PROJECT_SOURCE_DIR}/src/main.cpp)
 
 file(GLOB_RECURSE antlr4-cpp-src
   ${PROJECT_SOURCE_DIR}/third_party/antlr4/runtime/Cpp/runtime/src/*.cpp
@@ -92,14 +89,16 @@ file(GLOB_RECURSE yaml-cpp-src
   ${PROJECT_SOURCE_DIR}/third_party/yaml-cpp/src/*.cpp
   )
 
-add_library (antlr4-cpp-runtime ${antlr4-cpp-src})
-add_library (yaml-cpp ${yaml-cpp-src})
+add_library (antlr4-cpp-runtime STATIC ${antlr4-cpp-src})
+add_library (yaml-cpp STATIC ${yaml-cpp-src})
 
 add_executable(lua-format ${src_dir} src/main.cpp)
 
+target_compile_definitions(lua-format PRIVATE LUA_FORMAT_VERSION="${CMAKE_PROJECT_VERSION}")
+
 if(WIN32)
-  target_compile_definitions(antlr4-cpp-runtime PRIVATE ANTLR4CPP_EXPORTS)
-  target_compile_definitions(yaml-cpp PRIVATE YAMLCPP_EXPORTS)
+  target_compile_definitions(antlr4-cpp-runtime PUBLIC ANTLR4CPP_STATIC)
+  target_compile_definitions(yaml-cpp PUBLIC YAMLCPP_STATIC)
 endif()
 
 set_target_properties(lua-format PROPERTIES LINKER_LANGUAGE CXX)

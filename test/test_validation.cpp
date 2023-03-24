@@ -12,17 +12,17 @@ TEST_CASE("gt0 validator", "[config_validator]") {
     Config config;
     REQUIRE_THROWS_WITH(config.readFromFile(configFileName),
                         "[ERROR] Configuration value is out of range. Must be a positive integer greater than 0.");
-
-    std::string configFileName2(PROJECT_PATH "/test/config/column_table_limit.config");
-    Config config2;
-    REQUIRE_THROWS_WITH(config2.readFromFile(configFileName2),
-                        "[ERROR] Configuration value is out of range. Must be a positive integer greater than 0.");
 }
 
 TEST_CASE("ge0 validator", "[config_validator]") {
     std::string configFileName(PROJECT_PATH "/test/config/indent_width.config");
     Config config;
     REQUIRE_THROWS_WITH(config.readFromFile(configFileName),
+                        "[ERROR] Configuration value is out of range. Must be a positive integer.");
+
+    std::string configFileName2(PROJECT_PATH "/test/config/column_table_limit.config");
+    Config config2;
+    REQUIRE_THROWS_WITH(config2.readFromFile(configFileName2),
                         "[ERROR] Configuration value is out of range. Must be a positive integer.");
 }
 
@@ -44,4 +44,11 @@ TEST_CASE("tab validator", "[config_validator]") {
     Config config;
     REQUIRE_THROWS_WITH(config.readFromFile(configFileName),
                         "[ERROR] Configuration value of use_tab is conflicting with the value of tab_width");
+}
+
+TEST_CASE("line_separator validator", "[config_validator]") {
+    std::string configFileName(PROJECT_PATH "/test/config/line_separator.config");
+    Config config;
+    REQUIRE_THROWS_WITH(config.readFromFile(configFileName),
+                        "[ERROR] Configuration value of line_separator should be one of os/input/lf/cr/crlf");
 }

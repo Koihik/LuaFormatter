@@ -39,6 +39,7 @@ Config::Config() {
     node["table_sep"] = ",";
     node["extra_sep_at_table_end"] = false;
     node["column_table_limit"] = 0; // follows column_limit by default
+    node["column_table_limit_kv"] = 0;  // follows column_table_limit by default
     node["spaces_inside_table_braces"] = false;
 
     node["break_after_operator"] = true;
@@ -135,7 +136,8 @@ Config::Config() {
     validators["indent_width"] = validate_integer_zero;
     validators["tab_width"] = validate_tab_width;
     validators["continuation_indent_width"] = validate_integer_zero;
-    validators["column_table_limit"] = validate_integer;
+    validators["column_table_limit"] = validate_integer_zero;
+    validators["column_table_limit_kv"] = validate_integer_zero;
     validators["use_tab"] = validate_use_tab;
     validators["keep_simple_control_block_one_line"] = validate_boolean;
     validators["keep_simple_function_one_line"] = validate_boolean;
@@ -170,6 +172,7 @@ Config::Config() {
     datatype["tab_width"] = 'i';
     datatype["continuation_indent_width"] = 'i';
     datatype["column_table_limit"] = 'i';
+    datatype["column_table_limit_kv"] = 'i';
     datatype["use_tab"] = 'b';
     datatype["keep_simple_control_block_one_line"] = 'b';
     datatype["keep_simple_function_one_line"] = 'b';

@@ -37,7 +37,7 @@ jobs:
     - name: Build LuaFormatter
       run: |
          git submodule update --init
-         cmake -G "Visual Studio 16 2019" -DCMAKE_BUILD_TYPE=Release
+         cmake -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Release
          msbuild "lua-formatter.sln" /p:Configuration=Release /p:Platform=x64 /clp:ErrorsOnly /target:Build
     - uses: actions/upload-artifact@v2
       with:

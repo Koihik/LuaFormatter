@@ -51,6 +51,7 @@ int main(int argc, const char* argv[]) {
     args::HelpFlag help(parser, "help", "Display this help menu", {'h', "help"});
     args::Group dc(parser, "", args::Group::Validators::DontCare);
     args::Flag verbose(dc, "verbose", "Turn on verbose mode", {'v', "verbose"});
+    args::Flag version(dc, "version", "Display the version and exit", {'e', "version"});
     args::Flag inplace(dc, "in-place", "Reformats in-place", {'i', "in-place"});
     args::Flag check(dc, "check", "Non-zero return if formatting is needed", {"check"});
     args::Flag dumpcfg(dc, "dump current style", "Dumps the default style used to stdout", {"dump-config"});
@@ -65,6 +66,8 @@ int main(int argc, const char* argv[]) {
                                           {"spaces-before-call"});
     args::ValueFlag<int> columntablelimit(parser, "column table limit", "Column limit of each line of a table",
                                           {"column-table-limit"});
+    args::ValueFlag<int> columntablelimitkv(parser, "column table kv limit", "The column limit of each line of a k = v table. Default value the same as column_table_limit value.",
+                                          {"column_table_limit_kv"});
     args::ValueFlag<char> tablesep(parser, "table separator", "Character to separate table fields", {"table-sep"});
 
     args::Group optusetab(parser, "", args::Group::Validators::AtMostOne);
@@ -210,8 +213,9 @@ int main(int argc, const char* argv[]) {
 
     try {
         parser.ParseCLI(argc, argv);
-    } catch (args::Help& e) {
+    } catch (args::Help&) {
         std::cout << parser;
+        std::cout << "Version:  " << LUA_FORMAT_VERSION << std::endl;
         return 0;
     } catch (args::ParseError& e) {
         std::cerr << e.what() << std::endl;
@@ -242,6 +246,9 @@ int main(int argc, const char* argv[]) {
     }
     if (columntablelimit) {
         argmap["column_table_limit"] = args::get(columntablelimit);
+    }
+    if (columntablelimitkv) {
+        argmap["column_table_limit_kv"] = args::get(columntablelimitkv);
     }
     if (tablesep) {
         argmap["table_sep"] = args::get(tablesep);
@@ -473,6 +480,11 @@ int main(int argc, const char* argv[]) {
 
     if (dumpcfg) {
         config.dumpCurrent(std::cout);
+        return 0;
+    }
+
+    if (version) {
+        std::cout << "Version:  " << LUA_FORMAT_VERSION << std::endl;
         return 0;
     }
 

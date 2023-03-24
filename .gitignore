@@ -338,6 +338,8 @@ compile_commands.json
 CTestTestfile.cmake
 src/ConfigCheck.h
 
+cmake-build-*
+
 # C++
 
 # Prerequisites
@@ -372,3 +374,7 @@ src/ConfigCheck.h
 
 # Lua rocks
 build.luarocks
+
+# coverage
+coverage.info
+result/

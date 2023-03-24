@@ -96,9 +96,9 @@ varlist: var (COMMA var)*;
 
 namelist: NAME (COMMA NAME)*;
 
-attnamelist: NAME attrib (COMMA NAME attrib)*;
+attnamelist: nameattrib (COMMA nameattrib)*;
 
-attrib: (LT NAME GT)?;
+nameattrib: NAME (LT NAME GT)?;
 
 explist: exp (COMMA exp)*;
 
