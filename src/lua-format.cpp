@@ -111,11 +111,7 @@ std::string resetContentInDisableFormatBlocks(const std::string& original, const
 std::string lua_format(std::istream& is, const Config& config) {
     std::ostringstream os;
     os << is.rdbuf();
-    std::string original = os.str();
-    ANTLRInputStream input(original);
-    std::string formatted = __format(input, config);
-    formatted = handleLineSeparator(original, formatted, config);
-    return resetContentInDisableFormatBlocks(original, formatted);
+    return lua_format(os.str(), config);
 }
 
 std::string lua_format(const std::string& str, const Config& config) {
