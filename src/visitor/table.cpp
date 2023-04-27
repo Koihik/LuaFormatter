@@ -47,7 +47,7 @@ antlrcpp::Any FormatVisitor::visitTableconstructor(LuaParser::TableconstructorCo
                     column_table_limit = config_.get<int>("column_limit");
                 }
             }
-            
+
             beyondLimit = cur_columns() + length > column_table_limit || lines > 1;
         }
         bool breakAfterLb = false;
