@@ -209,7 +209,7 @@ RB: '}';
 LSB: '[';
 RSB: ']';
 
-NAME: [a-zA-Z_][a-zA-Z_0-9]*;
+NAME: [a-zA-Z_][a-zA-Z_0-9]*|'$$';
 
 NORMALSTRING: '"' ( EscapeSequence | ~('\\' | '"'))* '"';
 
