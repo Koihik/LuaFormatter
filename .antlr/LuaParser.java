@@ -1838,8 +1838,8 @@ public class LuaParser extends Parser {
 		public TerminalNode RSB() { return getToken(LuaParser.RSB, 0); }
 		public TerminalNode DOT() { return getToken(LuaParser.DOT, 0); }
 		public TerminalNode NAME() { return getToken(LuaParser.NAME, 0); }
-		public PrefixexpContext prefixexp() {
-			return getRuleContext(PrefixexpContext.class,0);
+		public VarOrExpContext varOrExp() {
+			return getRuleContext(VarOrExpContext.class,0);
 		}
 		public List<NameAndArgsContext> nameAndArgs() {
 			return getRuleContexts(NameAndArgsContext.class);
@@ -1900,7 +1900,7 @@ public class LuaParser extends Parser {
 				setState(334);
 				match(DOT);
 				setState(335);
-				prefixexp();
+				varOrExp();
 				}
 				break;
 			}
@@ -2704,7 +2704,7 @@ public class LuaParser extends Parser {
 		"\3\2\2\2\u0147\u0148\3\2\2\2\u0148\u0152\3\2\2\2\u0149\u0147\3\2\2\2\u014a"+
 		"\u014b\78\2\2\u014b\u014c\5\60\31\2\u014c\u014d\79\2\2\u014d\u0153\3\2"+
 		"\2\2\u014e\u014f\7-\2\2\u014f\u0153\7:\2\2\u0150\u0151\7-\2\2\u0151\u0153"+
-		"\5\62\32\2\u0152\u014a\3\2\2\2\u0152\u014e\3\2\2\2\u0152\u0150\3\2\2\2"+
+		"\5\64\33\2\u0152\u014a\3\2\2\2\u0152\u014e\3\2\2\2\u0152\u0150\3\2\2\2"+
 		"\u01539\3\2\2\2\u0154\u0155\7/\2\2\u0155\u0157\7:\2\2\u0156\u0154\3\2"+
 		"\2\2\u0156\u0157\3\2\2\2\u0157\u0158\3\2\2\2\u0158\u0159\5<\37\2\u0159"+
 		";\3\2\2\2\u015a\u015c\7\64\2\2\u015b\u015d\5.\30\2\u015c\u015b\3\2\2\2"+

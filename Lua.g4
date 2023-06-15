@@ -121,7 +121,7 @@ varOrExp: var | LP exp RP;
 
 var: (NAME | LP exp RP varSuffix) varSuffix*;
 
-varSuffix: nameAndArgs* (LSB exp RSB | DOT NAME | DOT prefixexp);
+varSuffix: nameAndArgs* (LSB exp RSB | DOT NAME | DOT varOrExp);
 
 nameAndArgs: (COLON NAME)? args;
 
