@@ -1,8 +1,7 @@
-#include "visitor/FormatVisitor.h"
-
 #include <utility>
 
 #include "LuaLexer.h"
+#include "visitor/FormatVisitor.h"
 
 using namespace antlr4;
 
@@ -40,7 +39,7 @@ antlrcpp::Any FormatVisitor::visitVar(LuaParser::VarContext* ctx) {
     return nullptr;
 }
 
-// nameAndArgs* (LSB exp RSB | DOT NAME);
+// nameAndArgs* (LSB exp RSB | DOT NAME | DOT varOrExp);
 antlrcpp::Any FormatVisitor::visitVarSuffix(LuaParser::VarSuffixContext* ctx) {
     LOG_FUNCTION_BEGIN();
     chainedMethodCallIsFirst_.push_back(false);
@@ -68,6 +67,37 @@ antlrcpp::Any FormatVisitor::visitVarSuffix(LuaParser::VarSuffixContext* ctx) {
             cur_writer() << commentAfter(ctx->exp(), "");
             cur_writer() << ctx->RSB()->getText();
         }
+    } else if (ctx->varOrExp() != nullptr) {
+        auto* varCtx = dynamic_cast<LuaParser::VarContext*>(ctx->parent);
+        const std::vector<LuaParser::VarSuffixContext*>& arr = varCtx->varSuffix();
+        int index = find(arr.begin(), arr.end(), ctx) - arr.begin();
+        if (index != 0) {
+            int length = calcASTLengthAndLines(ctx->varOrExp(), [=]() {
+                             cur_writer() << ctx->DOT()->getText();
+                             cur_writer() << commentAfter(ctx->DOT(), "");
+                             cur_writer() << ctx->varOrExp()->getText();
+                             visitNextNameAndArgs(ctx);
+                         }).first;
+            bool beyondLimit = cur_columns() + length > config_.get<int>("column_limit");
+            if (beyondLimit) {
+                cur_writer() << "\n";
+                if (chainedMethodCallHasIncIndent_.empty()) {
+                    // chainedMethodCallHasIncIndent_ is empty when visit var in varlist
+                    cur_writer() << indentWithAlign();
+                } else {
+                    if (chainedMethodCallHasIncIndent_.back()) {
+                        cur_writer() << indentWithAlign();
+                    } else {
+                        incContinuationIndent();
+                        cur_writer() << indentWithAlign();
+                        chainedMethodCallHasIncIndent_[chainedMethodCallHasIncIndent_.size() - 1] = true;
+                    }
+                }
+            }
+        }
+        cur_writer() << ctx->DOT()->getText();
+        cur_writer() << commentAfter(ctx->DOT(), "");
+        cur_writer() << ctx->varOrExp()->getText();
     } else {
         auto* varCtx = dynamic_cast<LuaParser::VarContext*>(ctx->parent);
         const std::vector<LuaParser::VarSuffixContext*>& arr = varCtx->varSuffix();
@@ -166,4 +196,3 @@ void FormatVisitor::visitNextNameAndArgs(LuaParser::VarSuffixContext* ctx) {
         }
     }
 }
-
