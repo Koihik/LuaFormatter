@@ -537,6 +537,7 @@ public:
     antlr4::tree::TerminalNode *RSB();
     antlr4::tree::TerminalNode *DOT();
     antlr4::tree::TerminalNode *NAME();
+    PrefixexpContext *prefixexp();
     std::vector<NameAndArgsContext *> nameAndArgs();
     NameAndArgsContext* nameAndArgs(size_t i);
 
