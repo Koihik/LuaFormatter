@@ -177,6 +177,8 @@ void FormatVisitor::pushWriterWithColumn() {
 void FormatVisitor::popWriter() {
     SourceWriter* writer = writers_.back();
     writers_.pop_back();
+    if(tmpTotalLines_ > 0) tmpTotalLines_ --;
+    tmpTotalLines_ += writer->lines();
     delete writer;
 }
 
@@ -329,11 +331,13 @@ bool FormatVisitor::needKeepBlockOneLine(tree::ParseTree* previousNode, LuaParse
     if (fastTestColumnLimit(ctx)) {
         return false;
     }
+    resetTmpTotalLines();
     pushWriter();
     visitBlock(ctx);
     int length = cur_writer().firstLineColumn();
-    int lines = cur_writer().lines();
     popWriter();
+    int lines = tmpTotalLines();
+
     if (cur_columns() + length > config_.get<int>("column_limit") || lines > 1) {
         return false;
     }

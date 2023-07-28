@@ -85,6 +85,9 @@ class FormatVisitor : public LuaBaseVisitor {
     // stack to record is break_after_functioncall_lp has break the line
     std::vector<bool> functioncallLpHasBreak_;
 
+    // Used for accumulating the lines written by multiple writers
+    int tmpTotalLines_;
+
     int indent_ = 0;
     int indentForAlign_ = 0;
     const std::vector<Token*>& tokens_;
@@ -116,6 +119,9 @@ class FormatVisitor : public LuaBaseVisitor {
     void decContinuationIndent();
     void incIndentForAlign(int indent);
     void decIndentForAlign(int indent);
+
+    void resetTmpTotalLines() {tmpTotalLines_ = 0;}
+    int tmpTotalLines() const {return tmpTotalLines_;}
 
     // Auxiliary to visitFunctioncall and visitPrefixexp
     std::string buildFirstArgumentWs(std::vector<LuaParser::NameAndArgsContext*> v);
