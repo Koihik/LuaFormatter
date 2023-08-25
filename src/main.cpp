@@ -406,11 +406,15 @@ int main(int argc, const char* argv[]) {
     if (configFileName.empty()) {
         fs::path current = fs::current_path();
         while (configFileName.empty()) {
-            for (const auto& entry : fs::directory_iterator(current)) {
-                const fs::path& candidate = entry.path();
-                if (candidate.filename() == ".lua-format") {
-                    configFileName = candidate.string();
+            try {
+                for (const auto& entry : fs::directory_iterator(current)) {
+                    const fs::path& candidate = entry.path();
+                    if (candidate.filename() == ".lua-format") {
+                        configFileName = candidate.string();
+                    }
                 }
+            } catch(const fs::filesystem_error&) {
+                break;
             }
 
             fs::path parent = current.parent_path();
